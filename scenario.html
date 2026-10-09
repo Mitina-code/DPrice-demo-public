@@ -179,6 +179,22 @@
   @media(max-width:680px){.shell{padding:0 16px 56px}.hero{padding:36px 0}.hero p{font-size:16px}.toolbar{padding:22px}.objectives,.objective{width:100%}.score-grid,.scenario,.method-grid{grid-template-columns:1fr}.score{border-inline-end:0;border-bottom:1px solid var(--line)}.score:last-child{border-bottom:0}.section{padding-top:52px}.panel{padding:18px}.monthly{grid-template-columns:repeat(3,1fr)}.building{padding:16px}.flat{min-width:52px;padding:5px 4px}.footer{display:block}.big-number{white-space:normal}}
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.flat,.objective{transition:none}}
 
+  /* ---- таблица источников: пропорциональные столбцы, переносы, карточки на телефоне ---- */
+  .ledger{table-layout:fixed;width:100%}
+  .ledger col.c-in{width:40%}.ledger col.c-val{width:24%}.ledger col.c-basis{width:16%}.ledger col.c-src{width:20%}
+  .ledger td,.ledger th{overflow-wrap:anywhere;word-break:normal;white-space:normal}
+  .ledger td small{display:inline-block;margin-top:4px;line-height:1.45}
+  .ledger td:first-child{font-weight:600}
+  .ledger td:first-child small{font-weight:400}
+  @media(max-width:760px){
+    .ledger,.ledger tbody,.ledger tr,.ledger td{display:block;width:100%}
+    .ledger colgroup,.ledger thead{display:none}
+    .ledger tr{border-top:1px solid var(--line);padding:12px 0}
+    .ledger tr:first-child{border-top:0}
+    .ledger td{border:0;padding:4px 4px}
+    .ledger td[data-l]::before{content:attr(data-l);display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  }
+
   </style>
 </head>
 <body>
@@ -267,7 +283,7 @@
 
     <section class="section" aria-labelledby="src-title">
       <div class="section-head"><span class="section-number">05</span><div><h2 id="src-title" data-t="s5_title"></h2><p data-t="s5_p"></p></div></div>
-      <div class="panel"><div class="table-scroll"><table><thead><tr><th data-t="t_input"></th><th data-t="t_value"></th><th data-t="t_basis"></th><th data-t="t_source"></th></tr></thead><tbody id="inputs-table"></tbody></table></div></div>
+      <div class="panel"><div class="table-scroll"><table class="ledger"><colgroup><col class="c-in"><col class="c-val"><col class="c-basis"><col class="c-src"></colgroup><thead><tr><th data-t="t_input"></th><th data-t="t_value"></th><th data-t="t_basis"></th><th data-t="t_source"></th></tr></thead><tbody id="inputs-table"></tbody></table></div></div>
       <details><summary id="units-summary"></summary><div class="table-scroll"><table><thead><tr><th data-t="t_unit"></th><th data-t="t_type"></th><th data-t="t_floor"></th><th id="th-area"></th><th id="th-price"></th><th id="th-ppa"></th><th data-t="t_source"></th></tr></thead><tbody id="units-table"></tbody></table></div></details>
     </section>
   </main>
@@ -452,7 +468,7 @@ function renderLedger() {
     if (typeof i.value === 'object' && i.value !== null) return Object.entries(i.value).map(([k, v]) => `${k}: ${typeof v === 'number' ? pct(v, 0) : v}`).join(', ');
     return i.value === null || i.value === undefined ? '—' : one(i.value, i.unit);
   };
-  $('#inputs-table').innerHTML = D.inputs.map(i => `<tr><td>${t('in_' + i.key) !== 'in_' + i.key ? t('in_' + i.key) : i.label}${i.note ? `<br><small style="color:var(--muted)">${noUrls(i.note)}</small>` : ''}</td><td class="num">${val(i)}${i.unit && !/share|probability/.test(i.unit) && typeof i.value !== 'number' ? '' : ''}${i.range ? `<br><small style="color:var(--muted)">${i.range.map(r => one(r, i.unit)).join(' – ')}</small>` : ''}</td><td>${EV(i.evidence_class)}${i.payer ? `<br><small>${t('payer')}: ${t('payer_' + i.payer)}</small>` : ''}</td><td>${i.source ? `<a href="${i.source}" target="_blank" rel="noopener noreferrer">${t('link')}</a>` : '—'}${i.effective_date ? `<br><small>${i.effective_date}</small>` : ''}</td></tr>`).join('');
+  $('#inputs-table').innerHTML = D.inputs.map(i => `<tr><td>${t('in_' + i.key) !== 'in_' + i.key ? t('in_' + i.key) : i.label}${i.note ? `<br><small style="color:var(--muted)">${noUrls(i.note)}</small>` : ''}</td><td data-l="${t('t_value')}">${val(i)}${i.unit && !/share|probability/.test(i.unit) && typeof i.value !== 'number' ? '' : ''}${i.range ? `<br><small style="color:var(--muted)">${i.range.map(r => one(r, i.unit)).join(' – ')}</small>` : ''}</td><td data-l="${t('t_basis')}">${EV(i.evidence_class)}${i.payer ? `<br><small>${t('payer')}: ${t('payer_' + i.payer)}</small>` : ''}</td><td data-l="${t('t_source')}">${i.source ? `<a href="${i.source}" target="_blank" rel="noopener noreferrer">${t('link')}</a>` : '—'}${i.effective_date ? `<br><small>${i.effective_date}</small>` : ''}</td></tr>`).join('');
   $('#units-summary').textContent = t('units_summary', { n: flats.length });
   $('#th-area').textContent = t('t_area', { unit: areaUnit() });
   $('#th-price').textContent = t('t_price', { cur: cur() });
