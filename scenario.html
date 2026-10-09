@@ -269,7 +269,6 @@
       <div class="section-head"><span class="section-number">05</span><div><h2 id="src-title" data-t="s5_title"></h2><p data-t="s5_p"></p></div></div>
       <div class="panel"><div class="table-scroll"><table><thead><tr><th data-t="t_input"></th><th data-t="t_value"></th><th data-t="t_basis"></th><th data-t="t_source"></th></tr></thead><tbody id="inputs-table"></tbody></table></div></div>
       <details><summary id="units-summary"></summary><div class="table-scroll"><table><thead><tr><th data-t="t_unit"></th><th data-t="t_type"></th><th data-t="t_floor"></th><th id="th-area"></th><th id="th-price"></th><th id="th-ppa"></th><th data-t="t_source"></th></tr></thead><tbody id="units-table"></tbody></table></div></details>
-      <ul class="notes" id="ledger-notes"></ul>
     </section>
   </main>
   <footer class="footer"><span data-t="foot_l"></span><span data-t="foot_r"></span></footer>
@@ -441,6 +440,8 @@ function renderControls() {
   }).join('');
   for (const [k, , , fmt] of defs) $('#c-' + k).addEventListener('input', e => { params[k] = +e.target.value; $('#o-' + k).textContent = fmt(params[k]); render(); });
 }
+// адреса сайтов в пояснениях не показываем — источник дан ссылкой в колонке «Источник»
+const noUrls = s => String(s).replace(/\s*\(?(e\.g\.\s*)?https?:\/\/[^\s)]+\)?/g, '').replace(/\(\s*\)/g, '').replace(/\s{2,}/g, ' ').trim();
 function renderLedger() {
   // share/probability — доли (0.05 → 5%); единица «% …» — уже проценты (4 → 4%)
   const one = (v, unit) => typeof v !== 'number' ? String(v)
@@ -451,13 +452,12 @@ function renderLedger() {
     if (typeof i.value === 'object' && i.value !== null) return Object.entries(i.value).map(([k, v]) => `${k}: ${typeof v === 'number' ? pct(v, 0) : v}`).join(', ');
     return i.value === null || i.value === undefined ? '—' : one(i.value, i.unit);
   };
-  $('#inputs-table').innerHTML = D.inputs.map(i => `<tr><td>${t('in_' + i.key) !== 'in_' + i.key ? t('in_' + i.key) : i.label}${i.note ? `<br><small style="color:var(--muted)">${i.note}</small>` : ''}</td><td class="num">${val(i)}${i.unit && !/share|probability/.test(i.unit) && typeof i.value !== 'number' ? '' : ''}${i.range ? `<br><small style="color:var(--muted)">${i.range.map(r => one(r, i.unit)).join(' – ')}</small>` : ''}</td><td>${EV(i.evidence_class)}${i.payer ? `<br><small>${t('payer')}: ${t('payer_' + i.payer)}</small>` : ''}</td><td>${i.source ? `<a href="${i.source}" target="_blank" rel="noopener noreferrer">${t('link')}</a>` : '—'}${i.effective_date ? `<br><small>${i.effective_date}</small>` : ''}</td></tr>`).join('');
+  $('#inputs-table').innerHTML = D.inputs.map(i => `<tr><td>${t('in_' + i.key) !== 'in_' + i.key ? t('in_' + i.key) : i.label}${i.note ? `<br><small style="color:var(--muted)">${noUrls(i.note)}</small>` : ''}</td><td class="num">${val(i)}${i.unit && !/share|probability/.test(i.unit) && typeof i.value !== 'number' ? '' : ''}${i.range ? `<br><small style="color:var(--muted)">${i.range.map(r => one(r, i.unit)).join(' – ')}</small>` : ''}</td><td>${EV(i.evidence_class)}${i.payer ? `<br><small>${t('payer')}: ${t('payer_' + i.payer)}</small>` : ''}</td><td>${i.source ? `<a href="${i.source}" target="_blank" rel="noopener noreferrer">${t('link')}</a>` : '—'}${i.effective_date ? `<br><small>${i.effective_date}</small>` : ''}</td></tr>`).join('');
   $('#units-summary').textContent = t('units_summary', { n: flats.length });
   $('#th-area').textContent = t('t_area', { unit: areaUnit() });
   $('#th-price').textContent = t('t_price', { cur: cur() });
   $('#th-ppa').textContent = t('t_ppa', { unit: areaUnit() });
   $('#units-table').innerHTML = flats.map(f => `<tr><td>${f.unit_number || f.source_id || f.id}</td><td>${roomName(f)}</td><td class="num">${Number.isFinite(f.floor) ? f.floor : '—'}</td><td class="num ltr">${nf({ maximumFractionDigits: 1 }).format(areaShow(f))}</td><td class="num ltr">${moneyFull(f.price_total)}</td><td class="num ltr">${moneyFull(ppa(f))}</td><td>${f.source_url ? `<a href="${f.source_url}" target="_blank" rel="noopener noreferrer">${t('link')}</a>` : '—'}</td></tr>`).join('');
-  $('#ledger-notes').innerHTML = (D.ledger_notes || []).map(n => `<li>${n}</li>`).join('');
 }
 function render() {
   const p = params, uni = uniformPolicy(p);
