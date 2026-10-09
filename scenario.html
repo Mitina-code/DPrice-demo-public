@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>DPrice — две стратегии продаж, один набор квартир</title>
+  <style>
+    :root{--ink:#16282b;--muted:#617071;--paper:#f3f0e8;--card:#fffdf8;--rule:#d8d9d0;--teal:#0c7167;--teal-soft:#d9ebe5;--orange:#dd6e3b;--orange-soft:#f9e1d3;--navy:#11282d;--shadow:0 22px 65px #11282d12}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Trebuchet MS",Verdana,sans-serif;font-size:15px;line-height:1.5}button,input{font:inherit}button{cursor:pointer}a{color:var(--teal)}:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+    .shell{max-width:1450px;margin:auto;padding:0 40px 70px}.top{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:24px 0;border-bottom:1px solid #21383b28}.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:-.06em;font-size:27px}.mark{height:33px;width:33px;background:var(--teal);clip-path:polygon(0 0,78% 0,100% 50%,78% 100%,0 100%,20% 50%)}.top-meta{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:800}
+    h1,h2,h3,p{margin-top:0}h1,h2,.big-number,.section-number{font-family:Georgia,"Times New Roman",serif;font-weight:400}h1{font-size:clamp(44px,6.2vw,95px);line-height:.98;letter-spacing:-.055em;margin:0 0 24px}h2{font-size:clamp(31px,3.25vw,50px);line-height:1.08;letter-spacing:-.035em;margin-bottom:15px}h3{font-size:19px;letter-spacing:-.02em}.eyebrow{font-size:11px;letter-spacing:.17em;text-transform:uppercase;font-weight:900;color:var(--teal);margin-bottom:17px}.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(310px,.65fr);gap:55px;padding:65px 0 58px}.hero p{font-size:18px;color:#405456;max-width:780px;line-height:1.6}.hero-side{background:var(--navy);color:#fff;padding:34px 35px;display:flex;flex-direction:column;justify-content:space-between;min-height:330px;position:relative;overflow:hidden}.hero-side:after{content:"";position:absolute;width:290px;height:290px;border:1px solid #ffffff30;border-radius:50%;right:-130px;bottom:-140px;box-shadow:0 0 0 55px #ffffff08,0 0 0 110px #ffffff05}.hero-side .label{color:#9ebcb8;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800}.hero-side strong{font-family:Georgia,serif;font-size:36px;line-height:1.09;font-weight:400;letter-spacing:-.03em;position:relative;z-index:1}.hero-side small{position:relative;z-index:1;color:#b6cbc9;line-height:1.5}.facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}.pill{border:1px solid #b9c5bd;border-radius:30px;padding:7px 13px;font-size:12px;font-weight:800;color:#35514e}
+    .workspace{background:var(--card);border:1px solid var(--rule);box-shadow:var(--shadow)}.toolbar{display:flex;justify-content:space-between;align-items:end;gap:25px;padding:30px 32px 27px;border-bottom:1px solid var(--rule)}.toolbar p{color:var(--muted);margin:0}.objectives{display:flex;gap:8px;background:#eaece5;padding:6px;border-radius:9px;flex-wrap:wrap}.objective{border:0;background:transparent;color:#526462;padding:12px 18px;border-radius:6px;font-weight:800;white-space:nowrap}.objective.active{background:var(--navy);color:white;box-shadow:0 5px 13px #11282d25}.objective:hover:not(.active){background:#fff}
+    .score-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr}.score{padding:27px 31px 31px;border-right:1px solid var(--rule)}.score:last-child{border-right:0}.score .cap{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;font-weight:900}.big-number{font-size:clamp(35px,3.7vw,61px);line-height:1.05;letter-spacing:-.055em;white-space:nowrap;margin:12px 0 5px}.score.focus{background:#e4f0ea}.score.focus .big-number{color:var(--teal)}.score small{color:var(--muted)}.delta{display:inline-block;background:var(--teal);color:#fff;border-radius:4px;font-size:13px;font-weight:900;padding:4px 8px;margin-left:8px;vertical-align:middle;letter-spacing:0}
+    .warnline{border-top:1px solid var(--rule);background:#f8f6ef;padding:14px 31px;font-size:13px;color:#4f5e5d}.warnline strong{color:var(--ink)}
+    .section{padding-top:78px}.section-head{display:flex;align-items:start;gap:18px;max-width:980px;margin-bottom:25px}.section-number{font-size:24px;color:var(--orange);border-top:2px solid var(--orange);min-width:43px;padding-top:8px}.section-head p{max-width:780px;color:var(--muted);margin:0}.split{display:grid;grid-template-columns:1.25fr .75fr;gap:19px}.panel{background:var(--card);border:1px solid var(--rule);padding:27px;min-width:0}.panel-heading{display:flex;justify-content:space-between;gap:15px;align-items:baseline}.panel-heading small{color:var(--muted)}.legend{display:flex;flex-wrap:wrap;gap:16px;color:var(--muted);font-size:12px;font-weight:700;margin:16px 0 0}.legend i{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}.chart{width:100%;height:320px;display:block;overflow:visible}.chart text{font-family:"Trebuchet MS",Verdana,sans-serif;fill:#71807e;font-size:11px}.chart .gridline{stroke:#dfe3db;stroke-width:1}.chart .axis{stroke:#99a8a4}.chart .base-line{stroke:var(--orange);stroke-width:3;fill:none}.chart .opt-line{stroke:var(--teal);stroke-width:4;fill:none}.chart .dot-base{fill:var(--orange)}.chart .dot-opt{fill:var(--teal)}.chart .fill-opt{fill:#dceee6;stroke:none}.chart .fill-base{fill:#fae8da;stroke:none}
+    .monthly{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:18px}.month{background:#fff;padding:13px 10px;text-align:center;min-width:0}.month b{display:block;font-size:13px}.month span{font-size:11px;color:var(--muted)}.month strong{display:block;margin-top:5px;color:var(--teal);font-size:13px}.month em{display:block;color:var(--orange);font-style:normal;font-size:11px}
+    .small-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}.small-kpi{background:#eef3ee;padding:17px}.small-kpi span{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}.small-kpi strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.04em}.takeaway{border-top:1px solid var(--rule);margin-top:22px;padding-top:22px;color:#455653}.takeaway strong{color:var(--ink)}
+    .scenario{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.control{background:var(--card);border:1px solid var(--rule);padding:20px 22px}.control label{display:flex;justify-content:space-between;gap:10px;font-weight:800;margin-bottom:16px}.control output{color:var(--teal)}.control input[type=range]{width:100%;accent-color:var(--teal)}.control p{color:var(--muted);font-size:12px;margin:10px 0 0;min-height:36px}.note{border-left:3px solid var(--orange);padding:13px 18px;margin:20px 0 0;background:#fff9f1;color:#5c5a4e;font-size:13px}
+    .building-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.building{background:var(--navy);color:#fff;padding:26px 26px 20px}.building h3{margin-bottom:2px}.building .sub{font-size:12px;color:#aec4bf;margin-bottom:20px}.floor-row{display:grid;grid-template-columns:43px 1fr;align-items:center;min-height:36px;border-top:1px solid #ffffff1d}.floor-label{font-size:11px;color:#9fbbb6}.floor-units{display:flex;gap:4px;align-items:center;min-height:35px}.flat{border:1px solid #ffffff4f;background:#d9ebe5;color:#14584f;padding:5px 7px;min-width:55px;text-align:center;font-size:10px;line-height:1.2;border-radius:2px;transition:transform .16s,background .16s}.flat:hover,.flat:focus-visible{transform:translateY(-2px);background:#fff}.flat.up{background:#bce7d8}.flat.down{background:#f3bc9e;color:#4f2717}.flat.neutral{background:#e0e9e2}.flat b{display:block;font-size:11px}.building-foot{font-size:11px;color:#9fbbb6;margin:17px 0 0}.unit-detail{background:var(--card);border:1px solid var(--rule);padding:27px;display:flex;flex-direction:column}.unit-detail .id{font-size:12px;color:var(--teal);font-weight:900;letter-spacing:.12em;text-transform:uppercase}.unit-detail h3{font-family:Georgia,serif;font-size:37px;font-weight:400;line-height:1.1;letter-spacing:-.04em;margin:12px 0 23px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.detail-grid span{font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:800}.detail-grid strong{display:block;margin-top:5px;font-size:19px}.unit-detail .detail-note{margin-top:auto;border-top:1px solid var(--rule);padding-top:19px;color:#536462;font-size:13px}
+    .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.method{padding:24px;background:var(--card);border:1px solid var(--rule)}.method .n{font-family:Georgia,serif;color:var(--orange);font-size:31px}.method h3{margin:6px 0 11px}.method p{font-size:13px;color:var(--muted);margin:0}.formula{background:#163339;color:#d9e9e3;padding:25px 29px;margin-top:16px;font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.8;overflow:auto}.formula strong{color:#a7dfc9}.disclosure{font-size:13px;color:#536260;line-height:1.7;margin-top:16px}
+    details{background:var(--card);border:1px solid var(--rule);margin-top:15px}summary{cursor:pointer;padding:19px 23px;font-weight:800}table{width:100%;border-collapse:collapse;text-align:right;font-size:13px}th,td{padding:10px 12px;border-top:1px solid var(--rule);white-space:nowrap}th{background:#f5f6ef;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em}th:first-child,td:first-child{text-align:left}.table-scroll{overflow:auto}.source-list{padding-left:18px;color:#566663;font-size:13px}.source-list li{margin:7px 0}.footer{border-top:1px solid var(--rule);margin-top:70px;padding-top:22px;display:flex;justify-content:space-between;gap:20px;color:#6f7c78;font-size:12px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:1000px){.shell{padding:0 22px 60px}.hero{grid-template-columns:1fr;gap:25px}.hero-side{min-height:210px}.toolbar{align-items:start;flex-direction:column}.split,.building-wrap{grid-template-columns:1fr}.chart{height:280px}}
+    @media(max-width:680px){.top-meta{display:none}.hero{padding:45px 0}.hero p{font-size:16px}.toolbar{padding:23px}.objectives{width:100%}.objective{width:100%}.score-grid,.scenario,.method-grid{grid-template-columns:1fr}.score{border-right:0;border-bottom:1px solid var(--rule)}.score:last-child{border-bottom:0}.section{padding-top:55px}.panel{padding:20px}.monthly{grid-template-columns:repeat(3,1fr)}.building{padding:18px}.flat{min-width:47px;padding:5px 4px}.footer{display:block}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.flat{transition:none}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="brand"><span class="mark" aria-hidden="true"></span>DPrice</div><div class="top-meta">Сценарная лаборатория · Москва · снимок витрины</div></header>
+  <section class="hero" aria-labelledby="title">
+    <div><div class="eyebrow">Один корпус. Одни квартиры. Два способа продажи.</div><h1 id="title">Что меняется,<br>когда цена знает<br>свой лот?</h1><p>Сравните равномерное вымывание квартир с адресным управлением ценой. В обоих сценариях — один и тот же корпус, горизонт в шесть месяцев и одна модель спроса. Меняется только правило назначения цены.</p><div class="facts"><span class="pill">20 опубликованных карточек</span><span class="pill">Корпус 57.4 · 16 этажей</span><span class="pill">Площади 34,2–77,7 м²</span></div></div>
+    <aside class="hero-side"><span class="label">Основа расчёта</span><strong>ЖК «Саларьево парк»<br>Корпус 57.4</strong><small>Этаж, площадь, комнатность и цена из индексированного снимка витрины застройщика. Дата действия цен не подтверждена. Горизонтальный порядок квартир на схеме условный.</small></aside>
+  </section>
+  <main>
+    <section class="workspace" aria-label="Сравнение стратегий">
+      <div class="toolbar"><div><div class="eyebrow">Сценарий 01 / 02</div><h2 style="margin-bottom:7px">Результат за шесть месяцев</h2><p>Выберите цель адресного алгоритма.</p></div><div class="objectives" role="group" aria-label="Цель оптимизации"><button type="button" class="objective active" data-objective="profit" aria-pressed="true">Максимизировать прибыль</button><button type="button" class="objective" data-objective="revenue" aria-pressed="false">Максимизировать выручку</button></div></div>
+      <div class="score-grid"><div class="score focus"><span class="cap" id="primary-label">Дополнительная прибыль от продаж</span><div class="big-number" id="uplift">—</div><small id="uplift-percent">—</small></div><div class="score"><span class="cap">Равномерное вымывание</span><div class="big-number" id="base-metric">—</div><small id="base-sub">—</small></div><div class="score"><span class="cap">Адресная модель DPrice</span><div class="big-number" id="opt-metric">—</div><small id="opt-sub">—</small></div></div>
+      <div class="warnline"><strong>Условный расчёт, не прогноз продаж.</strong> Прирост возникает при заданной вероятности покупки и допущениях ниже. Без фактических сделок, себестоимости и калибровки спроса эта страница не подтверждает реальный экономический эффект DPrice.</div>
+    </section>
+    <section class="section" aria-labelledby="dynamics"><div class="section-head"><span class="section-number">01</span><div><h2 id="dynamics">Разница по месяцам</h2><p>Накопленный ожидаемый результат. Линии строятся из одних и тех же карточек и параметров спроса; единица измерения зависит от выбранной цели.</p></div></div><div class="split"><div class="panel"><div class="panel-heading"><h3 id="chart-title">Накопленная прибыль от продаж</h3><small>млн ₽ · ожидание модели</small></div><svg id="chart" class="chart" viewBox="0 0 710 320" role="img" aria-label="График накопленного результата"></svg><div class="legend"><span><i style="background:var(--orange)"></i>Равномерное вымывание</span><span><i style="background:var(--teal)"></i>Адресная модель DPrice</span></div><div class="monthly" id="months"></div></div><div class="panel"><div class="eyebrow">Почему итог различается</div><h3 id="takeaway-head">Адресная цена учитывает спрос по каждой квартире</h3><p style="color:var(--muted);font-size:14px">Равномерный сценарий меняет цены всех непроданных квартир на один процент, подбирая темп около одной шестой остатка в месяц. Адресный сценарий выбирает процент для каждого лота и месяца отдельно.</p><div class="small-kpis"><div class="small-kpi"><span>Продано, равномерно</span><strong id="base-sold">—</strong></div><div class="small-kpi"><span>Продано, адресно</span><strong id="opt-sold">—</strong></div><div class="small-kpi"><span>Выручка, разница</span><strong id="rev-delta">—</strong></div><div class="small-kpi"><span>Прибыль, разница</span><strong id="profit-delta">—</strong></div></div><div class="takeaway" id="takeaway"></div></div></div></section>
+    <section class="section" aria-labelledby="scenario-title"><div class="section-head"><span class="section-number">02</span><div><h2 id="scenario-title">Проверьте допущения</h2><p>Исторические продажи и себестоимость корпуса не опубликованы. Измените предположения и оцените чувствительность вывода.</p></div></div><div class="scenario"><div class="control"><label for="elasticity">Чувствительность спроса <output id="elasticity-value">1,4</output></label><input id="elasticity" type="range" min="0.6" max="3" step="0.1" value="1.4"><p>Как меняется вероятность покупки при отклонении цены от опубликованной.</p></div><div class="control"><label for="cost">Себестоимость реализованного лота <output id="cost-value">65%</output></label><input id="cost" type="range" min="45" max="80" step="1" value="65"><p>Доля от опубликованной цены; открытых данных о себестоимости этого корпуса нет.</p></div><div class="control"><label for="carry">Содержание остатка в месяц <output id="carry-value">0,4%</output></label><input id="carry" type="range" min="0" max="1.5" step="0.1" value="0.4"><p>Условная стоимость непроданного инвентаря: финансирование, хранение, маркетинг.</p></div></div><p class="note">Показывается ожидаемая прибыль от продаж 20 лотов: выручка по проданным квартирам минус их условная себестоимость, комиссия 2,5% и содержание непроданного остатка. Это не чистая прибыль всего девелоперского проекта. Изменение параметров не обновляет реальные цены ПИК.</p></section>
+    <section class="section" aria-labelledby="building-title"><div class="section-head"><span class="section-number">03</span><div><h2 id="building-title">Квартиры на этажах</h2><p>Цвет показывает, насколько назначенная на первый месяц цена адресной модели отличается от опубликованной цены. Нажмите на лот для подробностей.</p></div></div><div class="building-wrap"><div class="building"><h3>Корпус 57.4</h3><div class="sub">ЖК «Саларьево парк» · показаны только 20 опубликованных предложений</div><div id="floors"></div><p class="building-foot">Этажи по карточкам застройщика. Горизонтальный порядок ячеек, секция и ориентация окон не подтверждены и на этой схеме не моделируются.</p></div><aside class="unit-detail" id="unit-detail" aria-live="polite"></aside></div></section>
+    <section class="section" aria-labelledby="method-title"><div class="section-head"><span class="section-number">04</span><div><h2 id="method-title">Как устроено сравнение</h2><p>Все правила видны ниже. Адресный вариант оптимален только внутри этой упрощённой модели, при сетке допустимых цен от −15% до +15% с шагом 1%.</p></div></div><div class="method-grid"><div class="method"><div class="n">1</div><h3>Одинаковый инвентарь</h3><p>Взяты 20 карточек одного корпуса: опубликованные цена, площадь, этаж и число комнат. Оба сценария работают с тем же набором; ни один лот не добавляется и не исчезает.</p></div><div class="method"><div class="n">2</div><h3>Равномерное вымывание</h3><p>Каждый месяц один процент от опубликованной цены для всех непроданных квартир. Процент выбирается так, чтобы ожидаемое число сделок было близко к 20/6 в месяц.</p></div><div class="method"><div class="n">3</div><h3>Адресная оптимизация</h3><p>Для каждого лота и месяца перебирается 31 цена. Обратный расчёт выбирает цену с максимальным ожидаемым результатом до конца горизонта: по выручке или по прибыли.</p></div></div><div class="formula"><strong>Вероятность покупки за месяц</strong> = min(93%, базовая вероятность × exp[−чувствительность × (цена / цена ПИК − 1)])<br><strong>Базовая вероятность</strong> = 27% для 1-комн., 24% для 2-комн., 16% для 3-комн.; +0,25 п.п. за этаж выше восьмого, предел 35%.<br><strong>Выручка</strong> = Σ(вероятность продажи в месяце × назначенная цена).<br><strong>Прибыль от продаж</strong> = Σ(вероятность продажи × [цена × 97,5% − условная себестоимость]) − содержание ожидаемого остатка.</div><p class="disclosure">Спрос на отдельные квартиры считается независимым. Модель не учитывает замещение между квартирами, ипотечные программы, скидки, рассрочку, макроэкономику, налоги, НДС, проектное финансирование и остаточную стоимость непроданных лотов. Опубликованная цена используется как якорь для условной кривой спроса, а не как наблюдаемая готовность покупателя платить. Производственный движок DPrice не запускался: это отдельная демонстрация принципа адресной оптимизации.</p>
+      <details><summary>Исходные 20 квартир и опубликованные цены</summary><div class="table-scroll"><table><thead><tr><th>Лот на этой странице</th><th>Комнат</th><th>Этаж</th><th>Площадь, м²</th><th>Цена ПИК, ₽</th><th>₽/м²</th></tr></thead><tbody id="source-table"></tbody></table></div></details>
+      <h3 style="margin-top:30px">Источники и статус данных</h3><ul class="source-list"><li><a href="https://www.pik.ru/search/sp?bulk=10729" target="_blank" rel="noopener noreferrer">ПИК: предложения корпуса 57.4 ЖК «Саларьево парк»</a> — источник всех 20 строк. Использован индексированный снимок страницы, просмотренный 9 октября 2026 года. Дата действия цен в снимке не указана; это не актуальная выгрузка и не предложение о покупке.</li><li><a href="https://www.pik.ru/search/sp/chessplan?bulk=10729" target="_blank" rel="noopener noreferrer">ПИК: схема квартир комплекса</a> — подтверждает формат показа квартир по корпусам и этажам; положение ячеек на этой странице не копируется.</li><li>Вероятность покупки, себестоимость, комиссия и расходы на остаток — сценарные допущения этой страницы, не наблюдения по ПИК и не параметры рабочего движка DPrice.</li></ul>
+    </section>
+  </main>
+  <footer class="footer"><span>DPrice / исследовательский сценарий · данные предложений принадлежат ПИК</span><span>Расчёт локально в браузере · без загрузки данных на сервер</span></footer>
+</div>
+<script>
+  'use strict';
+  // Source: public PIK listing for Salarevo Park, block 57.4. The on-page ID is illustrative.
+  const flats = [
+    [1,1,11,38.0,11719200],[2,2,5,47.7,14672520],[3,2,2,46.3,13760360],
+    [4,1,2,37.9,11517810],[5,1,3,37.0,11418200],[6,1,3,35.0,11217500],
+    [7,1,3,37.2,11558040],[8,2,5,54.6,16161600],[9,1,6,34.2,10725120],
+    [10,1,6,37.9,11604980],[11,3,6,74.7,21155040],[12,2,8,51.6,15387120],
+    [13,1,7,36.5,11453700],[14,3,4,77.7,21926940],[15,2,4,51.6,15273600],
+    [16,2,8,48.8,14596080],[17,2,9,47.1,14162970],[18,1,10,34.5,10877850],
+    [19,1,14,34.3,10890250],[20,2,14,48.3,14837760]
+  ].map(([id,rooms,floor,area,price])=>({id,rooms,floor,area,price}));
+  const HORIZON=6, COMMISSION=.025, GRID=Array.from({length:31},(_,i)=>.85+i*.01);
+  const money=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
+  const dec=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
+  const mln=x=>`${dec.format(x/1e6)} млн ₽`;
+  const signedMln=x=>`${x>=0?'+':'−'}${dec.format(Math.abs(x)/1e6)} млн ₽`;
+  let objective='profit', selectedId=1, state;
+  function params(){return {elasticity:+document.querySelector('#elasticity').value,cost:+document.querySelector('#cost').value/100,carry:+document.querySelector('#carry').value/100};}
+  function baseProbability(f){return Math.min(.35,({1:.27,2:.24,3:.16}[f.rooms]||.2)+Math.max(0,f.floor-8)*.0025);}
+  function probability(f,ratio,p){return Math.min(.93,baseProbability(f)*Math.exp(-p.elasticity*(ratio-1)));}
+  function expectedMetric(f,ratio,p,kind){return kind==='revenue'?f.price*ratio:f.price*(ratio*(1-COMMISSION)-p.cost);}
+  function chooseUnitPolicy(f,p,kind){
+    const ratios=Array(HORIZON),future=Array(HORIZON+1).fill(0);
+    for(let t=HORIZON-1;t>=0;t--){let best=-Infinity,choice=1;
+      for(const ratio of GRID){const q=probability(f,ratio,p);const carry=kind==='profit'?f.price*p.carry:0;
+        const value=q*expectedMetric(f,ratio,p,kind)+(1-q)*(future[t+1]-carry);
+        if(value>best+1e-7){best=value;choice=ratio;}
+      }
+      ratios[t]=choice;future[t]=best;
+    }
+    return ratios;
+  }
+  function evaluate(policies,p){
+    const monthly=Array.from({length:HORIZON},()=>({revenue:0,profit:0,sold:0,remaining:0}));
+    const perFlat=[];
+    for(const f of flats){let survival=1,flatRevenue=0,flatProfit=0,sold=0;
+      for(let t=0;t<HORIZON;t++){
+        const ratio=policies[f.id][t],q=probability(f,ratio,p),sale=survival*q;
+        survival*=1-q;sold+=sale;
+        const revenue=sale*f.price*ratio;
+        const profit=sale*(f.price*ratio*(1-COMMISSION)-f.price*p.cost)-survival*f.price*p.carry;
+        monthly[t].revenue+=revenue;monthly[t].profit+=profit;monthly[t].sold+=sale;monthly[t].remaining+=survival;
+        flatRevenue+=revenue;flatProfit+=profit;
+      }
+      perFlat.push({id:f.id,revenue:flatRevenue,profit:flatProfit,sold,remaining:survival});
+    }
+    return {monthly,perFlat,revenue:monthly.reduce((s,m)=>s+m.revenue,0),profit:monthly.reduce((s,m)=>s+m.profit,0),sold:monthly.reduce((s,m)=>s+m.sold,0)};
+  }
+  function uniformPolicy(p){
+    const policies=Object.fromEntries(flats.map(f=>[f.id,[]]));
+    const survival=Object.fromEntries(flats.map(f=>[f.id,1]));
+    const monthlyRatios=[];
+    for(let t=0;t<HORIZON;t++){
+      let choice=GRID[0],error=Infinity;
+      for(const ratio of GRID){const sales=flats.reduce((s,f)=>s+survival[f.id]*probability(f,ratio,p),0);
+        const diff=Math.abs(sales-flats.length/HORIZON);
+        if(diff<error-1e-10||(Math.abs(diff-error)<=1e-10&&ratio>choice)){error=diff;choice=ratio;}
+      }
+      monthlyRatios.push(choice);
+      for(const f of flats){policies[f.id].push(choice);survival[f.id]*=1-probability(f,choice,p);}
+    }
+    return {policies,monthlyRatios};
+  }
+  function cumulative(rows,key){let total=0;return [0,...rows.map(row=>(total+=row[key]))];}
+  function drawChart(base,opt,key){
+    const svg=document.querySelector('#chart'), a=cumulative(base.monthly,key),b=cumulative(opt.monthly,key);
+    const all=[...a,...b],min=Math.min(0,...all),max=Math.max(...all),span=Math.max(1,max-min),left=56,right=690,top=22,bottom=277;
+    const x=i=>left+(right-left)*i/HORIZON,y=v=>bottom-(v-min)/span*(bottom-top);
+    const path=arr=>arr.map((v,i)=>`${i?'L':'M'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+    const fill=arr=>`${path(arr)} L ${x(HORIZON)} ${bottom} L ${left} ${bottom} Z`;
+    let html='';
+    for(let i=0;i<=4;i++){const val=min+span*i/4,yy=y(val);html+=`<line class="gridline" x1="${left}" x2="${right}" y1="${yy}" y2="${yy}"/><text x="${left-10}" y="${yy+4}" text-anchor="end">${dec.format(val/1e6)}</text>`;}
+    for(let i=0;i<=HORIZON;i++)html+=`<text x="${x(i)}" y="${bottom+23}" text-anchor="middle">${i?`М${i}`:'Старт'}</text>`;
+    html+=`<path class="fill-base" d="${fill(a)}"/><path class="fill-opt" d="${fill(b)}"/><path class="base-line" d="${path(a)}"/><path class="opt-line" d="${path(b)}"/>`;
+    for(let i=1;i<=HORIZON;i++)html+=`<circle class="dot-base" cx="${x(i)}" cy="${y(a[i])}" r="3.5"/><circle class="dot-opt" cx="${x(i)}" cy="${y(b[i])}" r="4"/>`;
+    svg.innerHTML=html;
+    svg.setAttribute('aria-label',`Накопленный результат за 6 месяцев: равномерно ${mln(base[key])}, адресно ${mln(opt[key])}`);
+  }
+  function renderFloors(policies){
+    const root=document.querySelector('#floors');root.innerHTML='';
+    for(let floor=16;floor>=2;floor--){const row=document.createElement('div');row.className='floor-row';
+      const label=document.createElement('span');label.className='floor-label';label.textContent=`${floor} эт.`;row.append(label);
+      const units=document.createElement('div');units.className='floor-units';
+      for(const f of flats.filter(f=>f.floor===floor)){
+        const ratio=policies[f.id][0],button=document.createElement('button');button.type='button';
+        button.className=`flat ${ratio>1.005?'up':ratio<.995?'down':'neutral'}`;
+        button.innerHTML=`<b>${f.area.toFixed(1).replace('.',',')} м²</b>${f.rooms}-комн.`;
+        button.title=`Лот ${String(f.id).padStart(2,'0')}, ${floor} этаж, цена первого месяца ${money.format(f.price*ratio)} ₽`;
+        button.setAttribute('aria-label',button.title);button.addEventListener('click',()=>{selectedId=f.id;renderUnitDetail(policies);});units.append(button);
+      }
+      row.append(units);root.append(row);
+    }
+  }
+  function renderUnitDetail(policies){
+    const f=flats.find(x=>x.id===selectedId)||flats[0],ratio=policies[f.id][0],change=(ratio-1)*100;
+    document.querySelector('#unit-detail').innerHTML=`<span class="id">Лот ${String(f.id).padStart(2,'0')} на этой странице</span><h3>${f.rooms}-комнатная<br>${dec.format(f.area)} м²</h3><div class="detail-grid"><div><span>Корпус / этаж</span><strong>57.4 / ${f.floor} из 16</strong></div><div><span>Опубликованная цена</span><strong>${money.format(f.price)} ₽</strong></div><div><span>Цена адресной модели, М1</span><strong>${money.format(f.price*ratio)} ₽</strong></div><div><span>Разница к источнику</span><strong>${change>0?'+':''}${Math.round(change)}%</strong></div><div><span>Цена источника за м²</span><strong>${money.format(f.price/f.area)} ₽</strong></div><div><span>База спроса за месяц</span><strong>${dec.format(baseProbability(f)*100)}%</strong></div></div><p class="detail-note">Цена DPrice здесь — расчётная для сценария; это не предложение застройщика и не рекомендация рабочего сервиса. Горизонтальная позиция квартиры неизвестна.</p>`;
+  }
+  function renderTable(){document.querySelector('#source-table').innerHTML=flats.map(f=>`<tr><td>${String(f.id).padStart(2,'0')}</td><td>${f.rooms}</td><td>${f.floor}</td><td>${dec.format(f.area)}</td><td>${money.format(f.price)}</td><td>${money.format(f.price/f.area)}</td></tr>`).join('');}
+  function render(){
+    const p=params();
+    document.querySelector('#elasticity-value').textContent=dec.format(p.elasticity);
+    document.querySelector('#cost-value').textContent=`${Math.round(p.cost*100)}%`;
+    document.querySelector('#carry-value').textContent=`${dec.format(p.carry*100)}%`;
+    const uniform=uniformPolicy(p),policies=Object.fromEntries(flats.map(f=>[f.id,chooseUnitPolicy(f,p,objective)]));
+    const base=evaluate(uniform.policies,p),opt=evaluate(policies,p),key=objective,difference=opt[key]-base[key],pct=base[key]!==0?difference/Math.abs(base[key])*100:0;
+    state={base,opt,policies,uniform,p};
+    const isProfit=objective==='profit';
+    document.querySelector('#primary-label').textContent=isProfit?'Дополнительная прибыль от продаж':'Дополнительная выручка';
+    document.querySelector('#uplift').textContent=signedMln(difference);
+    document.querySelector('#uplift-percent').textContent=`${difference>=0?'+':'−'}${dec.format(Math.abs(pct))}% к равномерному сценарию · условная модель`;
+    document.querySelector('#base-metric').textContent=mln(base[key]);
+    document.querySelector('#opt-metric').textContent=mln(opt[key]);
+    document.querySelector('#base-sub').textContent=`${dec.format(base.sold)} ожидаемых сделок из 20`;
+    document.querySelector('#opt-sub').textContent=`${dec.format(opt.sold)} ожидаемых сделок из 20`;
+    document.querySelector('#base-sold').textContent=`${dec.format(base.sold)} / 20`;
+    document.querySelector('#opt-sold').textContent=`${dec.format(opt.sold)} / 20`;
+    document.querySelector('#rev-delta').textContent=signedMln(opt.revenue-base.revenue);
+    document.querySelector('#profit-delta').textContent=signedMln(opt.profit-base.profit);
+    document.querySelector('#chart-title').textContent=isProfit?'Накопленная прибыль от продаж':'Накопленная выручка';
+    document.querySelector('#takeaway-head').textContent=isProfit?'Прибыль учитывает расходы на непроданные лоты':'Выручка зависит от цены и вероятности сделки';
+    document.querySelector('#takeaway').innerHTML=isProfit
+      ?`<strong>При выбранных допущениях:</strong> адресная модель даёт ${signedMln(opt.profit-base.profit)} прибыли от продаж. Разница по выручке — ${signedMln(opt.revenue-base.revenue)}. Цель может уменьшить число сделок ради маржи.`
+      :`<strong>При выбранных допущениях:</strong> адресная модель даёт ${signedMln(opt.revenue-base.revenue)} выручки. Разница по прибыли от продаж — ${signedMln(opt.profit-base.profit)}. Выручка и прибыль оптимизируются отдельно.`;
+    document.querySelector('#months').innerHTML=Array.from({length:HORIZON},(_,i)=>`<div class="month"><b>Месяц ${i+1}</b><span>Общая коррекция: ${uniform.monthlyRatios[i]>1?'+':''}${Math.round((uniform.monthlyRatios[i]-1)*100)}%</span><strong>${mln(opt.monthly[i][key])}</strong><em>равномерно: ${mln(base.monthly[i][key])}</em></div>`).join('');
+    drawChart(base,opt,key);renderFloors(policies);renderUnitDetail(policies);
+  }
+  for(const button of document.querySelectorAll('.objective'))button.addEventListener('click',()=>{objective=button.dataset.objective;for(const b of document.querySelectorAll('.objective')){const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));}render();});
+  for(const input of document.querySelectorAll('input[type=range]'))input.addEventListener('input',render);
+  renderTable();render();
+</script>
+</body>
+</html>

@@ -163,6 +163,9 @@
   .mock-row{display:grid;grid-template-columns:1.2fr 1fr 1fr .9fr;gap:8px;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13px}
   .mock-row.th{color:var(--text-3);font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-top:none;padding-top:0}
   .up{color:var(--green-light);font-weight:600}.down{color:#ff8a8a;font-weight:600}.hold{color:var(--text-3);font-weight:600}
+  .mock-label{display:flex;align-items:center;gap:8px;width:fit-content;margin:0 0 16px;padding:7px 14px;border-radius:999px;
+    font-size:14px;font-weight:600;color:var(--gold);background:rgba(244,183,64,.1);border:1px dashed rgba(244,183,64,.5)}
+  .mock,.mock *{cursor:default}
   .mock-note{margin:14px 0 0;font-size:12px;color:var(--text-3);line-height:1.5}
   .mock-actions{display:flex;gap:8px;margin-top:14px}
   .mock-actions span{flex:1;text-align:center;font-size:12px;font-weight:600;padding:9px;border-radius:8px;border:1px solid var(--line-2)}
@@ -495,6 +498,7 @@
 
       <!-- Иллюстрация: как выглядит рекомендация (цифры условные) -->
       <div class="mock" aria-label="Illustration">
+        <p class="mock-label"><svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17 22v-8h-4v2h2v6h-3v2h8v-2zM16 8a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 8z"/><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/></svg><span data-lang="en">Example screen · figures are illustrative</span><span data-lang="ru">Пример экрана · цифры условные</span><span data-lang="ar">مثال للشاشة · الأرقام توضيحية</span></p>
         <div class="mock-head">
           <span><span data-lang="en">Building A · today</span><span data-lang="ru">Корпус А · сегодня</span><span data-lang="ar">المبنى A · اليوم</span></span>
           <span class="mock-goal"><span data-lang="en">Goal: cash flow</span><span data-lang="ru">Цель: денежный поток</span><span data-lang="ar">الهدف: التدفق النقدي</span></span>
@@ -505,7 +509,6 @@
         <div class="mock-row"><span>A-0211 · 3BR</span><span><span data-lang="en">slowing</span><span data-lang="ru">падает</span><span data-lang="ar">في تباطؤ</span></span><span><span data-lang="en">lower</span><span data-lang="ru">снизить</span><span data-lang="ar">خفض</span></span><span class="down">−1.8%</span></div>
         <div class="mock-row"><span>A-1501 · PH</span><span><span data-lang="en">rising</span><span data-lang="ru">растёт</span><span data-lang="ar">في ارتفاع</span></span><span><span data-lang="en">raise</span><span data-lang="ru">поднять</span><span data-lang="ar">رفع</span></span><span class="up">+3.1%</span></div>
         <div class="mock-actions"><span><span data-lang="en">Approve</span><span data-lang="ru">Принять</span><span data-lang="ar">اعتماد</span></span><span><span data-lang="en">Adjust</span><span data-lang="ru">Поправить</span><span data-lang="ar">تعديل</span></span></div>
-        <p class="mock-note"><span data-lang="en">Illustration. Figures are examples only.</span><span data-lang="ru">Иллюстрация, цифры условные.</span><span data-lang="ar">توضيح. الأرقام للمثال فقط.</span></p>
       </div>
     </div>
     <!-- Что учитывает модель — из презентации -->
@@ -632,7 +635,7 @@
   <div class="wrap">
     <span class="section-tag"><span data-lang="en">Try it yourself</span><span data-lang="ru">Попробуйте сами</span><span data-lang="ar">جرّب بنفسك</span></span>
     <h2 class="section-title"><span data-lang="en">See DPrice in action before you talk to us</span><span data-lang="ru">Посмотрите DPrice в деле ещё до разговора с нами</span><span data-lang="ar">شاهد DPrice أثناء العمل قبل أن تتحدث إلينا</span></h2>
-    <p class="section-sub"><span data-lang="en">Three ways in: play against the algorithm, run your own numbers, or open the platform.</span><span data-lang="ru">Три способа: сыграть против алгоритма, посчитать свой проект или открыть платформу.</span><span data-lang="ar">ثلاث طرق: العب ضد الخوارزمية، أو احسب أرقام مشروعك، أو افتح المنصة.</span></p>
+    <p class="section-sub"><span data-lang="en">Three ways in: play against the algorithm, run your own numbers, or open a worked calculation on real apartments.</span><span data-lang="ru">Три способа: сыграть против алгоритма, посчитать свой проект или открыть готовый расчёт на реальных квартирах.</span><span data-lang="ar">ثلاث طرق: العب ضد الخوارزمية، أو احسب أرقام مشروعك، أو افتح حسابًا جاهزًا على شقق حقيقية.</span></p>
     <div class="grid3">
       <a class="cta-card blue" data-link="game" href="https://game.dprice.ru/en/game" target="_blank" rel="noopener noreferrer">
         <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M7.5 26A5.6 5.6 0 0 1 2.2 19l2.3-8.8A5.5 5.5 0 0 1 14.7 9h2.6a5.5 5.5 0 0 1 10.2 1.2l2.3 8.8a5.6 5.6 0 0 1-10.6 2.9L19 21h-6l-.2.9A5.6 5.6 0 0 1 7.5 26zM9.8 8a3.6 3.6 0 0 0-3.4 2.7L4.1 19.5a3.6 3.6 0 0 0 6.8 1.9l.6-2.4h9l.6 2.4a3.6 3.6 0 0 0 6.8-1.9l-2.3-8.8A3.6 3.6 0 0 0 19 10.3l-.2.7h-5.6l-.2-.7A3.5 3.5 0 0 0 9.8 8z"/><path d="M9 11h2v3h3v2h-3v3H9v-3H6v-2h3z"/></svg></div>
@@ -655,12 +658,16 @@
         <small><span data-lang="en">The online calculator is currently available for Russia only, in RUB.</span><span data-lang="ru">Онлайн-калькулятор пока работает только для России, в рублях.</span><span data-lang="ar">الحاسبة الإلكترونية متاحة حاليًا لروسيا فقط وبالروبل.</span></small>
         <span class="cta-link"><span data-lang="en">Request a calculation</span><span data-lang="ru">Запросить расчёт</span><span data-lang="ar">اطلب الحساب</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
       </a>
-      <button type="button" class="cta-card gold" data-open-demo>
+      <!-- Модельный расчёт на опубликованных квартирах (site/scenario.html). Не кейс клиента:
+           формулировки нарочно говорят «модельный расчёт», «допущения», «не итог реальных продаж».
+           Цифра — режим «Максимизировать выручку» при исходных настройках страницы. -->
+      <a class="cta-card gold" href="scenario.html" target="_blank" rel="noopener">
         <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M4 2H2v26a2 2 0 0 0 2 2h26v-2H4z"/><path d="M30 9h-7v2h3.6L19 18.6l-4.3-4.3a1 1 0 0 0-1.4 0L6 21.6 7.4 23 14 16.4l4.3 4.3a1 1 0 0 0 1.4 0L28 12.4V16h2z"/></svg></div>
-        <h3><span data-lang="en">Demo platform</span><span data-lang="ru">Демо-платформа</span><span data-lang="ar">المنصة التجريبية</span></h3>
-        <p><span data-lang="en">Open the working product on a demo project: unit recommendations, demand charts, goals.</span><span data-lang="ru">Откройте рабочий продукт на демо-проекте: рекомендации по лотам, графики спроса, цели.</span><span data-lang="ar">افتح المنتج الفعلي على مشروع تجريبي: توصيات لكل وحدة، ومخططات الطلب، والأهداف.</span></p>
-        <span class="cta-link"><span data-lang="en">Open demo</span><span data-lang="ru">Открыть демо</span><span data-lang="ar">افتح العرض التجريبي</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
-      </button>
+        <h3><span data-lang="en">Calculation on real apartments</span><span data-lang="ru">Расчёт на реальных квартирах</span><span data-lang="ar">حساب على شقق حقيقية</span></h3>
+        <p><span data-lang="en">20 published apartments in one Moscow building, two ways to sell them: a uniform price increase or an individual price for each unit. In the model calculation, unit-level pricing produced <b>+RUB 5.7M in revenue (+2.5%)</b> over 6 months.</span><span data-lang="ru">20 опубликованных квартир одного московского корпуса и два способа продаж: равномерное повышение цен или своя цена для каждой квартиры. В модельном расчёте адресная цена дала <b>+5,7 млн ₽ выручки (+2,5%)</b> за 6 месяцев.</span><span data-lang="ar">20 شقة معروضة في مبنى واحد في موسكو، وطريقتان للبيع: رفع موحّد للأسعار أو سعر خاص لكل شقة. في الحساب النموذجي حقق التسعير لكل وحدة <b>إيرادات إضافية بقيمة 5.7 مليون روبل (+2.5%)</b> خلال 6 أشهر.</span></p>
+        <small><span data-lang="en">A model with open assumptions, not actual sales results: change them and see how the result moves.</span><span data-lang="ru">Модель с открытыми допущениями, а не итог реальных продаж: их можно поменять и посмотреть, как меняется результат.</span><span data-lang="ar">نموذج بافتراضات مكشوفة، وليس نتائج مبيعات فعلية: يمكنك تغييرها ومتابعة أثرها على النتيجة.</span><span data-region="global uae th"> <span data-lang="en">The page is in Russian, prices in RUB.</span><span data-lang="ru">Страница на русском, цены в рублях.</span><span data-lang="ar">الصفحة باللغة الروسية والأسعار بالروبل.</span></span></small>
+        <span class="cta-link"><span data-lang="en">Open the calculation</span><span data-lang="ru">Открыть расчёт</span><span data-lang="ar">افتح الحساب</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
+      </a>
     </div>
   </div>
 </section>
