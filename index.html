@@ -183,7 +183,6 @@
   .features{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
   .features .grid3{grid-template-columns:repeat(3,1fr)}
   .card{display:flex;flex-direction:column;gap:12px;padding:26px 24px;background:hsla(0,0%,100%,.03);border:1px solid var(--line);border-radius:20px;transition:border-color .25s,transform .25s}
-  .card:hover{border-color:rgba(63,221,132,.3);transform:translateY(-3px)}
   .card-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:rgba(63,221,132,.1);color:var(--green-light)}
   .card h3{font-size:16px;font-weight:600;margin:0;line-height:1.3}
   .card p{font-size:14px;line-height:1.55;color:var(--text-3);margin:0}
@@ -295,7 +294,7 @@
   @media(max-width:900px){.trust-grid{grid-template-columns:1fr}}
 
   /* ===== ФИНАЛЬНЫЙ ПРИЗЫВ ===== */
-  .closing{background:var(--bg-2);padding-bottom:0}
+  .closing{background:var(--bg-2)}
   .closing-box{padding:56px 48px;border-radius:28px;border:1px solid var(--line-2);
     background:radial-gradient(circle at 88% 30%,rgba(63,221,132,.38),transparent 55%),linear-gradient(135deg,#1c3526,#111316)}
   .closing-box h2{font-size:clamp(24px,3.2vw,38px);font-weight:700;line-height:1.15;letter-spacing:-.025em;margin:0;max-width:820px}
@@ -305,6 +304,18 @@
   @media(max-width:768px){.closing-box{padding:32px 20px}}
 
   .tagline{font-size:13px;color:var(--text-3);margin-top:4px}
+
+  /* ===== РАЗДЕЛИТЕЛИ МЕЖДУ РАЗДЕЛАМИ ===== */
+  /* Тонкая зелёная линия, гаснущая к краям, и мягкое свечение над ней.
+     Призыв после «Проблемы» продолжает её, поэтому у него разделителя нет. */
+  .section::before{content:"";position:absolute;z-index:-1;top:0;left:50%;transform:translateX(-50%);
+    width:min(1200px,calc(100% - 32px));height:1px;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(63,221,132,.22) 25%,rgba(97,231,155,.55) 50%,rgba(63,221,132,.22) 75%,transparent)}
+  .section::after{content:"";position:absolute;z-index:-1;top:-70px;left:50%;transform:translateX(-50%);
+    width:min(900px,90%);height:140px;pointer-events:none;
+    background:radial-gradient(ellipse at center,rgba(63,221,132,.08),transparent 70%)}
+  .closing{padding-top:0}
+  .closing::before,.closing::after{display:none}
 
   /* ===== ФОН: контурные планировки вместо клетки ===== */
   /* Рисунок — SVG в строке ниже, плитка 1000×800 (сетка 5×4): 5 планировок квартир
@@ -438,6 +449,24 @@
       <div class="pain"><div class="pain-num">04</div>
         <h3><span data-lang="en">Decisions hard to defend</span><span data-lang="ru">Решения сложно обосновать</span><span data-lang="ar">قرارات يصعب تبريرها</span></h3>
         <p><span data-lang="en">“Why this price?” — the committee rarely has a clear, numbers-based answer.</span><span data-lang="ru">«Почему такая цена?» — у комитета редко есть ответ в цифрах.</span><span data-lang="ar">«لماذا هذا السعر؟» — نادرًا ما تملك اللجنة إجابة واضحة مدعومة بالأرقام.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ПРИЗЫВ ПОСЛЕ ПРОБЛЕМЫ (из презентации) ===================== -->
+<section class="section closing">
+  <div class="wrap">
+    <div class="closing-box">
+      <h2><span data-lang="en">Developers who do not use optimal dynamic pricing methods lose potential profit every day</span><span data-lang="ru">Застройщики, которые не используют оптимальное динамическое ценообразование, каждый день теряют потенциальную прибыль</span><span data-lang="ar">المطورون الذين لا يستخدمون أساليب التسعير الديناميكي الأمثل يخسرون أرباحًا محتملة كل يوم</span></h2>
+      <p class="closing-get"><span data-lang="en">Get yours with DPrice</span><span data-lang="ru">Заберите свою — с DPrice</span><span data-lang="ar">احصل على أرباحك مع DPrice</span></p>
+      <ul class="closing-points">
+        <li><span data-lang="en">Increase project profitability</span><span data-lang="ru">Повысить доходность проекта</span><span data-lang="ar">زيادة ربحية المشروع</span></li>
+        <li><span data-lang="en">Optimize project financing costs</span><span data-lang="ru">Снизить стоимость проектного финансирования</span><span data-lang="ar">تحسين تكاليف تمويل المشروع</span></li>
+      </ul>
+      <div class="hero-ctas">
+        <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span></a>
+        <a class="btn btn-ghost" href="#how"><span data-lang="en">See how it works</span><span data-lang="ru">Как это работает</span><span data-lang="ar">شاهد كيف يعمل</span> ↓</a>
+      </div>
     </div>
   </div>
 </section>
@@ -677,21 +706,6 @@
         <p><span data-lang="en">Pricing depends on the size of the project. We offer a fixed fee per project or a fixed fee plus a share of sales made through DPrice — you choose the model. Contact us for a proposal.</span><span data-lang="ru">Стоимость зависит от размера проекта. Есть два варианта: фиксированная плата за проект или фиксированная часть плюс процент от продаж через DPrice — модель выбираете вы. Напишите нам, и мы подготовим предложение.</span><span data-lang="ar">تعتمد التكلفة على حجم المشروع. نقدّم رسومًا ثابتة لكل مشروع، أو رسومًا ثابتة مع نسبة من المبيعات المحققة عبر DPrice — والخيار لك. تواصل معنا لنعدّ لك عرضًا.</span></p></details>
       <details><summary><span data-lang="en">Is our data safe?</span><span data-lang="ru">Насколько защищены наши данные?</span><span data-lang="ar">هل بياناتنا آمنة؟</span></summary>
         <p><span data-lang="en">Your data is used only to build recommendations for your project and is not shared with third parties. Data handling terms are fixed in the contract.</span><span data-lang="ru">Данные используются только для расчёта рекомендаций по вашему проекту и не передаются третьим лицам. Условия обработки данных фиксируются в договоре.</span><span data-lang="ar">تُستخدم بياناتك فقط لإعداد التوصيات لمشروعك ولا تُشارك مع أطراف ثالثة. وتُحدَّد شروط معالجة البيانات في العقد.</span></p></details>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== ФИНАЛЬНЫЙ ПРИЗЫВ (из презентации) ===================== -->
-<section class="section closing">
-  <div class="wrap">
-    <div class="closing-box">
-      <h2><span data-lang="en">Developers who do not use optimal dynamic pricing methods lose potential profit every day</span><span data-lang="ru">Застройщики, которые не используют оптимальное динамическое ценообразование, каждый день теряют потенциальную прибыль</span><span data-lang="ar">المطورون الذين لا يستخدمون أساليب التسعير الديناميكي الأمثل يخسرون أرباحًا محتملة كل يوم</span></h2>
-      <p class="closing-get"><span data-lang="en">Get yours with DPrice</span><span data-lang="ru">Заберите свою — с DPrice</span><span data-lang="ar">احصل على أرباحك مع DPrice</span></p>
-      <ul class="closing-points">
-        <li><span data-lang="en">Increase project profitability</span><span data-lang="ru">Повысить доходность проекта</span><span data-lang="ar">زيادة ربحية المشروع</span></li>
-        <li><span data-lang="en">Optimize project financing costs</span><span data-lang="ru">Снизить стоимость проектного финансирования</span><span data-lang="ar">تحسين تكاليف تمويل المشروع</span></li>
-      </ul>
-      <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span></a>
     </div>
   </div>
 </section>
