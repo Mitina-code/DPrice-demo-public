@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DPrice — revenue management for real estate developers</title>
+<meta name="description" content="DPrice by Advantix: unit-level pricing recommendations for real estate developers, built on your own sales data.">
+<!--
+  ЛЕНДИНГ DPrice (Advantix). Два языка в одном файле, по умолчанию английский.
+
+  КАК ПРАВИТЬ ТЕКСТ
+    Каждая фраза записана дважды, рядом:
+      <span data-lang="en">English text</span><span data-lang="ru">Русский текст</span>
+    Меняйте текст внутри нужного span — второй язык не трогается.
+
+  КАК ПРАВИТЬ ССЫЛКИ
+    Ссылки, разные для языков, задаются атрибутами data-href-en / data-href-ru.
+    Общие ссылки — обычный href.
+
+  ПОЧТА ДЛЯ ЗАЯВОК — см. блок «НАСТРОЙКИ» в самом низу файла (CONTACT_EMAIL).
+
+  ЦВЕТА — блок :root в начале стилей.
+  Язык можно открыть сразу по ссылке: ...?lang=ru или ...?lang=en
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== ЦВЕТА ===== */
+  :root{
+    color-scheme:dark;
+    --bg:#0b0c10; --bg-2:#14161c; --bg-3:#1a1d24;
+    --green:#3fdd84; --green-light:#61e79b; --blue:#5ba5ff; --gold:#f4b740;
+    --text:#fff; --text-2:hsla(0,0%,100%,.72); --text-3:hsla(0,0%,100%,.5);
+    --line:hsla(0,0%,100%,.08); --line-2:hsla(0,0%,100%,.16);
+  }
+  /* Показ нужного языка */
+  html[lang="en"] [data-lang="ru"], html[lang="ru"] [data-lang="en"]{display:none!important}
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  html,body{margin:0}
+  body{background:var(--bg);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);
+    -webkit-font-smoothing:antialiased;letter-spacing:-.01em;font-size:16px;line-height:1.5}
+  a{color:inherit}
+  :is(a,button,input,textarea,summary):focus-visible{outline:2px solid var(--green-light);outline-offset:3px}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .wrap{max-width:1280px;margin:0 auto;padding-inline:32px}
+  @media(max-width:768px){.wrap{padding-inline:16px}}
+  .accent{background:linear-gradient(135deg,var(--green-light),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  section{position:relative}
+  .section{padding:96px 0}
+  @media(max-width:768px){.section{padding:56px 0}}
+  .section-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green-light);margin-bottom:16px}
+  .section-title{font-size:clamp(26px,3.5vw,40px);font-weight:700;line-height:1.12;letter-spacing:-.025em;margin:0 0 14px;max-width:820px}
+  .section-sub{font-size:17px;line-height:1.6;color:var(--text-2);max-width:640px;margin:0 0 48px}
+
+  h1,h2,h3{text-wrap:balance}
+  .grid4>*,.grid3>*,.how-grid>*,.contact-box>*{min-width:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+  /* ===== КНОПКИ ===== */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;font:600 15px/1 Inter,sans-serif;border-radius:999px;border:none;cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .18s,box-shadow .18s,background .18s,border-color .18s}
+  .btn-green{background:var(--green);color:var(--bg)}
+  .btn-green:hover{background:var(--green-light);transform:translateY(-1px);box-shadow:0 12px 28px rgba(63,221,132,.35)}
+  .btn-ghost{background:hsla(0,0%,100%,.04);color:#fff;border:1px solid var(--line-2)}
+  .btn-ghost:hover{border-color:rgba(63,221,132,.5);transform:translateY(-1px)}
+  .btn-sm{padding:10px 18px;font-size:14px}
+
+  /* ===== ШАПКА ===== */
+  .header{position:sticky;top:env(safe-area-inset-top,0px);z-index:100;background:rgba(11,12,16,.85);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);border-bottom:1px solid var(--line)}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:14px}
+  .logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+  .logo svg{width:82px;height:28px;display:block}
+  .nav{display:flex;align-items:center;gap:4px}
+  .nav-link{font-size:14px;font-weight:500;color:var(--text-2);text-decoration:none;padding:8px 12px;border-radius:8px;white-space:nowrap;transition:color .2s,background .2s}
+  .nav-link:hover{color:#fff;background:hsla(0,0%,100%,.05)}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .lang{display:inline-flex;border:1px solid var(--line-2);border-radius:999px;padding:3px}
+  .lang button{font:600 12px/1 Inter,sans-serif;color:var(--text-3);background:none;border:none;border-radius:999px;padding:7px 10px;cursor:pointer;letter-spacing:.04em}
+  .lang button[aria-pressed="true"]{background:hsla(0,0%,100%,.1);color:#fff}
+  @media(max-width:1024px){.nav{display:none}}
+  @media(max-width:520px){.header-right .signin{display:none}.btn-sm{padding:9px 14px;font-size:13px}}
+
+  /* ===== ПЕРВЫЙ ЭКРАН ===== */
+  .hero{padding:80px 0 96px;overflow:hidden;isolation:isolate}
+  .hero-glow{position:absolute;z-index:0;pointer-events:none;top:20%;left:30%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(63,221,132,.2) 0,transparent 70%);filter:blur(100px)}
+  .hero-grid{position:absolute;z-index:0;pointer-events:none;inset:0;background-image:linear-gradient(hsla(0,0%,100%,.03) 1px,transparent 0),linear-gradient(90deg,hsla(0,0%,100%,.03) 1px,transparent 0);background-size:64px 64px;
+    mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 70%)}
+  .hero-buildings{position:absolute;right:-5%;bottom:-10%;width:380px;height:auto;opacity:.06;pointer-events:none;user-select:none;z-index:0}
+  .hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1fr 420px;gap:64px;align-items:center}
+  .hero-content{display:flex;flex-direction:column;gap:24px}
+  .tag{display:inline-flex;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-light);padding:7px 16px;border-radius:999px;background:rgba(63,221,132,.1);border:1px solid rgba(63,221,132,.25);width:fit-content}
+  h1{font-size:clamp(34px,4.6vw,56px);font-weight:700;line-height:1.06;letter-spacing:-.03em;margin:0}
+  .hero-sub{font-size:clamp(16px,1.4vw,18px);line-height:1.6;color:var(--text-2);max-width:560px;margin:0}
+  .hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+  .kpi{display:flex;flex-direction:column;gap:4px;padding:16px;background:hsla(0,0%,100%,.03);border:1px solid var(--line);border-radius:14px}
+  .kpi-value{font-size:18px;font-weight:700;letter-spacing:-.02em;color:var(--green-light);line-height:1.25}
+  .kpi-label{font-size:12px;font-weight:500;color:var(--text-3);line-height:1.4}
+  @media(max-width:1024px){.hero{padding:48px 0 64px}.hero-inner{grid-template-columns:1fr;gap:40px}.hero-buildings{display:none}}
+  @media(max-width:640px){.kpis{grid-template-columns:1fr;gap:8px}}
+
+  /* ===== КАРТОЧКА ВХОДА ===== */
+  .login{position:relative;overflow:hidden;background:hsla(0,0%,100%,.04);border:1px solid var(--line-2);border-radius:24px;padding:36px 32px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 24px 80px rgba(11,12,16,.45)}
+  .login-glow{position:absolute;top:-60%;left:50%;width:300px;height:300px;transform:translateX(-50%);background:radial-gradient(circle,rgba(63,221,132,.15) 0,transparent 70%);pointer-events:none}
+  .login-body{position:relative;z-index:1}
+  .login h2{font-size:22px;font-weight:700;margin:0 0 4px;letter-spacing:-.02em;line-height:1.25}
+  .login-sub{font-size:14px;color:var(--text-3);margin:0 0 22px}
+  .form{display:flex;flex-direction:column;gap:14px}
+  .input{width:100%;font:15px Inter,sans-serif;padding:14px 16px;border:1px solid var(--line-2);border-radius:10px;background:hsla(0,0%,100%,.04);color:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+  textarea.input{resize:vertical;min-height:96px;line-height:1.5}
+  .input::placeholder{color:hsla(0,0%,100%,.32)}
+  .input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(63,221,132,.15)}
+  .options{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-3)}
+  .check input{width:16px;height:16px;accent-color:var(--green);margin:0}
+  .forgot{font-size:13px;font-weight:500;color:var(--green-light);text-decoration:none}
+  .btn-block{width:100%;border-radius:10px;box-shadow:0 8px 24px rgba(63,221,132,.25)}
+  .login-alt{text-align:center;margin-top:16px;font-size:13px;color:var(--text-3)}
+  .login-alt button{font:600 13px Inter,sans-serif;color:var(--green-light);background:none;border:none;cursor:pointer;padding:0}
+  @media(max-width:1024px){.login{max-width:440px;width:100%}}
+  @media(max-width:768px){.login{padding:28px 20px;border-radius:20px}}
+
+  /* ===== БОЛИ ===== */
+  .pains{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .pain{padding:24px;border-radius:18px;border:1px solid var(--line);background:hsla(0,0%,100%,.02)}
+  .pain-num{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:14px;letter-spacing:.06em}
+  .pain h3{font-size:16px;font-weight:600;margin:0 0 8px;line-height:1.3}
+  .pain p{font-size:14px;color:var(--text-3);margin:0;line-height:1.55}
+  @media(max-width:1024px){.grid4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.grid4{grid-template-columns:1fr}}
+
+  /* ===== КАК РАБОТАЕТ ===== */
+  .how{background:var(--bg-2)}
+  .how-grid{display:grid;grid-template-columns:1fr 460px;gap:56px;align-items:start}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:20px;border-radius:16px;border:1px solid var(--line);background:hsla(0,0%,100%,.02)}
+  .step-n{width:44px;height:44px;border-radius:12px;background:rgba(63,221,132,.12);color:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:700}
+  .step h3{font-size:16px;font-weight:600;margin:2px 0 6px}
+  .step p{font-size:14px;color:var(--text-3);margin:0;line-height:1.55}
+  /* Иллюстрация рекомендации */
+  .mock{position:sticky;top:96px;border-radius:20px;border:1px solid var(--line-2);background:var(--bg-3);padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.4)}
+  .mock-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:13px;color:var(--text-3)}
+  .mock-goal{font-size:12px;font-weight:600;color:var(--green-light);background:rgba(63,221,132,.1);border:1px solid rgba(63,221,132,.25);padding:5px 10px;border-radius:999px}
+  .mock-row{display:grid;grid-template-columns:1.2fr 1fr 1fr .9fr;gap:8px;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13px}
+  .mock-row.th{color:var(--text-3);font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-top:none;padding-top:0}
+  .up{color:var(--green-light);font-weight:600}.down{color:#ff8a8a;font-weight:600}.hold{color:var(--text-3);font-weight:600}
+  .mock-note{margin:14px 0 0;font-size:12px;color:var(--text-3);line-height:1.5}
+  .mock-actions{display:flex;gap:8px;margin-top:14px}
+  .mock-actions span{flex:1;text-align:center;font-size:12px;font-weight:600;padding:9px;border-radius:8px;border:1px solid var(--line-2)}
+  .mock-actions span:first-child{background:var(--green);color:var(--bg);border-color:var(--green)}
+  @media(max-width:1024px){.how-grid{grid-template-columns:1fr}.mock{position:static;max-width:520px}}
+
+  /* ===== ЦЕЛИ ===== */
+  .goals{background:var(--bg)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .goal{padding:28px 24px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(63,221,132,.06),transparent 60%)}
+  .goal-icon{width:44px;height:44px;border-radius:12px;background:rgba(63,221,132,.1);color:var(--green-light);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .goal h3{font-size:18px;font-weight:700;margin:0 0 8px}
+  .goal p{font-size:14px;color:var(--text-3);margin:0;line-height:1.55}
+  .goal .when{display:block;margin-top:14px;font-size:13px;color:var(--text-2)}
+  @media(max-width:1024px){.grid3{grid-template-columns:1fr}}
+
+  /* ===== ВОЗМОЖНОСТИ ===== */
+  .features{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
+  .features .grid3{grid-template-columns:repeat(3,1fr)}
+  .card{display:flex;flex-direction:column;gap:12px;padding:26px 24px;background:hsla(0,0%,100%,.03);border:1px solid var(--line);border-radius:20px;transition:border-color .25s,transform .25s}
+  .card:hover{border-color:rgba(63,221,132,.3);transform:translateY(-3px)}
+  .card-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:rgba(63,221,132,.1);color:var(--green-light)}
+  .card h3{font-size:16px;font-weight:600;margin:0;line-height:1.3}
+  .card p{font-size:14px;line-height:1.55;color:var(--text-3);margin:0}
+  @media(max-width:1024px){.features .grid3{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.features .grid3{grid-template-columns:1fr}}
+
+  /* ===== ДЛЯ КОГО ===== */
+  .roles{background:var(--bg-2)}
+  .role{padding:22px;border-radius:16px;border:1px solid var(--line);background:hsla(0,0%,100%,.02)}
+  .role h3{font-size:15px;font-weight:700;margin:0 0 8px;color:var(--green-light)}
+  .role p{font-size:14px;color:var(--text-2);margin:0;line-height:1.55}
+
+  /* ===== ПОПРОБУЙТЕ САМИ ===== */
+  .tools{background:var(--bg-2);padding-top:0}
+  .cta-card{position:relative;display:flex;flex-direction:column;gap:16px;padding:32px 28px;border-radius:24px;border:1px solid var(--line);text-decoration:none;color:inherit;transition:border-color .25s,transform .25s;cursor:pointer;text-align:left;font:inherit}
+  .cta-card:hover{border-color:rgba(63,221,132,.35);transform:translateY(-3px)}
+  .cta-card.green{background:linear-gradient(135deg,rgba(63,221,132,.08),rgba(11,12,16,.95))}
+  .cta-card.blue{background:linear-gradient(135deg,rgba(91,165,255,.08),rgba(11,12,16,.95))}
+  .cta-card.gold{background:linear-gradient(135deg,rgba(244,183,64,.07),rgba(11,12,16,.95))}
+  .cta-icon{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px}
+  .green .cta-icon{background:rgba(63,221,132,.12);color:var(--green-light)}
+  .blue .cta-icon{background:rgba(91,165,255,.12);color:var(--blue)}
+  .gold .cta-icon{background:rgba(244,183,64,.12);color:var(--gold)}
+  .cta-card h3{font-size:19px;font-weight:700;margin:0}
+  .cta-card p{font-size:14px;line-height:1.55;color:var(--text-3);margin:0}
+  .cta-card small{font-size:12px;color:var(--text-3);opacity:.85}
+  .cta-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;margin-top:auto;transition:gap .2s}
+  .cta-card:hover .cta-link{gap:10px}
+  .green .cta-link{color:var(--green-light)} .blue .cta-link{color:var(--blue)} .gold .cta-link{color:var(--gold)}
+
+  /* ===== КАК НАЧАТЬ ===== */
+  .start{background:var(--bg)}
+  .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  .tl{padding:24px;border-radius:18px;border:1px solid var(--line);background:hsla(0,0%,100%,.02);position:relative}
+  .tl-when{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-light);margin-bottom:10px}
+  .tl h3{font-size:16px;margin:0 0 8px}
+  .tl p{font-size:14px;color:var(--text-3);margin:0;line-height:1.55}
+  @media(max-width:1024px){.timeline{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.timeline{grid-template-columns:1fr}}
+
+  /* ===== ВОПРОСЫ ===== */
+  .faq{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
+  .faq-list{max-width:880px;display:flex;flex-direction:column;gap:10px}
+  details{border:1px solid var(--line);border-radius:14px;background:hsla(0,0%,100%,.02);padding:0 20px}
+  details[open]{border-color:rgba(63,221,132,.25)}
+  summary{cursor:pointer;list-style:none;padding:18px 28px 18px 0;font-weight:600;font-size:16px;position:relative}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";position:absolute;right:0;top:14px;font-size:22px;color:var(--green-light);font-weight:400}
+  details[open] summary::after{content:"−"}
+  details p{margin:0 0 18px;color:var(--text-2);font-size:15px;line-height:1.6}
+
+  /* ===== ЗАЯВКА ===== */
+  .contact{background:var(--bg-2)}
+  .contact-box{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:48px;border-radius:28px;border:1px solid var(--line-2);background:radial-gradient(ellipse at 0% 0%,rgba(63,221,132,.14),transparent 55%),var(--bg-3)}
+  .contact-box .section-sub{margin-bottom:24px}
+  .contact-points{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;color:var(--text-2);font-size:15px}
+  .contact-points li{display:flex;gap:10px}
+  .contact-points li::before{content:"";flex:0 0 8px;height:8px;margin-top:8px;border-radius:50%;background:var(--green)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-note{font-size:12px;color:var(--text-3);margin:4px 0 0;line-height:1.5}
+  @media(max-width:900px){.contact-box{grid-template-columns:1fr;padding:28px 20px;gap:28px}.form-row{grid-template-columns:1fr}}
+
+  /* ===== ПОДВАЛ ===== */
+  .footer{padding:36px 0;border-top:1px solid var(--line);background:var(--bg)}
+  .footer-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .footer p{font-size:13px;color:var(--text-3);margin:0 0 4px}
+  .footer-links{display:flex;gap:20px;flex-wrap:wrap}
+  .footer-links a{font-size:13px;color:var(--text-3);text-decoration:none}
+  .footer-links a:hover{color:var(--green-light)}
+
+  /* ===== ОКНО «ДЕМО» ===== */
+  .modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+  .modal.open{display:flex}
+  .modal-panel{position:relative;width:100%;max-width:480px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:24px;padding:40px 32px}
+  .modal-close{position:absolute;top:14px;right:14px;width:36px;height:36px;background:none;border:none;border-radius:10px;color:var(--text-3);font-size:24px;cursor:pointer}
+  .modal-close:hover{background:hsla(0,0%,100%,.06);color:#fff}
+  .modal h2{font-size:22px;margin:0 0 6px;letter-spacing:-.02em}
+  .modal-sub{font-size:14px;color:var(--text-3);margin:0 0 22px}
+  .modal-actions{display:flex;flex-direction:column;gap:10px}
+</style>
+</head>
+<body>
+
+<!-- ===================== ШАПКА ===================== -->
+<header class="header">
+  <div class="wrap header-inner">
+    <a class="logo" href="#top" aria-label="DPrice"><svg viewBox="0 0 149 51" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#EAEFF5" d="M61.9414 18.4136H69.4323L70.7857 26.5812V41.1224H63.3735V25.9517L61.9414 18.4293V18.4136ZM81.613 18.0988V24.4724C80.889 24.315 80.1809 24.1891 79.457 24.1104C78.7645 24.0318 78.135 23.9845 77.5528 23.9845C76.278 23.9845 75.1292 24.2521 74.0906 24.7871C73.0834 25.2907 72.265 26.1091 71.667 27.2107C71.0847 28.328 70.7857 29.7759 70.7857 31.5542L69.3064 29.7286C69.4953 28.1077 69.7943 26.5812 70.2192 25.1491C70.6441 23.717 71.2264 22.458 71.966 21.3722C72.7057 20.2548 73.6184 19.3735 74.72 18.744C75.8374 18.1146 77.1751 17.7841 78.7488 17.7841C79.2052 17.7841 79.6773 17.8155 80.1809 17.8628C80.6845 17.91 81.1566 17.9887 81.613 18.0988ZM83.7218 18.0988L87.3885 18.8542L91.0868 18.0988V41.1067H83.7218V18.0988ZM87.42 16.0215C86.1138 16.0215 85.0594 15.691 84.2411 15.0301C83.4227 14.3376 83.0136 13.4406 83.0136 12.3233C83.0136 11.1744 83.4227 10.2774 84.2411 9.61645C85.0594 8.95548 86.1295 8.625 87.42 8.625C88.7419 8.625 89.8121 8.95548 90.5989 9.61645C91.4015 10.2774 91.795 11.1902 91.795 12.3233C91.795 13.4406 91.4015 14.3376 90.5989 15.0301C89.7963 15.691 88.7419 16.0215 87.42 16.0215ZM120.862 31.7115C120.641 33.6787 119.902 35.4098 118.627 36.9206C117.384 38.4313 115.763 39.6116 113.764 40.4614C111.797 41.3112 109.578 41.7362 107.107 41.7362C104.369 41.7362 101.961 41.2326 99.8524 40.2254C97.7594 39.2182 96.1227 37.8018 94.9581 36.0078C93.7936 34.198 93.2113 32.1207 93.2113 29.7601C93.2113 27.3995 93.7936 25.3222 94.9581 23.5439C96.1227 21.7341 97.7594 20.3335 99.8524 19.3263C101.945 18.2877 104.369 17.7683 107.107 17.7683C109.578 17.7683 111.797 18.1932 113.764 19.0431C115.763 19.8929 117.368 21.0732 118.627 22.5839C119.902 24.0632 120.641 25.8258 120.862 27.8402H113.497C113.198 26.3766 112.474 25.2593 111.309 24.4881C110.16 23.6855 108.775 23.2921 107.123 23.2921C105.817 23.2921 104.684 23.5439 103.692 24.0475C102.732 24.5511 101.993 25.2907 101.458 26.2822C100.923 27.2422 100.655 28.391 100.655 29.7444C100.655 31.0978 100.923 32.2466 101.458 33.2066C101.993 34.1665 102.732 34.8905 103.692 35.394C104.668 35.8976 105.817 36.1494 107.123 36.1494C108.791 36.1494 110.208 35.756 111.341 34.9534C112.489 34.1351 113.198 33.0492 113.497 31.6958H120.862V31.7115ZM136.741 41.7519C134.034 41.7519 131.61 41.2483 129.454 40.2411C127.33 39.2339 125.662 37.8176 124.434 36.0235C123.206 34.2138 122.608 32.105 122.608 29.6972C122.608 27.3366 123.191 25.2593 124.355 23.481C125.52 21.7026 127.125 20.302 129.171 19.2948C131.248 18.2877 133.577 17.7841 136.174 17.7841C138.834 17.7841 141.115 18.3664 143.02 19.5309C144.924 20.6955 146.403 22.3479 147.442 24.4724C148.481 26.5969 149 29.0991 149 31.9633H128.526V27.3051H144.924L142.249 28.9732C142.17 27.73 141.871 26.6756 141.336 25.8258C140.832 24.9445 140.156 24.2836 139.306 23.8272C138.456 23.3551 137.449 23.1033 136.284 23.1033C135.009 23.1033 133.908 23.3551 132.979 23.8586C132.051 24.3622 131.327 25.0704 130.792 25.9674C130.288 26.8645 130.036 27.9189 130.036 29.1149C130.036 30.6257 130.367 31.9161 131.028 32.9705C131.72 34.0249 132.696 34.8432 133.971 35.394C135.277 35.9448 136.851 36.2281 138.708 36.2281C140.407 36.2281 142.107 36.0078 143.807 35.5514C144.373 35.394 144.908 35.2209 145.443 35.0163C149.346 33.5371 148.386 32.7187 148.386 38.3841C146.844 39.4385 145.081 40.2726 143.083 40.8549C141.115 41.4371 138.991 41.7362 136.709 41.7362L136.741 41.7519Z"/><path fill="#8A8790" d="M28.7661 50.1909H25.178H21.5742L26.8462 36.8143L32.1182 23.4219L37.7206 27.4821L28.7661 50.1909Z"/><path fill="#EAEFF5" d="M45.4939 41.8942C42.5983 41.8942 40.0803 41.3276 37.9558 40.2103C35.8313 39.0929 34.1946 37.5349 33.03 35.5521C31.8655 33.5377 31.2832 31.1928 31.2832 28.5018C31.2832 25.8264 31.8655 23.4816 33.03 21.483C34.1946 19.4686 35.847 17.9106 37.9558 16.7933C40.0803 15.6759 42.5983 15.1094 45.4939 15.1094C48.3738 15.1094 50.8761 15.6759 53.0006 16.7933C55.1251 17.9106 56.7618 19.4843 57.9421 21.483C59.1066 23.4658 59.6889 25.8107 59.6889 28.5018C59.6889 31.1771 59.1066 33.5219 57.9421 35.5206C56.7775 37.5349 55.1251 39.0929 53.0006 40.2103C50.8761 41.3276 48.3738 41.8942 45.4939 41.8942ZM45.4939 36.6222C47.9332 36.6222 49.8374 35.914 51.1751 34.4977C52.5442 33.0813 53.2367 31.0827 53.2367 28.5018C53.2367 25.9209 52.5442 23.9222 51.1751 22.5059C49.8217 21.0895 47.9332 20.3814 45.4939 20.3814C43.0547 20.3814 41.1505 21.0895 39.7656 22.5059C38.3964 23.9222 37.704 25.9209 37.704 28.5018C37.704 31.0827 38.3964 33.0813 39.7656 34.4977C41.1347 35.914 43.0389 36.6222 45.4939 36.6222Z"/><path fill="#61E79B" d="M30.9232 0H34.5113H38.1152L32.8432 13.3767L27.5712 26.769L21.9688 22.7088L30.9232 0Z"/><path fill="#3FDD84" d="M14.195 8.28906C17.0906 8.28906 19.6086 8.8556 21.7331 9.97295C23.8577 11.0903 25.4943 12.6483 26.6589 14.6312C27.8234 16.6455 28.4057 18.9904 28.4057 21.6815C28.4057 24.3568 27.8234 26.7016 26.6589 28.7003C25.4943 30.7146 23.8419 32.2726 21.7331 33.39C19.6086 34.5073 17.0906 35.0738 14.195 35.0738C11.3151 35.0738 8.81285 34.5073 6.68833 33.39C4.5638 32.2726 2.92713 30.6989 1.74683 28.7003C0.582278 26.7174 0 24.3725 0 21.6815C0 19.0061 0.582278 16.6613 1.74683 14.6626C2.91139 12.6483 4.5638 11.0903 6.68833 9.97295C8.81285 8.8556 11.3151 8.28906 14.195 8.28906ZM14.195 13.561C11.7557 13.561 9.85151 14.2692 8.51385 15.6856C7.14471 17.1019 6.45227 19.1005 6.45227 21.6815C6.45227 24.2624 7.14471 26.261 8.51385 27.6773C9.86725 29.0937 11.7557 29.8019 14.195 29.8019C16.6343 29.8019 18.5385 29.0937 19.9233 27.6773C21.2925 26.261 21.9849 24.2624 21.9849 21.6815C21.9849 19.1005 21.2925 17.1019 19.9233 15.6856C18.5542 14.2692 16.65 13.561 14.195 13.561Z"/></svg></a>
+    <nav class="nav" aria-label="Menu">
+      <a class="nav-link" href="#how"><span data-lang="en">How it works</span><span data-lang="ru">Как работает</span></a>
+      <a class="nav-link" href="#goals"><span data-lang="en">Goals</span><span data-lang="ru">Цели</span></a>
+      <a class="nav-link" href="#features"><span data-lang="en">Features</span><span data-lang="ru">Возможности</span></a>
+      <a class="nav-link" href="#tools"><span data-lang="en">Try it</span><span data-lang="ru">Попробовать</span></a>
+      <a class="nav-link" href="#faq"><span data-lang="en">FAQ</span><span data-lang="ru">Вопросы</span></a>
+    </nav>
+    <div class="header-right">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-set-lang="ru" aria-pressed="false">RU</button>
+      </div>
+      <a class="nav-link signin" href="https://platform.dprice.ru/en/account/login?returnUrl=%2Fen" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ru">Войти</span></a>
+      <a class="btn btn-green btn-sm" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span></a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===================== ПЕРВЫЙ ЭКРАН ===================== -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <img class="hero-buildings" src="https://platform.dprice.ru/ui/brand/buildings.png" alt="" aria-hidden="true">
+  <div class="wrap hero-inner">
+    <div class="hero-content">
+      <span class="tag"><span data-lang="en">Revenue management for developers</span><span data-lang="ru">Управление выручкой для застройщиков</span></span>
+      <h1>
+        <span data-lang="en">Get the most out of every unit <span class="accent">you sell</span></span>
+        <span data-lang="ru">Забирайте максимум с <span class="accent">каждой квартиры</span></span>
+      </h1>
+      <p class="hero-sub">
+        <span data-lang="en">DPrice reads your own sales and recommends the price of every apartment — up, down or hold — so the project earns as much as the market allows. You set the goal, DPrice does the maths, your team makes the call.</span>
+        <span data-lang="ru">DPrice анализирует ваши продажи и рекомендует цену каждой квартиры: поднять, снизить или держать. Так проект забирает с рынка максимум возможного. Вы задаёте цель, DPrice считает, решение остаётся за вашей командой.</span>
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span>
+          <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></a>
+        <a class="btn btn-ghost" data-href-en="https://game.dprice.ru/en/game" data-href-ru="https://game.dprice.ru/ru/game" href="https://game.dprice.ru/en/game" target="_blank" rel="noopener noreferrer"><span data-lang="en">Beat the algorithm — play</span><span data-lang="ru">Обыграть алгоритм — игра</span></a>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">Your data only</span><span data-lang="ru">Только ваши данные</span></span><span class="kpi-label"><span data-lang="en">built on your sales history, no external feeds</span><span data-lang="ru">модель строится на истории ваших продаж</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">Every unit</span><span data-lang="ru">Каждая квартира</span></span><span class="kpi-label"><span data-lang="en">a price recommendation per apartment, not per building</span><span data-lang="ru">рекомендация по каждому лоту, а не по корпусу</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">7 days</span><span data-lang="ru">7 дней</span></span><span class="kpi-label"><span data-lang="en">to connect, without stopping sales</span><span data-lang="ru">на подключение без остановки продаж</span></span></div>
+      </div>
+    </div>
+
+    <!-- ===== ВХОД ДЛЯ КЛИЕНТОВ =====
+         Поля для вида; «Войти» открывает рабочую страницу входа платформы. -->
+    <div class="login" id="signin">
+      <div class="login-glow" aria-hidden="true"></div>
+      <div class="login-body">
+        <h2><span data-lang="en">Client sign-in</span><span data-lang="ru">Вход для клиентов</span></h2>
+        <p class="login-sub"><span data-lang="en">Manage the prices of your project</span><span data-lang="ru">Управляйте ценами вашего проекта</span></p>
+        <form class="form" action="https://platform.dprice.ru/en/account/login" method="get" target="_blank">
+          <input type="hidden" name="returnUrl" value="/en">
+          <label class="sr-only" for="email">Login or e-mail</label>
+          <input id="email" class="input" type="text" data-ph-en="Login or e-mail" data-ph-ru="Логин или e-mail" placeholder="Login or e-mail" autocomplete="username">
+          <label class="sr-only" for="password">Password</label>
+          <input id="password" class="input" type="password" data-ph-en="Password" data-ph-ru="Пароль" placeholder="Password" autocomplete="current-password">
+          <div class="options">
+            <label class="check"><input type="checkbox"><span data-lang="en">Remember me</span><span data-lang="ru">Запомнить меня</span></label>
+            <a class="forgot" href="https://platform.dprice.ru/account/forgot-password"><span data-lang="en">Forgot password?</span><span data-lang="ru">Забыли пароль?</span></a>
+          </div>
+          <button type="submit" class="btn btn-green btn-block"><span data-lang="en">Sign in</span><span data-lang="ru">Войти</span></button>
+        </form>
+        <p class="login-alt"><span data-lang="en">No account yet?</span><span data-lang="ru">Нет аккаунта?</span>
+          <button type="button" data-open-demo><span data-lang="en">Try the demo</span><span data-lang="ru">Оценить демо</span></button></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ПРОБЛЕМА ===================== -->
+<section class="section pains">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">The problem</span><span data-lang="ru">Проблема</span></span>
+    <h2 class="section-title"><span data-lang="en">Most projects leave money on the table — quietly</span><span data-lang="ru">Большинство проектов недобирает деньги — и этого не видно</span></h2>
+    <p class="section-sub"><span data-lang="en">Prices are usually set once a month by a committee, using spreadsheets and gut feel. The losses don’t show up in any report: they are the price you could have charged but didn’t.</span><span data-lang="ru">Цены обычно пересматривают раз в месяц на комитете, по таблицам и опыту. Потери не видны ни в одном отчёте: это та цена, которую можно было взять, но не взяли.</span></p>
+    <div class="grid4">
+      <div class="pain"><div class="pain-num">01</div>
+        <h3><span data-lang="en">Hot units sold too cheap</span><span data-lang="ru">Ходовые квартиры уходят слишком дёшево</span></h3>
+        <p><span data-lang="en">The best layouts sell out in days at a price set weeks ago.</span><span data-lang="ru">Лучшие планировки разбирают за дни по цене, назначенной недели назад.</span></p></div>
+      <div class="pain"><div class="pain-num">02</div>
+        <h3><span data-lang="en">Slow units sit for months</span><span data-lang="ru">Неликвид стоит месяцами</span></h3>
+        <p><span data-lang="en">The leftovers end up sold at a deep discount at the end of the project.</span><span data-lang="ru">В конце проекта остатки распродают с большой скидкой.</span></p></div>
+      <div class="pain"><div class="pain-num">03</div>
+        <h3><span data-lang="en">Demand shifts noticed late</span><span data-lang="ru">Изменения спроса замечают поздно</span></h3>
+        <p><span data-lang="en">By the time the monthly report shows a slowdown, a month is already lost.</span><span data-lang="ru">Когда спад виден в месячном отчёте, месяц уже потерян.</span></p></div>
+      <div class="pain"><div class="pain-num">04</div>
+        <h3><span data-lang="en">Decisions hard to defend</span><span data-lang="ru">Решения сложно обосновать</span></h3>
+        <p><span data-lang="en">“Why this price?” — the committee rarely has a clear, numbers-based answer.</span><span data-lang="ru">«Почему такая цена?» — у комитета редко есть ответ в цифрах.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== КАК РАБОТАЕТ ===================== -->
+<section class="section how" id="how">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">How it works</span><span data-lang="ru">Как работает</span></span>
+    <h2 class="section-title"><span data-lang="en">From your sales data to a price for every unit</span><span data-lang="ru">От ваших продаж — к цене каждой квартиры</span></h2>
+    <p class="section-sub"><span data-lang="en">DPrice uses adaptive algorithms of the kind airlines and ride-hailing rely on, tuned for residential real estate.</span><span data-lang="ru">DPrice использует адаптивные алгоритмы того же класса, что в авиации и такси, настроенные под жилую недвижимость.</span></p>
+    <div class="how-grid">
+      <ol class="steps">
+        <li class="step"><div class="step-n">1</div><div>
+          <h3><span data-lang="en">Connect your sales data</span><span data-lang="ru">Подключаем ваши данные о продажах</span></h3>
+          <p><span data-lang="en">Units, prices, bookings and deals from your CRM or a spreadsheet export. Sales keep running.</span><span data-lang="ru">Лоты, цены, брони и сделки — из CRM или выгрузки в таблице. Продажи не останавливаются.</span></p></div></li>
+        <li class="step"><div class="step-n">2</div><div>
+          <h3><span data-lang="en">Choose the goal</span><span data-lang="ru">Выбираете цель</span></h3>
+          <p><span data-lang="en">Cash flow now, maximum value from remaining stock, or an even sell-out — you decide what “better” means.</span><span data-lang="ru">Деньги сейчас, максимум с остатка или равномерные продажи — вы решаете, что значит «лучше».</span></p></div></li>
+        <li class="step"><div class="step-n">3</div><div>
+          <h3><span data-lang="en">Get recommendations for each unit</span><span data-lang="ru">Получаете рекомендации по каждой квартире</span></h3>
+          <p><span data-lang="en">Raise, lower or hold — with the demand trend and the reasoning behind each number.</span><span data-lang="ru">Поднять, снизить или держать — с динамикой спроса и обоснованием каждой цифры.</span></p></div></li>
+        <li class="step"><div class="step-n">4</div><div>
+          <h3><span data-lang="en">Your team approves</span><span data-lang="ru">Решение принимает ваша команда</span></h3>
+          <p><span data-lang="en">Accept, adjust or reject. The system learns from new sales and keeps updating.</span><span data-lang="ru">Принять, поправить или отклонить. Система учится на новых продажах и обновляет рекомендации.</span></p></div></li>
+      </ol>
+
+      <!-- Иллюстрация: как выглядит рекомендация (цифры условные) -->
+      <div class="mock" aria-label="Illustration">
+        <div class="mock-head">
+          <span><span data-lang="en">Building A · today</span><span data-lang="ru">Корпус А · сегодня</span></span>
+          <span class="mock-goal"><span data-lang="en">Goal: cash flow</span><span data-lang="ru">Цель: денежный поток</span></span>
+        </div>
+        <div class="mock-row th"><span><span data-lang="en">Unit</span><span data-lang="ru">Лот</span></span><span><span data-lang="en">Demand</span><span data-lang="ru">Спрос</span></span><span><span data-lang="en">Advice</span><span data-lang="ru">Совет</span></span><span><span data-lang="en">Change</span><span data-lang="ru">Изм.</span></span></div>
+        <div class="mock-row"><span>A-1204 · 2BR</span><span><span data-lang="en">rising</span><span data-lang="ru">растёт</span></span><span><span data-lang="en">raise</span><span data-lang="ru">поднять</span></span><span class="up">+2.4%</span></div>
+        <div class="mock-row"><span>A-0703 · 1BR</span><span><span data-lang="en">stable</span><span data-lang="ru">ровный</span></span><span><span data-lang="en">hold</span><span data-lang="ru">держать</span></span><span class="hold">0.0%</span></div>
+        <div class="mock-row"><span>A-0211 · 3BR</span><span><span data-lang="en">slowing</span><span data-lang="ru">падает</span></span><span><span data-lang="en">lower</span><span data-lang="ru">снизить</span></span><span class="down">−1.8%</span></div>
+        <div class="mock-row"><span>A-1501 · PH</span><span><span data-lang="en">rising</span><span data-lang="ru">растёт</span></span><span><span data-lang="en">raise</span><span data-lang="ru">поднять</span></span><span class="up">+3.1%</span></div>
+        <div class="mock-actions"><span><span data-lang="en">Approve</span><span data-lang="ru">Принять</span></span><span><span data-lang="en">Adjust</span><span data-lang="ru">Поправить</span></span></div>
+        <p class="mock-note"><span data-lang="en">Illustration. Figures are examples only.</span><span data-lang="ru">Иллюстрация, цифры условные.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ЦЕЛИ ===================== -->
+<section class="section goals" id="goals">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">Pricing goals</span><span data-lang="ru">Цели ценообразования</span></span>
+    <h2 class="section-title"><span data-lang="en">One project, different priorities — pick the one that matters now</span><span data-lang="ru">Один проект — разные приоритеты. Выберите тот, что важен сейчас</span></h2>
+    <p class="section-sub"><span data-lang="en">Whatever the market does, DPrice aims to take the most your project can get under the goal you set. The goal can be changed at any time.</span><span data-lang="ru">Как бы ни менялся рынок, DPrice стремится взять максимум, возможный для вашего проекта при выбранной цели. Цель можно сменить в любой момент.</span></p>
+    <div class="grid3">
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M23 20.5c0-4.6-3.8-5.1-6.8-5.6-3.3-.5-5.2-.9-5.2-3.7 0-2.4 2.5-3.2 4.7-3.2 2.3 0 4.1.9 5.5 2.6l1.6-1.2A8.7 8.7 0 0 0 17 6.1V3h-2v3c-3.6.2-6 2.3-6 5.2 0 4.7 3.8 5.3 6.9 5.7 3.3.5 5.1.9 5.1 3.6 0 3.1-3.1 3.5-5 3.5-3.4 0-4.9-1-6.2-2.6l-1.6 1.2a8.4 8.4 0 0 0 6.8 3.3V29h2v-3c3.7-.3 6-2.3 6-5.5z"/></svg></div>
+        <h3><span data-lang="en">Cash flow</span><span data-lang="ru">Денежный поток</span></h3>
+        <p><span data-lang="en">Prioritises money coming in sooner — to fund construction, repay financing or meet bank covenants.</span><span data-lang="ru">Приоритет — деньги раньше: на стройку, погашение финансирования, выполнение ковенантов банка.</span></p>
+        <span class="when"><span data-lang="en">When cash matters most right now.</span><span data-lang="ru">Когда деньги нужны сейчас.</span></span>
+      </div>
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20 8v2h6.6L18 18.6l-4.3-4.3-1.4 0L2 24.6 3.4 26 13 16.4l4.3 4.3 1.4 0L28 11.4V18h2V8z"/></svg></div>
+        <h3><span data-lang="en">Maximum from remaining stock</span><span data-lang="ru">Максимум остатка</span></h3>
+        <p><span data-lang="en">Prioritises the total value of unsold units, holding price where demand allows.</span><span data-lang="ru">Приоритет — итоговая стоимость непроданных квартир; цена удерживается там, где позволяет спрос.</span></p>
+        <span class="when"><span data-lang="en">When the project has time and you want the best final result.</span><span data-lang="ru">Когда есть время и важен итоговый результат.</span></span>
+      </div>
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/><path d="M20.6 22 15 16.4V7h2v8.6l5 5z"/></svg></div>
+        <h3><span data-lang="en">Even sell-out</span><span data-lang="ru">Равномерное вымывание</span></h3>
+        <p><span data-lang="en">Keeps all unit types selling evenly, so you don’t end up with only the hardest units left.</span><span data-lang="ru">Все типы квартир продаются равномерно — в конце не остаются одни «неудобные» лоты.</span></p>
+        <span class="when"><span data-lang="en">When a balanced inventory matters.</span><span data-lang="ru">Когда важен сбалансированный остаток.</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ВОЗМОЖНОСТИ ===================== -->
+<section class="section features" id="features">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">Features</span><span data-lang="ru">Возможности</span></span>
+    <h2 class="section-title"><span data-lang="en">Why developers choose DPrice</span><span data-lang="ru">Почему застройщики выбирают DPrice</span></h2>
+    <p class="section-sub"><span data-lang="en">Transparent mathematical methods from aviation, ride-hailing and marketplaces — adapted for real estate development.</span><span data-lang="ru">Прозрачные математические методы из авиации, такси и маркетплейсов — адаптированные для девелопмента.</span></p>
+    <div class="grid3">
+      <article class="card">
+        <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20 8v2h6.6L18 18.6l-4.3-4.3-1.4 0L2 24.6 3.4 26 13 16.4l4.3 4.3 1.4 0L28 11.4V18h2V8z"/></svg></div>
+        <h3><span data-lang="en">Dynamic pricing</span><span data-lang="ru">Динамическое ценообразование</span></h3>
+        <p><span data-lang="en">Models adapt prices as demand changes, instead of waiting for the next monthly review.</span><span data-lang="ru">Модели подстраивают цены под изменения спроса, не дожидаясь ежемесячного пересмотра.</span></p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M23 20.5c0-4.6-3.8-5.1-6.8-5.6-3.3-.5-5.2-.9-5.2-3.7 0-2.4 2.5-3.2 4.7-3.2 2.3 0 4.1.9 5.5 2.6l1.6-1.2A8.7 8.7 0 0 0 17 6.1V3h-2v3c-3.6.2-6 2.3-6 5.2 0 4.7 3.8 5.3 6.9 5.7 3.3.5 5.1.9 5.1 3.6 0 3.1-3.1 3.5-5 3.5-3.4 0-4.9-1-6.2-2.6l-1.6 1.2a8.4 8.4 0 0 0 6.8 3.3V29h2v-3c3.7-.3 6-2.3 6-5.5z"/></svg></div>
+        <h3><span data-lang="en">Financing-aware</span><span data-lang="ru">Учёт финансирования</span></h3>
+        <p><span data-lang="en">Balances revenue against the cost of construction financing and the pace of incoming payments.</span><span data-lang="ru">Баланс между выручкой, стоимостью проектного финансирования и скоростью поступления денег.</span></p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M4 2H2v26a2 2 0 0 0 2 2h26v-2H4z"/><path d="M30 9h-7v2h3.6L19 18.6l-4.3-4.3a1 1 0 0 0-1.4 0L6 21.6 7.4 23 14 16.4l4.3 4.3a1 1 0 0 0 1.4 0L28 12.4V16h2z"/></svg></div>
+        <h3><span data-lang="en">Transparent analytics</span><span data-lang="ru">Прозрачная аналитика</span></h3>
+        <p><span data-lang="en">Every recommendation comes with its basis: demand curves, sales dynamics, financing indicators.</span><span data-lang="ru">У каждой рекомендации есть обоснование: графики спроса, динамика продаж, показатели финансирования.</span></p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/><path d="M20.6 22 15 16.4V7h2v8.6l5 5z"/></svg></div>
+        <h3><span data-lang="en">Early demand signals</span><span data-lang="ru">Ранние сигналы спроса</span></h3>
+        <p><span data-lang="en">Spots a change in demand in your sales earlier than routine reports do — so you can react in time.</span><span data-lang="ru">Замечает изменение спроса в ваших продажах раньше обычных отчётов — чтобы успеть отреагировать.</span></p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 9a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm16 0a4 4 0 1 1 4-4 4 4 0 0 1-4 4zM26 30h-4a2 2 0 0 1-2-2v-7h2v7h4v-9h2v-6a1 1 0 0 0-1-1h-6.4L16 20l-4.6-8H5a1 1 0 0 0-1 1v6h2v9h4v-7h2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1-2-2v-6a3 3 0 0 1 3-3h7.6l3.4 6 3.4-6H27a3 3 0 0 1 3 3v6a2 2 0 0 1-2 2v7a2 2 0 0 1-2 2z"/></svg></div>
+        <h3><span data-lang="en">Less guesswork</span><span data-lang="ru">Меньше субъективности</span></h3>
+        <p><span data-lang="en">Decisions based on data rather than intuition — and easier to explain to owners and the bank.</span><span data-lang="ru">Решения на данных, а не на интуиции — и их проще объяснить собственнику и банку.</span></p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M26 4v24H6V4h20m0-2H6a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 7h14v3H9zm0 6h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 18h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 23h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2z"/></svg></div>
+        <h3><span data-lang="en">Live in 7 days</span><span data-lang="ru">Подключение за 7 дней</span></h3>
+        <p><span data-lang="en">Fast setup without pausing sales. Works with the data formats developers already use.</span><span data-lang="ru">Быстрый запуск без остановки продаж. Работает с форматами данных, которые уже есть у застройщика.</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ДЛЯ КОГО ===================== -->
+<section class="section roles">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">Who it’s for</span><span data-lang="ru">Для кого</span></span>
+    <h2 class="section-title"><span data-lang="en">Built for the people who own the price</span><span data-lang="ru">Для тех, кто отвечает за цену</span></h2>
+    <p class="section-sub"><span data-lang="en">Residential developers selling off-plan or ready units, from a single project to a portfolio.</span><span data-lang="ru">Девелоперы жилья — от одного проекта до портфеля, продажи на стадии строительства и готового жилья.</span></p>
+    <div class="grid4">
+      <div class="role"><h3><span data-lang="en">Owner / CEO</span><span data-lang="ru">Собственник / CEO</span></h3><p><span data-lang="en">Sees whether the project is earning what the market allows.</span><span data-lang="ru">Видит, забирает ли проект всё, что даёт рынок.</span></p></div>
+      <div class="role"><h3><span data-lang="en">Commercial director</span><span data-lang="ru">Коммерческий директор</span></h3><p><span data-lang="en">Gets numbers-backed prices for the pricing committee.</span><span data-lang="ru">Приходит на комитет с ценами, обоснованными в цифрах.</span></p></div>
+      <div class="role"><h3><span data-lang="en">CFO</span><span data-lang="ru">Финансовый директор</span></h3><p><span data-lang="en">Links pricing to cash flow and financing costs.</span><span data-lang="ru">Связывает цены с денежным потоком и стоимостью финансирования.</span></p></div>
+      <div class="role"><h3><span data-lang="en">Pricing analyst</span><span data-lang="ru">Аналитик по ценам</span></h3><p><span data-lang="en">Swaps manual spreadsheets for daily unit-level recommendations.</span><span data-lang="ru">Меняет ручные таблицы на ежедневные рекомендации по лотам.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ПОПРОБУЙТЕ САМИ ===================== -->
+<section class="section tools" id="tools">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">Try it yourself</span><span data-lang="ru">Попробуйте сами</span></span>
+    <h2 class="section-title"><span data-lang="en">See DPrice in action before you talk to us</span><span data-lang="ru">Посмотрите DPrice в деле ещё до разговора с нами</span></h2>
+    <p class="section-sub"><span data-lang="en">Three ways in: play against the algorithm, run your own numbers, or open the platform.</span><span data-lang="ru">Три способа: сыграть против алгоритма, посчитать свой проект или открыть платформу.</span></p>
+    <div class="grid3">
+      <a class="cta-card blue" data-href-en="https://game.dprice.ru/en/game" data-href-ru="https://game.dprice.ru/ru/game" href="https://game.dprice.ru/en/game" target="_blank" rel="noopener noreferrer">
+        <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M7.5 26A5.6 5.6 0 0 1 2.2 19l2.3-8.8A5.5 5.5 0 0 1 14.7 9h2.6a5.5 5.5 0 0 1 10.2 1.2l2.3 8.8a5.6 5.6 0 0 1-10.6 2.9L19 21h-6l-.2.9A5.6 5.6 0 0 1 7.5 26zM9.8 8a3.6 3.6 0 0 0-3.4 2.7L4.1 19.5a3.6 3.6 0 0 0 6.8 1.9l.6-2.4h9l.6 2.4a3.6 3.6 0 0 0 6.8-1.9l-2.3-8.8A3.6 3.6 0 0 0 19 10.3l-.2.7h-5.6l-.2-.7A3.5 3.5 0 0 0 9.8 8z"/><path d="M9 11h2v3h3v2h-3v3H9v-3H6v-2h3z"/></svg></div>
+        <h3><span data-lang="en">DPrice game</span><span data-lang="ru">Игра DPrice</span></h3>
+        <p><span data-lang="en">Price a residential complex move by move and try to beat the dynamic pricing algorithm. Takes about five minutes.</span><span data-lang="ru">Назначайте цену ЖК ход за ходом и попробуйте обыграть алгоритм динамического ценообразования. Около пяти минут.</span></p>
+        <span class="cta-link"><span data-lang="en">Play</span><span data-lang="ru">Играть</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
+      </a>
+      <a class="cta-card green" href="https://platform.dprice.ru/calculator" target="_blank" rel="noopener noreferrer">
+        <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M26 4v24H6V4h20m0-2H6a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 7h14v3H9zm0 6h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 18h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 23h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2z"/></svg></div>
+        <h3><span data-lang="en">ROI calculator</span><span data-lang="ru">ROI-калькулятор</span></h3>
+        <p><span data-lang="en">Enter your project’s parameters and compare scenarios with and without DPrice: revenue, financing interest, profit.</span><span data-lang="ru">Введите параметры ЖК и сравните сценарии с DPrice и без: выручка, проценты по финансированию, прибыль.</span></p>
+        <small><span data-lang="en">Currently available in Russian, figures in RUB. Scenario model, not a guaranteed result.</span><span data-lang="ru">Сценарная модель, а не гарантированный результат.</span></small>
+        <span class="cta-link"><span data-lang="en">Calculate</span><span data-lang="ru">Рассчитать</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
+      </a>
+      <button type="button" class="cta-card gold" data-open-demo>
+        <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M4 2H2v26a2 2 0 0 0 2 2h26v-2H4z"/><path d="M30 9h-7v2h3.6L19 18.6l-4.3-4.3a1 1 0 0 0-1.4 0L6 21.6 7.4 23 14 16.4l4.3 4.3a1 1 0 0 0 1.4 0L28 12.4V16h2z"/></svg></div>
+        <h3><span data-lang="en">Demo platform</span><span data-lang="ru">Демо-платформа</span></h3>
+        <p><span data-lang="en">Open the working product on a demo project: unit recommendations, demand charts, goals.</span><span data-lang="ru">Откройте рабочий продукт на демо-проекте: рекомендации по лотам, графики спроса, цели.</span></p>
+        <span class="cta-link"><span data-lang="en">Open demo</span><span data-lang="ru">Открыть демо</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== КАК НАЧАТЬ ===================== -->
+<section class="section start">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">Getting started</span><span data-lang="ru">Как начать</span></span>
+    <h2 class="section-title"><span data-lang="en">From first call to live recommendations</span><span data-lang="ru">От первого звонка до рабочих рекомендаций</span></h2>
+    <p class="section-sub"><span data-lang="en">We start with one project and agree in advance how the result will be measured.</span><span data-lang="ru">Начинаем с одного проекта и заранее договариваемся, как будем измерять результат.</span></p>
+    <div class="timeline">
+      <div class="tl"><div class="tl-when"><span data-lang="en">Step 1</span><span data-lang="ru">Шаг 1</span></div>
+        <h3><span data-lang="en">Intro call</span><span data-lang="ru">Знакомство</span></h3>
+        <p><span data-lang="en">30 minutes: your project, your goal, a live look at the platform.</span><span data-lang="ru">30 минут: ваш проект, ваша цель, показ платформы.</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">Step 2</span><span data-lang="ru">Шаг 2</span></div>
+        <h3><span data-lang="en">Data and goal</span><span data-lang="ru">Данные и цель</span></h3>
+        <p><span data-lang="en">You share a sales export; we agree the goal and how success is measured.</span><span data-lang="ru">Вы передаёте выгрузку продаж, мы фиксируем цель и способ оценки результата.</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">Within 7 days</span><span data-lang="ru">За 7 дней</span></div>
+        <h3><span data-lang="en">Connection</span><span data-lang="ru">Подключение</span></h3>
+        <p><span data-lang="en">DPrice is set up on your project; the team gets access.</span><span data-lang="ru">DPrice настроен на ваш проект, команда получает доступ.</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">Ongoing</span><span data-lang="ru">Дальше</span></div>
+        <h3><span data-lang="en">Recommendations</span><span data-lang="ru">Рекомендации</span></h3>
+        <p><span data-lang="en">Regular unit-level advice and reviews of the results with our team.</span><span data-lang="ru">Регулярные рекомендации по лотам и разбор результатов с нашей командой.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ВОПРОСЫ ===================== -->
+<section class="section faq" id="faq">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">FAQ</span><span data-lang="ru">Вопросы</span></span>
+    <h2 class="section-title"><span data-lang="en">Frequently asked questions</span><span data-lang="ru">Частые вопросы</span></h2>
+    <div class="faq-list">
+      <details><summary><span data-lang="en">What data does DPrice need?</span><span data-lang="ru">Какие данные нужны DPrice?</span></summary>
+        <p><span data-lang="en">Your own sales data: the list of units with their characteristics, price history, bookings and deals. DPrice does not rely on external or public market feeds — the model is built on how your project actually sells.</span><span data-lang="ru">Только ваши данные о продажах: список лотов с характеристиками, история цен, брони и сделки. Внешние и открытые рыночные данные DPrice не использует — модель строится на том, как продаётся именно ваш проект.</span></p></details>
+      <details><summary><span data-lang="en">Does DPrice change prices automatically?</span><span data-lang="ru">DPrice сам меняет цены?</span></summary>
+        <p><span data-lang="en">No. DPrice recommends; your team decides. Every recommendation can be accepted, adjusted or rejected.</span><span data-lang="ru">Нет. DPrice рекомендует, решение принимает ваша команда. Каждую рекомендацию можно принять, поправить или отклонить.</span></p></details>
+      <details><summary><span data-lang="en">When will we see the effect?</span><span data-lang="ru">Когда будет виден эффект?</span></summary>
+        <p><span data-lang="en">It depends on the goal. With a cash-flow goal the change shows in the pace of incoming money. With a goal of maximising remaining stock, some months may show less revenue than usual — the gain comes over the life of the project. We agree how to measure it before we start.</span><span data-lang="ru">Зависит от цели. При цели «денежный поток» изменения видны в скорости поступления денег. При цели «максимум остатка» в отдельные месяцы выручка может быть ниже обычной — выигрыш складывается на длинной дистанции проекта. О том, как измерять результат, договариваемся до старта.</span></p></details>
+      <details><summary><span data-lang="en">Will DPrice explain why demand changed?</span><span data-lang="ru">DPrice объясняет, почему изменился спрос?</span></summary>
+        <p><span data-lang="en">DPrice detects the change in demand early and shows it in the data. The reasons — a competitor’s launch, a mortgage rate move, a marketing campaign — are for your team to interpret.</span><span data-lang="ru">DPrice рано замечает изменение спроса и показывает его в данных. Причины — запуск конкурента, изменение ставок, рекламная кампания — оценивает ваша команда.</span></p></details>
+      <details><summary><span data-lang="en">How is DPrice priced?</span><span data-lang="ru">Сколько стоит DPrice?</span></summary>
+        <p><span data-lang="en">Pricing depends on the size of the project. We offer a fixed fee per project or a fixed fee plus a share of sales made through DPrice — you choose the model. Contact us for a proposal.</span><span data-lang="ru">Стоимость зависит от размера проекта. Есть два варианта: фиксированная плата за проект или фиксированная часть плюс процент от продаж через DPrice — модель выбираете вы. Напишите нам, и мы подготовим предложение.</span></p></details>
+      <details><summary><span data-lang="en">Is our data safe?</span><span data-lang="ru">Насколько защищены наши данные?</span></summary>
+        <p><span data-lang="en">Your data is used only to build recommendations for your project and is not shared with third parties. Data handling terms are fixed in the contract.</span><span data-lang="ru">Данные используются только для расчёта рекомендаций по вашему проекту и не передаются третьим лицам. Условия обработки данных фиксируются в договоре.</span></p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ЗАЯВКА ===================== -->
+<section class="section contact" id="contact">
+  <div class="wrap">
+    <div class="contact-box">
+      <div>
+        <span class="section-tag"><span data-lang="en">Request a demo</span><span data-lang="ru">Запрос демо</span></span>
+        <h2 class="section-title"><span data-lang="en">Let’s look at your project</span><span data-lang="ru">Давайте посмотрим на ваш проект</span></h2>
+        <p class="section-sub"><span data-lang="en">Tell us a little about your project and we’ll come back with a time for a 30-minute call.</span><span data-lang="ru">Расскажите коротко о проекте — мы предложим время для 30-минутного звонка.</span></p>
+        <ul class="contact-points">
+          <li><span data-lang="en">A live demo on a real-life scenario</span><span data-lang="ru">Показ платформы на живом сценарии</span></li>
+          <li><span data-lang="en">A first look at what DPrice could do for your project</span><span data-lang="ru">Первая оценка, что DPrice может дать вашему проекту</span></li>
+          <li><span data-lang="en">No commitment</span><span data-lang="ru">Без обязательств</span></li>
+        </ul>
+      </div>
+      <form class="form" id="lead-form">
+        <div class="form-row">
+          <input class="input" name="name" required data-ph-en="Your name" data-ph-ru="Ваше имя" placeholder="Your name" aria-label="Name">
+          <input class="input" name="company" required data-ph-en="Company" data-ph-ru="Компания" placeholder="Company" aria-label="Company">
+        </div>
+        <div class="form-row">
+          <input class="input" name="email" type="email" required data-ph-en="Work e-mail" data-ph-ru="Рабочий e-mail" placeholder="Work e-mail" aria-label="E-mail">
+          <input class="input" name="phone" data-ph-en="Phone (optional)" data-ph-ru="Телефон (необязательно)" placeholder="Phone (optional)" aria-label="Phone">
+        </div>
+        <textarea class="input" name="message" data-ph-en="Project: city, number of units, current goal" data-ph-ru="Проект: город, число квартир, текущая цель" placeholder="Project: city, number of units, current goal" aria-label="Message"></textarea>
+        <button type="submit" class="btn btn-green btn-block"><span data-lang="en">Send request</span><span data-lang="ru">Отправить заявку</span></button>
+        <p class="form-note"><span data-lang="en">The button opens your e-mail app with the request filled in.</span><span data-lang="ru">Кнопка откроет почтовую программу с заполненным письмом.</span></p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ===================== ПОДВАЛ ===================== -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <p>© 2026 Advantix. <span data-lang="en">DPrice is a product of Advantix.</span><span data-lang="ru">DPrice — продукт компании Advantix.</span></p>
+    </div>
+    <div class="footer-links">
+      <a href="#how"><span data-lang="en">How it works</span><span data-lang="ru">Как работает</span></a>
+      <a href="https://platform.dprice.ru/calculator" target="_blank" rel="noopener noreferrer"><span data-lang="en">ROI calculator</span><span data-lang="ru">ROI-калькулятор</span></a>
+      <a data-href-en="https://game.dprice.ru/en/game" data-href-ru="https://game.dprice.ru/ru/game" href="https://game.dprice.ru/en/game" target="_blank" rel="noopener noreferrer"><span data-lang="en">DPrice game</span><span data-lang="ru">Игра DPrice</span></a>
+      <a href="https://platform.dprice.ru/en/account/login?returnUrl=%2Fen" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ru">Вход</span></a>
+      <a href="#contact"><span data-lang="en">Contact</span><span data-lang="ru">Связаться</span></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== ОКНО «ДЕМО» ===================== -->
+<div class="modal" id="demo" role="dialog" aria-modal="true" aria-labelledby="demo-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" data-close-demo aria-label="Close">×</button>
+    <h2 id="demo-title"><span data-lang="en">Access the <span class="accent">DPrice</span> demo</span><span data-lang="ru">Доступ к демо <span class="accent">DPrice</span></span></h2>
+    <p class="modal-sub"><span data-lang="en">Create an account on the platform to explore a demo project, or ask us for a guided tour.</span><span data-lang="ru">Создайте аккаунт на платформе и изучите демо-проект — или попросите нас провести показ.</span></p>
+    <div class="modal-actions">
+      <a class="btn btn-green btn-block" href="https://platform.dprice.ru/en/account/login?returnUrl=%2Fen" target="_blank" rel="noopener noreferrer"><span data-lang="en">Open the platform</span><span data-lang="ru">Открыть платформу</span>
+        <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></a>
+      <a class="btn btn-ghost btn-block" href="#contact" data-close-demo><span data-lang="en">Request a guided demo</span><span data-lang="ru">Запросить показ</span></a>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===================== НАСТРОЙКИ ===================== */
+  // Почта, на которую уходят заявки с формы. ЗАМЕНИТЬ перед публикацией!
+  const CONTACT_EMAIL = 'sales@example.com';
+  // Язык по умолчанию
+  const DEFAULT_LANG = 'en';
+  /* ===================================================== */
+
+  function setLang(lang){
+    if (lang !== 'ru' && lang !== 'en') lang = DEFAULT_LANG;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-href-' + lang + ']').forEach(a => a.href = a.getAttribute('data-href-' + lang));
+    document.querySelectorAll('[data-ph-' + lang + ']').forEach(i => i.placeholder = i.getAttribute('data-ph-' + lang));
+    document.querySelectorAll('[data-set-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.setLang === lang));
+    document.title = lang === 'ru' ? 'DPrice — управление выручкой для застройщиков' : 'DPrice — revenue management for real estate developers';
+    try { localStorage.setItem('dprice-lang', lang); } catch(e) {}
+  }
+  let start = DEFAULT_LANG;
+  try { start = localStorage.getItem('dprice-lang') || start; } catch(e) {}
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q) start = q;
+  setLang(start);
+  document.querySelectorAll('[data-set-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.setLang)));
+
+  // Окно «Демо»
+  const demo = document.getElementById('demo');
+  document.querySelectorAll('[data-open-demo]').forEach(b => b.addEventListener('click', () => demo.classList.add('open')));
+  document.querySelectorAll('[data-close-demo]').forEach(b => b.addEventListener('click', () => demo.classList.remove('open')));
+  demo.addEventListener('click', e => { if (e.target === demo) demo.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') demo.classList.remove('open'); });
+
+  // Форма заявки → письмо
+  document.getElementById('lead-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = new FormData(e.target), ru = document.documentElement.lang === 'ru';
+    const subject = (ru ? 'Запрос демо DPrice — ' : 'DPrice demo request — ') + f.get('company');
+    const body = [
+      (ru ? 'Имя: ' : 'Name: ') + f.get('name'),
+      (ru ? 'Компания: ' : 'Company: ') + f.get('company'),
+      'E-mail: ' + f.get('email'),
+      (ru ? 'Телефон: ' : 'Phone: ') + (f.get('phone') || '—'),
+      '', f.get('message') || ''
+    ].join('\n');
+    location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  });
+</script>
+</body>
+</html>
