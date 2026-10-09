@@ -6,8 +6,8 @@
 <title>DPrice — revenue management for real estate developers</title>
 <meta name="description" content="DPrice by Advantix: unit-level pricing recommendations for real estate developers, built on your own sales data.">
 <!--
-  ЛЕНДИНГ DPrice. Три языка (английский, русский, арабский) и три региона
-  (ОАЭ, Россия, другие рынки) в одном файле.
+  ЛЕНДИНГ DPrice. Три языка (английский, русский, арабский) и четыре региона
+  (мир, ОАЭ, Таиланд, Россия) в одном файле.
 
   КАК ПРАВИТЬ ТЕКСТ
     Каждая фраза записана дважды, рядом:
@@ -16,8 +16,8 @@
     Арабский пишется справа налево — страница переворачивается сама.
 
   КАК ПРАВИТЬ РЕГИОНЫ
-    Текст только для одного региона обёрнут в data-region="uae" / "ru" / "global"
-    (можно несколько через пробел: data-region="uae global").
+    Текст только для одного региона обёрнут в data-region="global" (мир) / "uae" / "th" / "ru"
+    (можно несколько через пробел: data-region="global uae th").
     Ссылки на игру и калькулятор по регионам — в блоке «НАСТРОЙКИ» внизу (REGIONS).
 
   КАК ПРАВИТЬ ССЫЛКИ
@@ -28,7 +28,7 @@
 
   ЦВЕТА — блок :root в начале стилей.
   Язык и регион можно открыть сразу по ссылке: ...?region=uae&lang=ar
-  (region: uae, ru, global; lang: en, ru, ar)
+  (region: global, uae, th, ru; lang: en, ru, ar)
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,7 +47,8 @@
   /* Показ нужного региона */
   html[data-region="uae"] [data-region]:not([data-region~="uae"]),
   html[data-region="ru"] [data-region]:not([data-region~="ru"]),
-  html[data-region="global"] [data-region]:not([data-region~="global"]){display:none!important}
+  html[data-region="global"] [data-region]:not([data-region~="global"]),
+  html[data-region="th"] [data-region]:not([data-region~="th"]){display:none!important}
   /* Арабский: свой шрифт, без разрядки (иначе рвутся связки букв) */
   html[lang="ar"] *{font-family:"Noto Sans Arabic",Inter,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important}
   html[dir="rtl"] .btn svg, html[dir="rtl"] .cta-link svg{transform:scaleX(-1)}
@@ -304,6 +305,19 @@
   @media(max-width:768px){.closing-box{padding:32px 20px}}
 
   .tagline{font-size:13px;color:var(--text-3);margin-top:4px}
+
+  /* ===== ФОН: контурные планировки вместо клетки ===== */
+  /* Рисунок — SVG в строке ниже: две стилизованные планировки на плитку 780×780,
+     линии белые с прозрачностью .042. Гуще/светлее — меняйте stroke-opacity в SVG. */
+  body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22780%22%20height%3D%22780%22%20viewBox%3D%220%200%20780%20780%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.042%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M60%2050h300M60%2045v10M360%2045v10%22%2F%3E%3Crect%20x%3D%2260%22%20y%3D%2270%22%20width%3D%22300%22%20height%3D%22200%22%2F%3E%3Cpath%20d%3D%22M200%2070v105M200%20215v55M200%20160h45M285%20160h75M245%20160v-5%22%2F%3E%3Cpath%20d%3D%22M240%20175A40%2040%200%200%201%20200%20215M200%20175h40%22%2F%3E%3Cpath%20d%3D%22M285%20160A40%2040%200%200%200%20245%20120M245%20160v-40%22%2F%3E%3Crect%20x%3D%2295%22%20y%3D%2266%22%20width%3D%2260%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22280%22%20y%3D%2266%22%20width%3D%2250%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22356%22%20y%3D%22190%22%20width%3D%228%22%20height%3D%2250%22%2F%3E%3Cpath%20d%3D%22M70%2080h80v22H92v60H70%22%2F%3E%3Ccircle%20cx%3D%22125%22%20cy%3D%22215%22%20r%3D%2216%22%2F%3E%3Crect%20x%3D%22215%22%20y%3D%22185%22%20width%3D%2270%22%20height%3D%2275%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M215%20200h70%22%2F%3E%3Crect%20x%3D%22300%22%20y%3D%2285%22%20width%3D%2245%22%20height%3D%2260%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M300%2098h45%22%2F%3E%3Crect%20x%3D%22330%22%20y%3D%22350%22%20width%3D%22210%22%20height%3D%22160%22%2F%3E%3Cpath%20d%3D%22M400%20350v45M400%20395h-70M430%20395h-30%22%2F%3E%3Cpath%20d%3D%22M430%20395A30%2030%200%200%200%20400%20425M400%20395v30%22%2F%3E%3Cellipse%20cx%3D%22352%22%20cy%3D%22372%22%20rx%3D%2211%22%20ry%3D%228%22%2F%3E%3Crect%20x%3D%22345%22%20y%3D%22355%22%20width%3D%2240%22%20height%3D%220%22%2F%3E%3Crect%20x%3D%22326%22%20y%3D%22440%22%20width%3D%228%22%20height%3D%2245%22%2F%3E%3Crect%20x%3D%22460%22%20y%3D%22346%22%20width%3D%2255%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22455%22%20y%3D%22440%22%20width%3D%2270%22%20height%3D%2255%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M455%20452h70%22%2F%3E%3Cpath%20d%3D%22M420%20505v-35h30v35%22%2F%3E%3Ccircle%20cx%3D%22520%22%20cy%3D%22110%22%20r%3D%2212%22%2F%3E%3Cpath%20d%3D%22M520%2092v36M516%20100l4-8%204%208%22%2F%3E%3Cpath%20d%3D%22M90%20330h120v90H90zM90%20375h120M150%20330v90%22%2F%3E%3C%2Fsvg%3E");background-size:780px 780px;background-position:center top}
+  @media(max-width:768px){body{background-size:560px 560px}}
+  /* Разделы прозрачные, чтобы рисунок шёл через всю страницу;
+     чередование — едва заметной полосой с плавными краями вместо резкой смены фона */
+  .pains,.how,.goals,.features,.roles,.trust,.tools,.start,.faq,.closing,.contact,.footer{background:transparent}
+  .how,.features,.trust,.start,.contact{background:linear-gradient(180deg,rgba(20,22,28,0) 0,rgba(20,22,28,.42) 16%,rgba(20,22,28,.42) 84%,rgba(20,22,28,0) 100%)}
+  .tools{padding-top:96px}
+  @media(max-width:768px){.tools{padding-top:56px}}
+  .footer{border-top-color:var(--line)}
 </style>
 </head>
 <body>
@@ -313,9 +327,10 @@
   <div class="wrap regionbar-inner">
     <span class="regionbar-label"><span data-lang="en">Region</span><span data-lang="ru">Регион</span><span data-lang="ar">المنطقة</span></span>
     <div class="region" role="group" aria-label="Region">
+      <button type="button" data-set-region="global" aria-pressed="false"><span data-lang="en">World</span><span data-lang="ru">Мир</span><span data-lang="ar">العالم</span></button>
       <button type="button" data-set-region="uae" aria-pressed="false"><span data-lang="en">UAE</span><span data-lang="ru">ОАЭ</span><span data-lang="ar">الإمارات</span></button>
+      <button type="button" data-set-region="th" aria-pressed="false"><span data-lang="en">Thailand</span><span data-lang="ru">Таиланд</span><span data-lang="ar">تايلاند</span></button>
       <button type="button" data-set-region="ru" aria-pressed="false"><span data-lang="en">Russia</span><span data-lang="ru">Россия</span><span data-lang="ar">روسيا</span></button>
-      <button type="button" data-set-region="global" aria-pressed="false"><span data-lang="en">Other markets</span><span data-lang="ru">Другие рынки</span><span data-lang="ar">أسواق أخرى</span></button>
     </div>
   </div>
 </div>
@@ -348,12 +363,12 @@
 <!-- ===================== ПЕРВЫЙ ЭКРАН ===================== -->
 <section class="hero">
   <div class="hero-glow" aria-hidden="true"></div>
-  <div class="hero-grid" aria-hidden="true"></div>
   <img class="hero-buildings" src="https://platform.dprice.ru/ui/brand/buildings.png" alt="" aria-hidden="true">
   <div class="wrap hero-inner">
     <div class="hero-content">
       <span class="tag">
         <span data-region="uae"><span data-lang="en">Dynamic pricing for UAE off-plan projects</span><span data-lang="ru">Динамическое ценообразование для off-plan проектов в ОАЭ</span><span data-lang="ar">التسعير الديناميكي لمشاريع البيع على الخارطة في الإمارات</span></span>
+        <span data-region="th"><span data-lang="en">Dynamic pricing for developers in Thailand</span><span data-lang="ru">Динамическое ценообразование для застройщиков Таиланда</span><span data-lang="ar">التسعير الديناميكي للمطورين في تايلاند</span></span>
         <span data-region="ru"><span data-lang="en">Dynamic pricing for developers</span><span data-lang="ru">Динамическое ценообразование для застройщиков</span><span data-lang="ar">التسعير الديناميكي للمطورين العقاريين</span></span>
         <span data-region="global"><span data-lang="en">The Science of Pricing</span><span data-lang="ru">Наука ценообразования</span><span data-lang="ar">علم التسعير</span></span>
       </span>
@@ -566,11 +581,11 @@
 <section class="section trust">
   <div class="wrap">
     <span class="section-tag"><span data-lang="en">About us</span><span data-lang="ru">О нас</span><span data-lang="ar">من نحن</span></span>
-    <h2 class="section-title"><span data-lang="en">DPrice is a PropTech startup by <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="ru">DPrice — PropTech-стартап компании <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="ar">DPrice شركة ناشئة في التكنولوجيا العقارية من <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span></span></h2>
+    <h2 class="section-title"><span data-lang="en">DPrice is a PropTech startup by <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="ru">DPrice — PropTech-стартап компании <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="ar">DPrice شركة ناشئة في التكنولوجيا العقارية من <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span></h2>
     <div class="trust-grid">
       <div class="trust-item"><div class="trust-num">32</div>
         <h3><span data-lang="en">years in the IT business</span><span data-lang="ru">года в ИТ-бизнесе</span><span data-lang="ar">عامًا في قطاع تقنية المعلومات</span></h3>
-        <p><span data-lang="en">Our clients trust DPrice thanks to the impeccable reputation of <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ru">Клиенты доверяют DPrice благодаря безупречной репутации <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ar">يثق عملاؤنا بـ DPrice بفضل السمعة الممتازة لشركة <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>.</span></p></div>
+        <p><span data-lang="en">Our clients trust DPrice thanks to the impeccable reputation of <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ru">Клиенты доверяют DPrice благодаря безупречной репутации <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ar">يثق عملاؤنا بـ DPrice بفضل السمعة الممتازة لشركة <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span></p></div>
       <div class="trust-item"><div class="trust-num">7</div>
         <h3><span data-lang="en">years of experience</span><span data-lang="ru">лет опыта</span><span data-lang="ar">سنوات من الخبرة</span></h3>
         <p><span data-lang="en">With successful projects for industry leaders.</span><span data-lang="ru">Успешные проекты для лидеров отрасли.</span><span data-lang="ar">مشاريع ناجحة لروّاد القطاع.</span></p></div>
@@ -592,7 +607,7 @@
         <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M7.5 26A5.6 5.6 0 0 1 2.2 19l2.3-8.8A5.5 5.5 0 0 1 14.7 9h2.6a5.5 5.5 0 0 1 10.2 1.2l2.3 8.8a5.6 5.6 0 0 1-10.6 2.9L19 21h-6l-.2.9A5.6 5.6 0 0 1 7.5 26zM9.8 8a3.6 3.6 0 0 0-3.4 2.7L4.1 19.5a3.6 3.6 0 0 0 6.8 1.9l.6-2.4h9l.6 2.4a3.6 3.6 0 0 0 6.8-1.9l-2.3-8.8A3.6 3.6 0 0 0 19 10.3l-.2.7h-5.6l-.2-.7A3.5 3.5 0 0 0 9.8 8z"/><path d="M9 11h2v3h3v2h-3v3H9v-3H6v-2h3z"/></svg></div>
         <h3><span data-lang="en">DPrice game</span><span data-lang="ru">Игра DPrice</span><span data-lang="ar">لعبة DPrice</span></h3>
         <p><span data-lang="en">Your goal is to maximize revenue over 12 months. Adjust the price once a month: too high and sales slow down, too low and apartments go below their value. About five minutes.</span><span data-lang="ru">Ваша цель — максимизировать выручку за 12 месяцев. Меняйте цену раз в месяц: слишком высокая — продажи падают, слишком низкая — квартиры уходят дешевле своей стоимости. Около пяти минут.</span><span data-lang="ar">هدفك تحقيق أقصى إيرادات خلال 12 شهرًا. عدّل السعر مرة كل شهر: إن كان مرتفعًا جدًا تتراجع المبيعات، وإن كان منخفضًا جدًا تُباع الشقق بأقل من قيمتها. نحو خمس دقائق.</span></p>
-        <small data-region="uae global"><span data-lang="en">The game is in English, prices in US dollars.</span><span data-lang="ru">Игра на английском, цены в долларах США.</span><span data-lang="ar">اللعبة باللغة الإنجليزية والأسعار بالدولار الأمريكي.</span></small>
+        <small data-region="global uae th"><span data-lang="en">The game is in English, prices in US dollars.</span><span data-lang="ru">Игра на английском, цены в долларах США.</span><span data-lang="ar">اللعبة باللغة الإنجليزية والأسعار بالدولار الأمريكي.</span></small>
         <span class="cta-link"><span data-lang="en">Play with DPrice</span><span data-lang="ru">Сыграть с DPrice</span><span data-lang="ar">العب مع DPrice</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
       </a>
       <a class="cta-card green" data-region="ru" data-link="calc" href="https://platform.dprice.ru/calculator" target="_blank" rel="noopener noreferrer">
@@ -602,10 +617,10 @@
         <small><span data-lang="en">Currently available in Russian, figures in RUB. Scenario model, not a guaranteed result.</span><span data-lang="ru">Сценарная модель, а не гарантированный результат.</span><span data-lang="ar">متاحة حاليًا باللغة الروسية وبالروبل. نموذج سيناريوهات، وليست نتيجة مضمونة.</span></small>
         <span class="cta-link"><span data-lang="en">Calculate</span><span data-lang="ru">Рассчитать</span><span data-lang="ar">احسب</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
       </a>
-      <a class="cta-card green" data-region="uae global" data-link="calc" href="#contact">
+      <a class="cta-card green" data-region="global uae th" data-link="calc" href="#contact">
         <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M26 4v24H6V4h20m0-2H6a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 7h14v3H9zm0 6h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 18h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 23h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2z"/></svg></div>
         <h3><span data-lang="en">ROI calculation for your project</span><span data-lang="ru">Расчёт эффекта для вашего проекта</span><span data-lang="ar">حساب العائد لمشروعك</span></h3>
-        <p><span data-lang="en">Share your project’s parameters and we will compare scenarios with and without DPrice <span data-region="uae">in AED</span><span data-region="global">in your currency</span>: revenue, financing costs, profit.</span><span data-lang="ru">Пришлите параметры проекта — мы сравним сценарии с DPrice и без него <span data-region="uae">в дирхамах</span><span data-region="global">в вашей валюте</span>: выручка, стоимость финансирования, прибыль.</span><span data-lang="ar">شاركنا معايير مشروعك وسنقارن السيناريوهات مع DPrice وبدونه <span data-region="uae">بالدرهم الإماراتي</span><span data-region="global">بعملتك</span>: الإيرادات وتكاليف التمويل والأرباح.</span></p>
+        <p><span data-lang="en">Share your project’s parameters and we will compare scenarios with and without DPrice <span data-region="uae">in AED</span><span data-region="th">in THB</span><span data-region="global">in your currency</span>: revenue, financing costs, profit.</span><span data-lang="ru">Пришлите параметры проекта — мы сравним сценарии с DPrice и без него <span data-region="uae">в дирхамах</span><span data-region="th">в батах</span><span data-region="global">в вашей валюте</span>: выручка, стоимость финансирования, прибыль.</span><span data-lang="ar">شاركنا معايير مشروعك وسنقارن السيناريوهات مع DPrice وبدونه <span data-region="uae">بالدرهم الإماراتي</span><span data-region="th">بالبات التايلاندي</span><span data-region="global">بعملتك</span>: الإيرادات وتكاليف التمويل والأرباح.</span></p>
         <small><span data-lang="en">The online calculator is currently available for Russia only, in RUB.</span><span data-lang="ru">Онлайн-калькулятор пока работает только для России, в рублях.</span><span data-lang="ar">الحاسبة الإلكترونية متاحة حاليًا لروسيا فقط وبالروبل.</span></small>
         <span class="cta-link"><span data-lang="en">Request a calculation</span><span data-lang="ru">Запросить расчёт</span><span data-lang="ar">اطلب الحساب</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
       </a>
@@ -715,8 +730,8 @@
 <footer class="footer">
   <div class="wrap footer-inner">
     <div>
-      <!-- Компания по регионам: ОАЭ и другие рынки — Scientetiq (как в презентации), Россия — Advantix -->
-      <p>© 2026 <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>. <span data-lang="en">DPrice is a product of <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ru">DPrice — продукт компании <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ar">DPrice منتج من شركة <span data-region="uae global">Scientetiq</span><span data-region="ru">Advantix</span>.</span></p>
+      <!-- Компания по регионам: мир, ОАЭ и Таиланд — Scientetiq (как в презентации), Россия — Advantix -->
+      <p>© 2026 <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>. <span data-lang="en">DPrice is a product of <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ru">DPrice — продукт компании <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ar">DPrice منتج من شركة <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span></p>
       <p class="tagline">The Science of Pricing</p>
     </div>
     <div class="footer-links">
@@ -751,27 +766,34 @@
   // Регионы: язык по умолчанию и ссылки на игру и калькулятор.
   // Ссылку можно задать одну на все языки или отдельно: { en: '...', ru: '...', ar: '...' }.
   // '#contact' — вместо перехода прокрутить к форме заявки.
+  // Порядок здесь = порядок кнопок вверху страницы.
   const REGIONS = {
+    global: {
+      name: { en: 'World', ru: 'Мир', ar: 'العالم' },
+      lang: 'en',
+      game: 'https://game.dprice.ru/en/game',
+      calc: '#contact'
+    },
     uae: {
       name: { en: 'UAE', ru: 'ОАЭ', ar: 'الإمارات' },
       lang: 'en',
       game: 'https://game.dprice.ru/en/game',        // версии в AED пока нет — английская, в $
       calc: '#contact'                                // онлайн-калькулятора для ОАЭ пока нет
     },
+    th: {
+      name: { en: 'Thailand', ru: 'Таиланд', ar: 'تايلاند' },
+      lang: 'en',
+      game: 'https://game.dprice.ru/en/game',        // версии в THB пока нет
+      calc: '#contact'
+    },
     ru: {
       name: { en: 'Russia', ru: 'Россия', ar: 'روسيا' },
       lang: 'ru',
       game: { ru: 'https://game.dprice.ru/ru/game', en: 'https://game.dprice.ru/en/game', ar: 'https://game.dprice.ru/en/game' },
       calc: 'https://platform.dprice.ru/calculator'
-    },
-    global: {
-      name: { en: 'Other markets', ru: 'Другие рынки', ar: 'أسواق أخرى' },
-      lang: 'en',
-      game: 'https://game.dprice.ru/en/game',
-      calc: '#contact'
     }
   };
-  const DEFAULT_REGION = 'uae';
+  const DEFAULT_REGION = 'global';
   const TITLES = {
     en: 'DPrice — optimal dynamic pricing for new-build real estate',
     ru: 'DPrice — оптимальное динамическое ценообразование для новостроек',
