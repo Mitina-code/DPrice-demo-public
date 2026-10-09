@@ -1,0 +1,3784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPrice — ROI calculator</title>
+<!-- Собрано calc/build-calc.js из calc/calculator_v4-original.html. Править исходники в calc/, не этот файл. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Дизайн-токены: цвета, тени и радиусы используются всеми секциями ниже. */
+  :root {
+    --green: #4EC94B;
+    --green-dark: #3aab37;
+    --green-light: #e8f9e8;
+    --green-pale: #f0fdf0;
+    --dark: #2B2C30;
+    --dark-mid: #3D3E44;
+    --gray: #64748B;
+    --gray-light: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F4F6F9;
+    --white: #FFFFFF;
+    --red: #EF4444;
+    --red-pale: #FEF2F2;
+    --orange: #F59E0B;
+    --blue: #3B82F6;
+    --blue-pale: #EFF6FF;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ─────────── HEADER ─────────── */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 20px; }
+  .logo-svg { height: 36px; }
+  .header-badge {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+  }
+  .header-cta {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .header-cta:hover { background: var(--green-dark); }
+
+  /* ─────────── HERO ─────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--dark) 0%, #1a1b20 100%);
+    color: white;
+    padding: 56px 32px 48px;
+    text-align: center;
+  }
+  .hero-inner { max-width: 760px; margin: 0 auto; }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(78,201,75,0.18);
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 40px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(78,201,75,0.3);
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--green); }
+  .hero p {
+    font-size: 17px;
+    color: rgba(255,255,255,0.65);
+    max-width: 520px;
+    margin: 0 auto 28px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--green);
+    display: block;
+  }
+  .hero-stat-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+
+  /* ─────────── MAIN GRID ─────────── */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .calc-grid { grid-template-columns: 1fr; }
+    .header-inner { padding: 12px 20px; }
+    .main { padding: 24px 16px 60px; }
+    .hero { padding: 40px 20px 36px; }
+  }
+
+  /* ─────────── CARD ─────────── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .card-icon.green { background: var(--green-light); }
+  .card-icon.dark { background: #F1F5F9; }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--gray-light);
+    margin-top: 2px;
+  }
+  .card-body { padding: 20px 24px; }
+
+  /* ─────────── INPUTS ─────────── */
+  .input-group {
+    margin-bottom: 18px;
+  }
+  .input-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .input-label-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark-mid);
+  }
+  .input-label-unit {
+    font-size: 12px;
+    color: var(--gray-light);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 2px 6px rgba(78,201,75,0.4);
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--green) 0%, var(--green) var(--pct, 50%), var(--border) var(--pct, 50%));
+    height: 5px; border-radius: 3px;
+  }
+  .input-num {
+    width: 90px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    text-align: right;
+    outline: none;
+    transition: border-color .2s;
+    background: white;
+  }
+  .input-num:focus { border-color: var(--green); }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 18px 0;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-light);
+    margin-bottom: 14px;
+    margin-top: 4px;
+  }
+
+  /* ─────────── RESULTS ─────────── */
+  .results-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .metric-card {
+    border-radius: 12px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card.primary {
+    background: linear-gradient(135deg, var(--dark) 0%, #1e1f24 100%);
+    grid-column: span 2;
+    padding: 20px 24px;
+  }
+  .metric-card.green-card { background: var(--green-pale); border: 1.5px solid #c6f0c5; }
+  .metric-card.red-card { background: var(--red-pale); border: 1.5px solid #fecaca; }
+  .metric-card.blue-card { background: var(--blue-pale); border: 1.5px solid #bfdbfe; }
+  .metric-card.orange-card { background: #FFFBEB; border: 1.5px solid #fde68a; }
+
+  .metric-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    margin-bottom: 6px;
+  }
+  .metric-card.primary .metric-label { color: white; }
+  .metric-card.green-card .metric-label { color: var(--green-dark); }
+  .metric-card.red-card .metric-label { color: #991B1B; }
+  .metric-card.blue-card .metric-label { color: #1D4ED8; }
+  .metric-card.orange-card .metric-label { color: #92400E; }
+
+  .metric-value {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.1;
+    transition: all .4s ease;
+  }
+  .metric-card.primary .metric-value { color: var(--green); font-size: 34px; }
+  .metric-card.green-card .metric-value { color: #166534; }
+  .metric-card.red-card .metric-value { color: #991B1B; }
+  .metric-card.blue-card .metric-value { color: #1D4ED8; }
+  .metric-card.orange-card .metric-value { color: #92400E; }
+
+  .metric-sub {
+    font-size: 12px;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+  .metric-card.primary .metric-sub { color: rgba(255,255,255,0.6); }
+
+  .roi-badge {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: rgba(78,201,75,0.2);
+    color: var(--green);
+    border: 1px solid rgba(78,201,75,0.3);
+    padding: 4px 10px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .animate-pulse { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* ─────────── CHART ─────────── */
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+    margin-top: 4px;
+  }
+
+  /* ─────────── COMPARISON TABLE ─────────── */
+  .comparison-section { margin-top: 28px; }
+  .section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .comp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .comp-table thead th {
+    padding: 13px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  .comp-table thead th:first-child { text-align: left; }
+  .comp-table thead th.th-dark { background: var(--dark); color: white; }
+  .comp-table thead th.th-red { background: #DC2626; color: white; }
+  .comp-table thead th.th-green { background: #16A34A; color: white; }
+  .comp-table thead th.th-blue { background: #2563EB; color: white; }
+
+  .comp-table tbody tr { transition: background .15s; }
+  .comp-table tbody tr:hover { background: #F8FAFC; }
+  .comp-table tbody tr:nth-child(even) td { background: #FAFBFC; }
+  .comp-table tbody tr.highlight-row td { background: #F0FDF4 !important; }
+  .comp-table td {
+    padding: 13px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .comp-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark);
+    width: 35%;
+  }
+  .comp-table .val-red { color: #DC2626; font-weight: 600; }
+  .comp-table .val-green { color: #16A34A; font-weight: 700; }
+  .comp-table .val-delta {
+    background: #F0FDF4;
+    color: #15803D;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 4px 10px;
+    display: inline-block;
+  }
+  .comp-table .val-delta.negative {
+    background: #FEF2F2;
+    color: #DC2626;
+  }
+
+  /* ─────────── STEP TABLES ─────────── */
+  .step-tables-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  @media (max-width: 900px) {
+    .step-tables-grid { grid-template-columns: 1fr; }
+  }
+  .step-table-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .step-table-title {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--dark);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .step-table-title span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .step-table-scroll {
+    max-height: 420px;
+    overflow: auto;
+  }
+  .step-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .step-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: right;
+    background: #F8FAFC;
+    color: var(--gray);
+    border-bottom: 1px solid var(--border);
+  }
+  .step-table th:first-child,
+  .step-table td:first-child { text-align: left; }
+  .step-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    text-align: right;
+    border-bottom: 1px solid #EEF2F7;
+    color: var(--dark);
+    white-space: nowrap;
+  }
+  .step-table tbody tr:nth-child(even) td { background: #FAFBFC; }
+  .step-table tbody tr:hover td { background: #F0FDF4; }
+  .static-param-table {
+    max-width: 760px;
+  }
+  .static-param-table td:first-child {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px;
+  }
+  .static-param-table td:nth-child(2) {
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  /* ─────────── STRATEGY CHARTS ─────────── */
+  .strategy-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  @media (max-width: 900px) {
+    .strategy-charts-grid { grid-template-columns: 1fr; }
+  }
+  .strategy-chart-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    padding: 14px 14px 12px;
+  }
+  .strategy-chart-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 10px;
+  }
+  .strategy-chart-wrap {
+    position: relative;
+    height: 210px;
+  }
+  .strategy-chart-note {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--gray-light);
+  }
+
+  /* ─────────── HOW IT WORKS ─────────── */
+  .how-section { margin-top: 40px; }
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+  }
+  @media (max-width: 700px) { .how-grid { grid-template-columns: 1fr; } }
+  .how-card {
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border-top: 3px solid var(--green);
+  }
+  .how-num {
+    width: 32px; height: 32px;
+    background: var(--green);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .how-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--dark); }
+  .how-text { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+  /* ─────────── FORMULA PILL ─────────── */
+  .formula-pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px;
+    color: var(--dark-mid);
+    margin: 12px 0;
+    line-height: 1.8;
+  }
+  .formula-green { color: var(--green-dark); font-weight: 700; }
+  .formula-red { color: #DC2626; }
+
+  /* ─────────── CTA ─────────── */
+  .cta-section {
+    margin-top: 48px;
+    background: linear-gradient(135deg, var(--dark) 0%, #1e1f24 100%);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .cta-section h2 { color: white; font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+  .cta-section p { color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 28px; }
+  .cta-btn {
+    display: inline-block;
+    background: var(--green);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all .2s;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(78,201,75,0.4);
+  }
+  .cta-btn:hover {
+    background: var(--green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(78,201,75,0.5);
+  }
+  .cta-note { color: rgba(255,255,255,0.35); font-size: 13px; margin-top: 14px; }
+
+  /* ─────────── TOOLTIP ─────────── */
+  [data-tooltip] { position: relative; cursor: help; }
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark);
+    color: white;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    z-index: 50;
+  }
+  [data-tooltip]:hover::after { opacity: 1; }
+
+  /* Анимация обновления числовых метрик */
+  .num-update { animation: numFlash .4s ease; }
+  @keyframes numFlash {
+    0% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  /* Индикатор сокращения срока продаж */
+  .payback-bar-wrap {
+    margin-top: 14px;
+    background: var(--border);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .payback-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--green), #a3e635);
+    border-radius: 3px;
+    transition: width .6s ease;
+  }
+  .payback-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--gray-light);
+    margin-top: 4px;
+  }
+
+  .real-example-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(78,201,75,0.1);
+    border: 1px solid rgba(78,201,75,0.25);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--green-dark);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    margin-top: 8px;
+    font-family: inherit;
+    text-align: left;
+  }
+  .real-example-pill:hover { background: rgba(78,201,75,0.2); }
+  .real-example-pill:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 2px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 13px;
+    color: var(--gray-light);
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    background: white;
+  }
+
+  /* ===== Оформление как у лендинга DPrice (светлая версия) — поверх исходных стилей калькулятора ===== */
+  :root{
+    --green:#3fdd84; --green-dark:#22b866; --green-light:rgba(63,221,132,.14); --green-pale:#f0fbf4; --green-ink:#13854a;
+    --dark:#15181e; --dark-mid:#3f4652; --gray:#6b7380; --gray-light:#8b93a0; --border:#e3e7e1; --bg:#f5f7f4;
+    --gold:#f4b740; --red:#d9483b; --radius:18px;
+    --shadow:0 18px 50px rgba(21,24,30,.07); --shadow-lg:0 24px 70px rgba(11,12,16,.22);
+  }
+  body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;
+    background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221000%22%20height%3D%22800%22%20viewBox%3D%220%200%201000%20800%22%20fill%3D%22none%22%20stroke%3D%22%2313854a%22%20stroke-opacity%3D%22.085%22%20stroke-width%3D%221%22%3E%3Cg%20transform%3D%22translate(25%2045)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22150%22%20height%3D%22110%22%2F%3E%3Cpath%20d%3D%22M55%200V50H50M20%2050H0%22%2F%3E%3Cpath%20d%3D%22M20%2050v28%22%2F%3E%3Cpath%20d%3D%22M20%2078A28%2028%200%200%200%2048%2050%22%2F%3E%3Cellipse%20cx%3D%2214%22%20cy%3D%2216%22%20rx%3D%226%22%20ry%3D%228%22%2F%3E%3Crect%20x%3D%2290%22%20y%3D%2214%22%20width%3D%2245%22%20height%3D%2258%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M90%2026h45%22%2F%3E%3Cpath%20d%3D%22M60%20110v-16h52v16%22%2F%3E%3Crect%20x%3D%22146%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2234%22%2F%3E%3Crect%20x%3D%2270%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(88%20308)%22%3E%3Cpath%20d%3D%22M-35%200h20M15%200h20%22%2F%3E%3Cpath%20d%3D%22M-15%200v-30%22%2F%3E%3Cpath%20d%3D%22M-15%20-30A30%2030%200%200%201%2015%200%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(110%20690)%22%3E%3Cpath%20d%3D%22M-45%20-4h90M-45%204h90%22%2F%3E%3Cpath%20d%3D%22M-20%20-4v8M20%20-4v8M-20%200h40%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(205%20440)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22190%22%20height%3D%22120%22%2F%3E%3Cpath%20d%3D%22M100%200v45M100%2085v35%22%2F%3E%3Cpath%20d%3D%22M100%2045h40%22%2F%3E%3Cpath%20d%3D%22M140%2045A40%2040%200%200%201%20100%2085%22%2F%3E%3Crect%20x%3D%22130%22%20y%3D%2210%22%20width%3D%2250%22%20height%3D%2262%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M130%2022h50%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2280%22%20width%3D%2255%22%20height%3D%2228%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M10%2088h55%22%2F%3E%3Ccircle%20cx%3D%2255%22%20cy%3D%2235%22%20r%3D%2212%22%2F%3E%3Crect%20x%3D%2230%22%20y%3D%22-4%22%20width%3D%2245%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22135%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22186%22%20y%3D%2275%22%20width%3D%228%22%20height%3D%2232%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(294%20314)%22%3E%3Crect%20x%3D%22-30%22%20y%3D%22-40%22%20width%3D%2260%22%20height%3D%2280%22%2F%3E%3Cpath%20d%3D%22M-30%20-30h60M-30%20-20h60M-30%20-10h60M-30%200h60M-30%2010h60M-30%2020h60M-30%2030h60%22%2F%3E%3Cpath%20d%3D%22M0%2035V-35M-5%20-27l5-8%205%208%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(314%20704)%22%3E%3Ccircle%20cx%3D%22-35%22%20cy%3D%220%22%20r%3D%229%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%220%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M-26%200h52%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Cpath%20d%3D%22M-35%20-9v-14M35%20-9v-14%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(402.5%20235)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22195%22%20height%3D%22130%22%2F%3E%3Cpath%20d%3D%22M90%200v70M90%20100v30%22%2F%3E%3Cpath%20d%3D%22M90%2070h30%22%2F%3E%3Cpath%20d%3D%22M120%2070A30%2030%200%200%201%2090%20100%22%2F%3E%3Cpath%20d%3D%22M90%2060h40M155%2060h40%22%2F%3E%3Cpath%20d%3D%22M155%2060v-25%22%2F%3E%3Cpath%20d%3D%22M155%2035A25%2025%200%200%200%20130%2060%22%2F%3E%3Crect%20x%3D%22100%22%20y%3D%228%22%20width%3D%2235%22%20height%3D%2245%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M100%2018h35%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%2275%22%20width%3D%2238%22%20height%3D%2248%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M150%2085h38%22%2F%3E%3Cpath%20d%3D%22M6%206h55v14H20v40H6z%22%2F%3E%3Ccircle%20cx%3D%2245%22%20cy%3D%2295%22%20r%3D%2211%22%2F%3E%3Crect%20x%3D%2225%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22140%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22191%22%20y%3D%2280%22%20width%3D%228%22%20height%3D%2235%22%2F%3E%3Crect%20x%3D%22-4%22%20y%3D%2270%22%20width%3D%228%22%20height%3D%2235%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(490%2092)%22%3E%3Cpath%20d%3D%22M-45%200h90M-45%20-10v20M45%20-10v20M-49%204l8-8M41%204l8-8%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(506%20512)%22%3E%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M0%20-24v48M-5%20-13l5-11%205%2011%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(605%20630)%22%3E%3Cpath%20d%3D%22M0%200H120V60H190V140H0Z%22%2F%3E%3Cpath%20d%3D%22M70%200v50M70%2080v60%22%2F%3E%3Cpath%20d%3D%22M70%2050h30%22%2F%3E%3Cpath%20d%3D%22M100%2050A30%2030%200%200%201%2070%2080%22%2F%3E%3Cpath%20d%3D%22M150%2060v30H190%22%2F%3E%3Crect%20x%3D%22155%22%20y%3D%2264%22%20width%3D%2230%22%20height%3D%2222%22%20rx%3D%225%22%2F%3E%3Crect%20x%3D%2280%22%20y%3D%2292%22%20width%3D%2245%22%20height%3D%2240%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M80%20102h45%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%2298%22%20width%3D%2248%22%20height%3D%2230%22%20rx%3D%223%22%2F%3E%3Crect%20x%3D%2220%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22186%22%20y%3D%22105%22%20width%3D%228%22%20height%3D%2225%22%2F%3E%3Crect%20x%3D%22-4%22%20y%3D%2225%22%20width%3D%228%22%20height%3D%2240%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(686%2096)%22%3E%3Cpath%20d%3D%22M-45%20-15v30M45%20-15v30%22%2F%3E%3Cpath%20d%3D%22M-45%200h90%22%20stroke-dasharray%3D%2210%204%202%204%22%2F%3E%3Cpath%20d%3D%22M-45%20-15h12l-12%209zM45%20-15h-12l12%209z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(708%20486)%22%3E%3Crect%20x%3D%22-22%22%20y%3D%22-22%22%20width%3D%2244%22%20height%3D%2244%22%2F%3E%3Cpath%20d%3D%22M-22%20-22l44%2044M22%20-22l-44%2044%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(800%20237.5)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22200%22%20height%3D%22110%22%2F%3E%3Cpath%20d%3D%22M120%20110v15h70v-15%22%20stroke-dasharray%3D%224%204%22%2F%3E%3Cpath%20d%3D%22M65%200v40M65%2065v45%22%2F%3E%3Cpath%20d%3D%22M65%2040h25%22%2F%3E%3Cpath%20d%3D%22M90%2040A25%2025%200%200%201%2065%2065%22%2F%3E%3Cpath%20d%3D%22M135%200v55M135%2080v30%22%2F%3E%3Cpath%20d%3D%22M135%2055h-25%22%2F%3E%3Cpath%20d%3D%22M110%2055A25%2025%200%200%200%20135%2080%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2240%22%20height%3D%2250%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M10%2020h40%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%2215%22%20width%3D%2240%22%20height%3D%2250%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M150%2025h40%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2288%22%20r%3D%2210%22%2F%3E%3Crect%20x%3D%2215%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%2285%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22196%22%20y%3D%2260%22%20width%3D%228%22%20height%3D%2230%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(896%20110)%22%3E%3Crect%20x%3D%22-42%22%20y%3D%22-20%22%20width%3D%2240%22%20height%3D%2224%22%20rx%3D%223%22%2F%3E%3Crect%20x%3D%22-38%22%20y%3D%22-16%22%20width%3D%2232%22%20height%3D%2216%22%20rx%3D%227%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%22-20%22%20width%3D%2226%22%20height%3D%2216%22%20rx%3D%222%22%2F%3E%3Ccircle%20cx%3D%2221%22%20cy%3D%22-12%22%20r%3D%224%22%2F%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2216%22%20rx%3D%227%22%20ry%3D%229%22%2F%3E%3Crect%20x%3D%2213%22%20y%3D%2225%22%20width%3D%2216%22%20height%3D%226%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(912%20494)%22%3E%3Crect%20x%3D%22-25%22%20y%3D%22-20%22%20width%3D%2250%22%20height%3D%2240%22%2F%3E%3Ccircle%20cx%3D%22-12%22%20cy%3D%22-8%22%20r%3D%227%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%22-8%22%20r%3D%227%22%2F%3E%3Ccircle%20cx%3D%22-12%22%20cy%3D%229%22%20r%3D%225%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229%22%20r%3D%228%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");background-size:1000px 800px;background-position:center top}
+  @media(max-width:768px){body{background-size:750px 600px}}
+  html[lang="ar"] *{font-family:"Noto Sans Arabic",Inter,sans-serif!important;letter-spacing:0!important}
+  html[lang="th"] *{font-family:"Noto Sans Thai",Inter,sans-serif!important;letter-spacing:0!important}
+
+  header{background:rgba(245,247,244,.88);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);box-shadow:none;border-bottom:1px solid var(--border)}
+  .header-inner{flex-wrap:wrap;gap:12px}
+  .logo-link{display:inline-flex}.logo-link svg{width:82px;height:28px;display:block}
+  .header-badge{border-inline-start:2px solid var(--border);border-left:0;padding-left:0;padding-inline-start:16px;color:var(--gray)}
+  html[dir="ltr"] .header-badge{border-left:2px solid var(--border);border-inline-start:0;padding-inline-start:0;padding-left:16px}
+  .switches{display:flex;gap:8px;flex-wrap:wrap}
+  .seg{display:inline-flex;gap:2px;border:1px solid #d3d9d1;border-radius:999px;padding:3px;background:#fff}
+  .seg button{border:0;background:none;color:var(--gray);padding:7px 12px;border-radius:999px;font:600 12px/1 inherit;cursor:pointer}
+  .seg button:hover{color:var(--dark)}
+  .seg button[aria-pressed="true"]{background:rgba(63,221,132,.16);color:var(--green-ink)}
+
+  .hero{background:#14161c;position:relative;overflow:hidden;border-radius:0 0 28px 28px;max-width:1240px;margin:0 auto}
+  .hero::before{content:"";position:absolute;top:-60%;left:50%;width:700px;height:700px;transform:translateX(-50%);background:radial-gradient(circle,rgba(63,221,132,.18) 0,transparent 65%);pointer-events:none}
+  .hero-inner{position:relative}
+  .hero-tag{background:rgba(63,221,132,.12);color:#61e79b;border-color:rgba(63,221,132,.3)}
+  .hero h1{font-weight:700;letter-spacing:-.03em}.hero h1 span{color:#61e79b}
+  .hero-stat-num{color:#61e79b;font-weight:700}
+
+  .card{border:1px solid var(--border);box-shadow:var(--shadow);border-radius:20px}
+  .card-icon.green{background:var(--green-light);color:var(--green-ink);font-weight:700}
+  .card-icon.dark{background:#eef1ed;color:var(--dark-mid)}
+  .card-title,.section-title{font-weight:700}
+  .section-label{color:var(--green-ink)}
+  .input-num{border-radius:10px}
+  .input-num:focus{border-color:var(--green-dark)}
+  input[type="range"]::-webkit-slider-thumb{background:var(--green-dark);box-shadow:0 2px 6px rgba(34,184,102,.4)}
+  input[type="range"]{accent-color:var(--green-dark)}
+  .limit-note{font-size:11px;color:var(--gray-light);margin-top:6px;line-height:1.4}
+  .real-example-pill{color:var(--green-ink);background:rgba(63,221,132,.1);border-color:rgba(19,133,74,.25);border-radius:999px;padding:7px 14px}
+
+  .metric-card.primary{background:#14161c}
+  .metric-card.primary .metric-value{color:#61e79b}
+  .roi-badge{background:rgba(63,221,132,.16);color:#61e79b;border-color:rgba(63,221,132,.3);inset-inline-end:18px;right:auto}
+  html[dir="ltr"] .roi-badge{right:18px}
+  .metric-card.green-card{background:var(--green-pale);border-color:rgba(63,221,132,.35)}
+  .metric-card.green-card .metric-label,.metric-card.green-card .metric-value{color:var(--green-ink)}
+  .metric-card.orange-card{background:rgba(244,183,64,.08);border-color:rgba(244,183,64,.4)}
+  .metric-card.orange-card .metric-label,.metric-card.orange-card .metric-value{color:#8a5a06}
+  .metric-value{font-weight:700;letter-spacing:-.02em}
+  .periods{margin-bottom:16px}
+  .period-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--gray)}
+  .period-row b.bad{color:var(--red)}.period-row b.good{color:var(--green-ink)}
+  .payback-bar{background:linear-gradient(to right,#22b866,#61e79b)}
+  .chart-cap{font-size:11px;color:var(--gray-light);text-align:center;margin-top:6px}
+
+  .section-title::after{background:linear-gradient(90deg,rgba(63,221,132,.6),transparent)}
+  html[dir="rtl"] .section-title::after{background:linear-gradient(270deg,rgba(63,221,132,.6),transparent)}
+  .table-scroll{overflow-x:auto;border-radius:12px}
+  .comp-table thead th.th-dark{background:#14161c}
+  .comp-table thead th.th-red{background:#b9473b}
+  .comp-table thead th.th-green{background:#1d9c57}
+  .comp-table thead th.th-blue{background:#2f5fae}
+  .comp-table td{background:#fff}
+  .comp-table td:first-child{text-align:start}
+  .comp-table .val-green{color:var(--green-ink)}
+  .assumptions{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .assumptions li{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 18px;font-size:14px;color:var(--dark-mid);line-height:1.55;box-shadow:var(--shadow)}
+  .assumptions li b{color:var(--dark)}
+  .assumptions li.note{background:rgba(244,183,64,.08);border-color:rgba(244,183,64,.35)}
+  .how-card{border-top-color:var(--green);border-radius:18px;border:1px solid var(--border);border-top:3px solid var(--green)}
+  .how-num{background:rgba(63,221,132,.16);color:var(--green-ink);border-radius:12px}
+  .cta-section{background:#14161c;border-radius:24px;position:relative;overflow:hidden}
+  .cta-section::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 85% 20%,rgba(63,221,132,.25),transparent 55%);pointer-events:none}
+  .cta-section>*{position:relative}
+  .cta-btn{background:var(--green);color:#0b0c10;border-radius:999px;box-shadow:0 12px 28px rgba(63,221,132,.35)}
+  .cta-btn:hover{background:#61e79b}
+  footer{background:transparent}
+  footer a{color:var(--green-ink)}
+  [data-tooltip]::after{white-space:normal;width:max-content;max-width:260px}
+  html[dir="rtl"] .input-num{text-align:left}
+  .comparison-section,.how-section{scroll-margin-top:80px}
+  @media(max-width:600px){.switches{width:100%}.hero{border-radius:0}}
+</style>
+</head>
+<body>
+<!-- ═══════════ HEADER ═══════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <a class="logo-link" href="./" data-t-title="back" aria-label="DPrice"><svg viewBox="0 0 149 51" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#15181E" d="M61.9414 18.4136H69.4323L70.7857 26.5812V41.1224H63.3735V25.9517L61.9414 18.4293V18.4136ZM81.613 18.0988V24.4724C80.889 24.315 80.1809 24.1891 79.457 24.1104C78.7645 24.0318 78.135 23.9845 77.5528 23.9845C76.278 23.9845 75.1292 24.2521 74.0906 24.7871C73.0834 25.2907 72.265 26.1091 71.667 27.2107C71.0847 28.328 70.7857 29.7759 70.7857 31.5542L69.3064 29.7286C69.4953 28.1077 69.7943 26.5812 70.2192 25.1491C70.6441 23.717 71.2264 22.458 71.966 21.3722C72.7057 20.2548 73.6184 19.3735 74.72 18.744C75.8374 18.1146 77.1751 17.7841 78.7488 17.7841C79.2052 17.7841 79.6773 17.8155 80.1809 17.8628C80.6845 17.91 81.1566 17.9887 81.613 18.0988ZM83.7218 18.0988L87.3885 18.8542L91.0868 18.0988V41.1067H83.7218V18.0988ZM87.42 16.0215C86.1138 16.0215 85.0594 15.691 84.2411 15.0301C83.4227 14.3376 83.0136 13.4406 83.0136 12.3233C83.0136 11.1744 83.4227 10.2774 84.2411 9.61645C85.0594 8.95548 86.1295 8.625 87.42 8.625C88.7419 8.625 89.8121 8.95548 90.5989 9.61645C91.4015 10.2774 91.795 11.1902 91.795 12.3233C91.795 13.4406 91.4015 14.3376 90.5989 15.0301C89.7963 15.691 88.7419 16.0215 87.42 16.0215ZM120.862 31.7115C120.641 33.6787 119.902 35.4098 118.627 36.9206C117.384 38.4313 115.763 39.6116 113.764 40.4614C111.797 41.3112 109.578 41.7362 107.107 41.7362C104.369 41.7362 101.961 41.2326 99.8524 40.2254C97.7594 39.2182 96.1227 37.8018 94.9581 36.0078C93.7936 34.198 93.2113 32.1207 93.2113 29.7601C93.2113 27.3995 93.7936 25.3222 94.9581 23.5439C96.1227 21.7341 97.7594 20.3335 99.8524 19.3263C101.945 18.2877 104.369 17.7683 107.107 17.7683C109.578 17.7683 111.797 18.1932 113.764 19.0431C115.763 19.8929 117.368 21.0732 118.627 22.5839C119.902 24.0632 120.641 25.8258 120.862 27.8402H113.497C113.198 26.3766 112.474 25.2593 111.309 24.4881C110.16 23.6855 108.775 23.2921 107.123 23.2921C105.817 23.2921 104.684 23.5439 103.692 24.0475C102.732 24.5511 101.993 25.2907 101.458 26.2822C100.923 27.2422 100.655 28.391 100.655 29.7444C100.655 31.0978 100.923 32.2466 101.458 33.2066C101.993 34.1665 102.732 34.8905 103.692 35.394C104.668 35.8976 105.817 36.1494 107.123 36.1494C108.791 36.1494 110.208 35.756 111.341 34.9534C112.489 34.1351 113.198 33.0492 113.497 31.6958H120.862V31.7115ZM136.741 41.7519C134.034 41.7519 131.61 41.2483 129.454 40.2411C127.33 39.2339 125.662 37.8176 124.434 36.0235C123.206 34.2138 122.608 32.105 122.608 29.6972C122.608 27.3366 123.191 25.2593 124.355 23.481C125.52 21.7026 127.125 20.302 129.171 19.2948C131.248 18.2877 133.577 17.7841 136.174 17.7841C138.834 17.7841 141.115 18.3664 143.02 19.5309C144.924 20.6955 146.403 22.3479 147.442 24.4724C148.481 26.5969 149 29.0991 149 31.9633H128.526V27.3051H144.924L142.249 28.9732C142.17 27.73 141.871 26.6756 141.336 25.8258C140.832 24.9445 140.156 24.2836 139.306 23.8272C138.456 23.3551 137.449 23.1033 136.284 23.1033C135.009 23.1033 133.908 23.3551 132.979 23.8586C132.051 24.3622 131.327 25.0704 130.792 25.9674C130.288 26.8645 130.036 27.9189 130.036 29.1149C130.036 30.6257 130.367 31.9161 131.028 32.9705C131.72 34.0249 132.696 34.8432 133.971 35.394C135.277 35.9448 136.851 36.2281 138.708 36.2281C140.407 36.2281 142.107 36.0078 143.807 35.5514C144.373 35.394 144.908 35.2209 145.443 35.0163C149.346 33.5371 148.386 32.7187 148.386 38.3841C146.844 39.4385 145.081 40.2726 143.083 40.8549C141.115 41.4371 138.991 41.7362 136.709 41.7362L136.741 41.7519Z"/><path fill="#8A8790" d="M28.7661 50.1909H25.178H21.5742L26.8462 36.8143L32.1182 23.4219L37.7206 27.4821L28.7661 50.1909Z"/><path fill="#15181E" d="M45.4939 41.8942C42.5983 41.8942 40.0803 41.3276 37.9558 40.2103C35.8313 39.0929 34.1946 37.5349 33.03 35.5521C31.8655 33.5377 31.2832 31.1928 31.2832 28.5018C31.2832 25.8264 31.8655 23.4816 33.03 21.483C34.1946 19.4686 35.847 17.9106 37.9558 16.7933C40.0803 15.6759 42.5983 15.1094 45.4939 15.1094C48.3738 15.1094 50.8761 15.6759 53.0006 16.7933C55.1251 17.9106 56.7618 19.4843 57.9421 21.483C59.1066 23.4658 59.6889 25.8107 59.6889 28.5018C59.6889 31.1771 59.1066 33.5219 57.9421 35.5206C56.7775 37.5349 55.1251 39.0929 53.0006 40.2103C50.8761 41.3276 48.3738 41.8942 45.4939 41.8942ZM45.4939 36.6222C47.9332 36.6222 49.8374 35.914 51.1751 34.4977C52.5442 33.0813 53.2367 31.0827 53.2367 28.5018C53.2367 25.9209 52.5442 23.9222 51.1751 22.5059C49.8217 21.0895 47.9332 20.3814 45.4939 20.3814C43.0547 20.3814 41.1505 21.0895 39.7656 22.5059C38.3964 23.9222 37.704 25.9209 37.704 28.5018C37.704 31.0827 38.3964 33.0813 39.7656 34.4977C41.1347 35.914 43.0389 36.6222 45.4939 36.6222Z"/><path fill="#61E79B" d="M30.9232 0H34.5113H38.1152L32.8432 13.3767L27.5712 26.769L21.9688 22.7088L30.9232 0Z"/><path fill="#3FDD84" d="M14.195 8.28906C17.0906 8.28906 19.6086 8.8556 21.7331 9.97295C23.8577 11.0903 25.4943 12.6483 26.6589 14.6312C27.8234 16.6455 28.4057 18.9904 28.4057 21.6815C28.4057 24.3568 27.8234 26.7016 26.6589 28.7003C25.4943 30.7146 23.8419 32.2726 21.7331 33.39C19.6086 34.5073 17.0906 35.0738 14.195 35.0738C11.3151 35.0738 8.81285 34.5073 6.68833 33.39C4.5638 32.2726 2.92713 30.6989 1.74683 28.7003C0.582278 26.7174 0 24.3725 0 21.6815C0 19.0061 0.582278 16.6613 1.74683 14.6626C2.91139 12.6483 4.5638 11.0903 6.68833 9.97295C8.81285 8.8556 11.3151 8.28906 14.195 8.28906ZM14.195 13.561C11.7557 13.561 9.85151 14.2692 8.51385 15.6856C7.14471 17.1019 6.45227 19.1005 6.45227 21.6815C6.45227 24.2624 7.14471 26.261 8.51385 27.6773C9.86725 29.0937 11.7557 29.8019 14.195 29.8019C16.6343 29.8019 18.5385 29.0937 19.9233 27.6773C21.2925 26.261 21.9849 24.2624 21.9849 21.6815C21.9849 19.1005 21.2925 17.1019 19.9233 15.6856C18.5542 14.2692 16.65 13.561 14.195 13.561Z"/></svg></a>
+      <span class="header-badge" data-t="badge"></span>
+    </div>
+    <div class="switches">
+      <div class="seg" role="group" aria-label="Region" id="regions"></div>
+      <div class="seg" role="group" aria-label="Language" id="langs"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag" data-t="hero_tag"></div>
+    <h1 data-t="hero_h1"></h1>
+    <p data-t="hero_p"></p>
+    <div class="hero-stats" id="hero-stats"></div>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+  <div class="calc-grid">
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon dark">◫</div>
+          <div><div class="card-title" data-t="p_title"></div><div class="card-subtitle" data-t="p_sub"></div></div>
+        </div>
+        <div class="card-body">
+          <div class="section-label" data-t="sec_mix"></div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="lots" data-tip="lots_tip"></span><span class="input-label-unit" data-t="u_pcs"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-lots" oninput="syncInput('lots',this.value)">
+              <input type="number" id="i-lots" class="input-num" oninput="syncRange('lots',this.value)">
+            </div>
+          </div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="area" data-tip="area_tip"></span><span class="input-label-unit" data-v="au"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-area" oninput="syncInput('area',this.value)">
+              <input type="number" id="i-area" class="input-num" oninput="syncRange('area',this.value)">
+            </div>
+          </div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="price" data-tip="price_tip"></span><span class="input-label-unit" data-v="cur_au"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-price" oninput="syncInput('price',this.value)">
+              <input type="number" id="i-price" class="input-num" oninput="syncRange('price',this.value)">
+            </div>
+          </div>
+
+          <hr class="section-divider">
+          <div class="section-label" data-t="sec_fin" data-t-ru-region="sec_fin_ru"></div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="loan" data-t-ru-region="loan_ru" data-tip="loan_tip"></span><span class="input-label-unit" data-t="u_mln"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-loan" oninput="syncInput('loan',this.value)">
+              <input type="number" id="i-loan" class="input-num" oninput="syncRange('loan',this.value)">
+            </div>
+            <div id="loan-limit-note" class="limit-note"></div>
+          </div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="rate" data-t-ru-region="rate_ru" data-tip="rate_tip"></span><span class="input-label-unit" data-t="u_rate"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-rate" oninput="syncInput('rate',this.value)">
+              <input type="number" id="i-rate" class="input-num" oninput="syncRange('rate',this.value)">
+            </div>
+          </div>
+
+          <hr class="section-divider">
+          <div class="section-label" data-t="sec_sales"></div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="planned" data-tip="planned_tip"></span><span class="input-label-unit" data-t="u_mo"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-planned" oninput="syncInput('planned',this.value)">
+              <input type="number" id="i-planned" class="input-num" oninput="syncRange('planned',this.value)">
+            </div>
+            <div id="planned-limit-note" class="limit-note"></div>
+          </div>
+          <div class="input-group">
+            <div class="input-label"><span class="input-label-text" data-t="pace" data-tip="pace_tip"></span><span class="input-label-unit" data-t="u_pace"></span></div>
+            <div class="input-row">
+              <input type="range" id="r-pace" oninput="syncInput('pace',this.value)">
+              <input type="number" id="i-pace" class="input-num" oninput="syncRange('pace',this.value)">
+            </div>
+            <div id="pace-limit-note" class="limit-note"></div>
+          </div>
+          <button type="button" class="real-example-pill" onclick="loadRealExample()" data-t="example"></button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green">%</div>
+          <div><div class="card-title" data-t="res_title"></div><div class="card-subtitle" data-t="res_sub"></div></div>
+        </div>
+        <div class="card-body">
+          <div class="results-top">
+            <div class="metric-card primary">
+              <div class="metric-label" data-t="m_roi"></div>
+              <div class="metric-value" id="m-roi">—</div>
+              <div class="metric-sub"><span data-t="payback"></span> <span id="m-payback">—</span></div>
+              <div class="roi-badge" data-t="model_badge"></div>
+            </div>
+            <div class="metric-card green-card">
+              <div class="metric-label" data-t="m_pf"></div>
+              <div class="metric-value" id="m-pf">—</div>
+              <div class="metric-sub"><span data-t="debt_close"></span> <span id="m-extra">—</span></div>
+            </div>
+            <div class="metric-card blue-card">
+              <div class="metric-label" data-t="m_rev"></div>
+              <div class="metric-value" id="m-rev">—</div>
+              <div class="metric-sub" data-t="m_rev_sub"></div>
+            </div>
+            <div class="metric-card orange-card">
+              <div class="metric-label" data-t="m_total"></div>
+              <div class="metric-value" id="m-total">—</div>
+              <div class="metric-sub" data-t="m_total_sub"></div>
+            </div>
+            <div class="metric-card red-card">
+              <div class="metric-label" data-t="m_pf_loss"></div>
+              <div class="metric-value" id="m-pf-loss">—</div>
+              <div class="metric-sub" data-t="m_pf_loss_sub"></div>
+            </div>
+          </div>
+          <div class="periods">
+            <div class="period-row"><span data-t="period_before"></span><b class="bad" id="m-period-before">—</b></div>
+            <div class="period-row"><span data-t="period_after"></span><b class="good" id="m-period-after">—</b></div>
+            <div class="payback-bar-wrap"><div class="payback-bar" id="pb-bar" style="width:60%"></div></div>
+            <div class="payback-label"><span data-t="with"></span><span data-t="without"></span></div>
+          </div>
+          <div class="chart-wrap"><canvas id="myChart"></canvas></div>
+          <div class="chart-cap" data-t="chart_cap"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comparison-section">
+    <h2 class="section-title" data-t="comp_title"></h2>
+    <div class="table-scroll">
+      <table class="comp-table">
+        <thead><tr><th class="th-dark" data-t="th_metric"></th><th class="th-red" data-t="th_before"></th><th class="th-green" data-t="th_after"></th><th class="th-blue" data-t="th_delta"></th></tr></thead>
+        <tbody id="comp-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="comparison-section">
+    <h2 class="section-title" data-t="a_title"></h2>
+    <ul class="assumptions" id="assumptions"></ul>
+  </div>
+
+  <div class="how-section">
+    <h2 class="section-title" data-t="how_title"></h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-num">1</div><div class="how-title" data-t="how1_t"></div><div class="how-text" data-t="how1_p"></div></div>
+      <div class="how-card"><div class="how-num">2</div><div class="how-title" data-t="how2_t"></div><div class="how-text" data-t="how2_p"></div></div>
+      <div class="how-card"><div class="how-num">3</div><div class="how-title" data-t="how3_t"></div><div class="how-text" data-t="how3_p"></div></div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2 data-t="cta_h"></h2>
+    <p data-t="cta_p"></p>
+    <a href="./#contact" class="cta-btn" data-t="cta_btn"></a>
+    <div class="cta-note" id="cta-note"></div>
+  </div>
+</div>
+
+<footer><span data-t="footer"></span> · <a href="./">DPrice</a></footer>
+
+<script>
+let COVER = 1;
+const CALC_I18N = {"en":{"doc_title":"DPrice — ROI calculator","badge":"ROI calculator","back":"Back to DPrice","r_global":"World","r_uae":"UAE","r_th":"Thailand","r_ru":"Russia","hero_tag":"Scenario financial analysis","hero_h1":"How much do you lose without <span>optimal</span> pricing?","hero_p":"Enter your project’s parameters and get a guide to the possible effect. Results depend on the inputs.","st_ru1_v":"up to +81%","st_ru1":"profit uplift in individual cases","st_ru2_v":"up to 50–200x","st_ru2":"ROI in comparable cases","st_ru3_v":"from 1 month","st_ru3":"possible payback period","st_ru4_v":"up to 100%","st_ru4":"support in meeting project-finance covenants","st_cur":"currency of the calculation","st_cover":"of buyer payments reduce the loan before handover","st_cost":"DPrice cost per year in the model","st_rate":"default loan rate","p_title":"Project parameters","p_sub":"Enter your project’s data","sec_mix":"Unit mix","lots":"Number of apartments","lots_tip":"Total number of units in the project","u_pcs":"units","area":"Average unit area, {au}","area_tip":"Average apartment area across the project","price":"Average price per {au}, {cur}","price_tip":"Current average price per {au} across the project","sec_fin":"Project financing","sec_fin_ru":"Project financing","loan":"Project loan, {cur} m","loan_ru":"Project-finance loan, {cur} m","loan_tip":"Bank loan for construction","u_mln":"{cur} m","rate":"Loan rate, %","rate_ru":"Project-finance rate (single), %","rate_tip":"Annual interest rate on the loan","u_rate":"% p.a.","sec_sales":"Sales dynamics","planned":"Planned sales period, months","planned_tip":"Planned sales period from the project’s financial model","u_mo":"mo","pace":"Current sales pace","pace_tip":"Observed sales pace at the current price; used to calibrate demand","u_pace":"units/mo","example":"Load the regional example","res_title":"Calculation result","res_sub":"Updates in real time","m_roi":"ROI from DPrice","payback":"payback:","model_badge":"DPrice model calculation","m_pf":"Interest saved","debt_close":"loan covered:","m_rev":"Additional revenue","m_rev_sub":"from optimising unit prices","m_total":"Profit uplift","m_total_sub":"after DPrice cost","m_pf_loss":"Interest without DPrice","m_pf_loss_sub":"monthly loan model","period_before":"Sales period without DPrice","period_after":"Sales period with DPrice","with":"With DPrice","without":"Without DPrice","chart_cap":"Cumulative profit — scenario comparison","comp_title":"Comparison: before and after DPrice","th_metric":"Metric","th_before":"Without DPrice","th_after":"With DPrice","th_delta":"Change","r_sales":"Total sales, units","r_price":"Average price per {au}","r_rev":"Total revenue","r_int":"Accumulated loan interest","r_gross":"Gross profit before DPrice cost","r_cost":"DPrice cost","r_net":"Net profit after DPrice cost","r_geff":"Gross effect of optimisation","r_neff":"Net effect after DPrice cost","r_roi":"ROI","r_debt":"Month the loan is covered","r_plan":"Sales plan check","ok":"OK","not_met":"not met","plan_delta":"without optimisation: {a} / with DPrice: {b}","how_title":"How the result is built","how1_t":"Scenario without optimisation","how1_p":"We forecast the result if the current pricing approach is kept and compare it with the optimised scenario.","how2_t":"Financing and buyer payments","how2_p":"The comparison accounts for sales pace, the buyer payments that cover the loan ({cover}% of the price before handover in this region) and their effect on interest.","how3_t":"Optimised scenario","how3_p":"The algorithm chooses a price path within the set bounds to improve final profit and ROI while keeping the sales targets.","a_title":"Assumptions for this region","a_cur":"Currency {cur}, area in {au}.","a_cost":"DPrice cost in the model: {v} per year — converted from RUB 5M at the {date} exchange rate ({src}). A guide for the calculation, not a price offer.","a_cost_ru":"DPrice cost in the model: {v} per year (original calculator value).","a_cover":"Share of buyer payments that reduce the loan before handover: {c}% — {why}","a_rate":"Default loan rate {r}% — {why}","a_price":"Default price {p} — {why}","a_note":"Ranges and defaults are editable starting points, not market statistics. The calculation is a scenario model, not a guaranteed result.","why_cover_ru":"the escrow balance covers the project-finance loan.","why_cover_uae":"20/40/40 payment plan: 60% is paid before handover; escrow funds are released by construction milestones (assumption).","why_cover_th":"typical 30% down payment before transfer, 70% at transfer (broker data, assumption).","why_cover_global":"mid-range assumption across markets.","why_rate_ru":"original calculator value.","why_rate_uae":"assumption: developer cost of capital (3M EIBOR 4.22% on 2 Oct 2026 plus margin).","why_rate_th":"assumption: Thai bank lending rates for project loans.","why_rate_global":"assumption.","why_price_ru":"original calculator value.","why_price_uae":"close to listed prices at The Eden, Sobha Central (~AED 2,800–2,900 per sq ft).","why_price_th":"close to the LOVE Charoen Nakhon median (~THB 141,000 per m²).","why_price_global":"assumption.","cta_h":"Want an exact calculation for your project?","cta_p":"We will run a detailed simulation on your project’s real data. Trial period — 3 months.","cta_btn":"Request a demo with an ROI calculation →","cta_note_ru":"from RUB 300,000/month · Integration in 7 days · Cancel anytime","cta_note":"Integration in 7 days · Cancel anytime","footer":"DPrice — pricing optimisation platform for developers","n_loan":"Feasible loan range for these inputs: {a}–{b}.","n_loan_tbd":"The feasible loan range is being refined. Adjust the inputs and recalculate.","n_loan_low":"The feasible loan range is at the lower end of the slider.","n_loan_one":"The feasible loan range has narrowed to one value: {a}.","n_loan_min":"The loan is close to the lower bound of the recommended range: {a}.","n_loan_max":"The loan is close to the upper bound of the recommended range: {a}.","n_plan":"Feasible planned period for these inputs: {r}.","n_plan_tbd":"The feasible planned period is being refined. Adjust the inputs and recalculate.","n_plan_at":"The period is at the upper bound of the recommended range: {r}.","n_plan_near":"The period is close to the upper bound of the recommended range: {r}.","n_pace":"Feasible sales pace: {a}–{b}.","n_pace_none":"No sales pace with positive ROI in this range. Try changing the period, price or loan.","n_pace_target":"Target ROI is not reachable by pace; the range with positive ROI is kept: {a}–{b}.","n_pace_near":"Sales pace is close to the lower bound for {c}: {a}.","crit_target":"target ROI ≥ {x}x","crit_pos":"positive ROI","months":"{n} mo","lt1":"< 1 mo","never":"does not pay back","mo_signed":"{s}{n} mo","start":"Start","m":"M{i}","ds_with":"With DPrice (net profit)","ds_without":"Without price optimisation (gross profit)","tt_start":"Model start","tt_cover":"Revenue received: {v}","tt_int":"Accumulated interest: {v}","tt_dp":"DPrice accrued: {v}","tt_unc":"Uncovered debt: {v}"},"ru":{"doc_title":"DPrice — ROI-калькулятор","badge":"ROI‑калькулятор","back":"На главную DPrice","r_global":"Мир","r_uae":"ОАЭ","r_th":"Таиланд","r_ru":"Россия","hero_tag":"Сценарный финансовый анализ","hero_h1":"Сколько вы теряете<br>без <span>оптимального</span> ценообразования?","hero_p":"Введите параметры вашего ЖК и получите ориентир по возможному эффекту. Итоговые значения зависят от входных данных проекта.","st_ru1_v":"до +81%","st_ru1":"прирост прибыли в отдельных кейсах","st_ru2_v":"до 50–200x","st_ru2":"ROI на сопоставимых кейсах","st_ru3_v":"от 1 мес.","st_ru3":"возможный срок окупаемости","st_ru4_v":"до 100%","st_ru4":"поддержка выполнения ковенантов ПФ","st_cur":"валюта расчёта","st_cover":"платежей покупателей гасят кредит до сдачи","st_cost":"стоимость DPrice в год в модели","st_rate":"ставка по кредиту по умолчанию","p_title":"Параметры проекта","p_sub":"Введите данные вашего ЖК","sec_mix":"Квартирография","lots":"Количество квартир","lots_tip":"Общее количество лотов в ЖК","u_pcs":"шт.","area":"Средняя площадь, {au}","area_tip":"Средняя площадь квартиры по всему ЖК","price":"Средняя цена {au}, {cur}","price_tip":"Текущая средняя цена за 1 {au} во всём ЖК","sec_fin":"Финансирование проекта","sec_fin_ru":"Проектное финансирование","loan":"Кредит на проект, млн {cur}","loan_ru":"Кредит (ПФ), млн {cur}","loan_tip":"Размер кредита от банка на строительство","u_mln":"млн {cur}","rate":"Ставка по кредиту, %","rate_ru":"Ставка ПФ (единая), %","rate_tip":"Годовая ставка по кредиту","u_rate":"% год.","sec_sales":"Динамика продаж","planned":"Плановый период, мес.","planned_tip":"Плановый срок продаж по финмодели проекта","u_mo":"мес.","pace":"Текущий темп продаж","pace_tip":"Наблюдаемый темп продаж при текущей цене; используется для настройки спроса","u_pace":"кв./мес.","example":"Загрузить пример для региона","res_title":"Результат расчёта","res_sub":"Обновляется в реальном времени","m_roi":"ROI от внедрения DPrice","payback":"окупаемость:","model_badge":"Расчёт по модели DPrice","m_pf":"Экономия на процентах","debt_close":"закрытие долга:","m_rev":"Дополнительная выручка","m_rev_sub":"от оптимизации цен лотов","m_total":"Прирост прибыли","m_total_sub":"после стоимости DPrice","m_pf_loss":"Проценты без DPrice","m_pf_loss_sub":"по помесячной модели кредита","period_before":"Срок продаж без DPrice","period_after":"Срок продаж с DPrice","with":"С DPrice","without":"Без DPrice","chart_cap":"Накопленная прибыль — сравнение сценариев","comp_title":"Сравнение: до и после DPrice","th_metric":"Показатель","th_before":"Без DPrice","th_after":"С DPrice","th_delta":"Изменение","r_sales":"Итоговые продажи, кв.","r_price":"Средняя цена за {au}","r_rev":"Итоговая выручка","r_int":"Накопленные проценты по кредиту","r_gross":"Валовая прибыль без стоимости DPrice","r_cost":"Стоимость DPrice","r_net":"Чистая прибыль после стоимости DPrice","r_geff":"Валовый эффект оптимизации","r_neff":"Чистый эффект после стоимости DPrice","r_roi":"ROI","r_debt":"Месяц покрытия кредита","r_plan":"Проверка выполнения плана продаж","ok":"OK","not_met":"не выполнен","plan_delta":"без оптимизации: {a} / с DPrice: {b}","how_title":"Как формируется результат","how1_t":"Сценарий без оптимизации","how1_p":"Мы рассчитываем прогноз при сохранении текущего подхода к цене и сравниваем его с оптимизированным сценарием.","how2_t":"Кредит и платежи покупателей","how2_p":"Сравнение учитывает скорость продаж, платежи покупателей, покрывающие кредит ({cover}% цены до сдачи в этом регионе), и их влияние на проценты.","how3_t":"Оптимизированный сценарий","how3_p":"Алгоритм подбирает ценовую траекторию в заданных границах, чтобы улучшить итоговую прибыль и ROI при сохранении целей продаж.","a_title":"Допущения для региона","a_cur":"Валюта {cur}, площадь в {au}.","a_cost":"Стоимость DPrice в модели: {v} в год — пересчёт 5 млн ₽ по курсу на {date} ({src}). Ориентир для расчёта, не ценовое предложение.","a_cost_ru":"Стоимость DPrice в модели: {v} в год (значение исходного калькулятора).","a_cover":"Доля платежей покупателей, гасящих кредит до сдачи: {c}% — {why}","a_rate":"Ставка по умолчанию {r}% — {why}","a_price":"Цена по умолчанию {p} — {why}","a_note":"Диапазоны и стартовые значения — это редактируемые ориентиры, а не рыночная статистика. Расчёт — сценарная модель, а не гарантированный результат.","why_cover_ru":"остаток на эскроу покрывает кредит по проектному финансированию.","why_cover_uae":"план оплаты 20/40/40: 60% вносится до сдачи; эскроу раскрывается по этапам стройки (допущение).","why_cover_th":"обычный первоначальный взнос 30% до передачи, 70% — при передаче (данные брокера, допущение).","why_cover_global":"усреднённое допущение по рынкам.","why_rate_ru":"значение исходного калькулятора.","why_rate_uae":"допущение: стоимость капитала застройщика (3M EIBOR 4,22% на 2.10.2026 плюс маржа).","why_rate_th":"допущение: ставки тайских банков по проектным кредитам.","why_rate_global":"допущение.","why_price_ru":"значение исходного калькулятора.","why_price_uae":"близко к ценам The Eden, Sobha Central (~2 800–2 900 AED за кв. фут).","why_price_th":"близко к медиане LOVE Charoen Nakhon (~141 000 THB за м²).","why_price_global":"допущение.","cta_h":"Хотите точный расчёт для вашего проекта?","cta_p":"Покажем детальную симуляцию на реальных данных вашего ЖК. Тестовый период — 3 месяца.","cta_btn":"Запросить демо с расчётом ROI →","cta_note_ru":"от 300 000 ₽/мес. · Интеграция за 7 дней · Выйти можно в любой момент","cta_note":"Интеграция за 7 дней · Выйти можно в любой момент","footer":"DPrice — платформа оптимизации ценообразования для застройщиков","n_loan":"Выполнимый диапазон кредита для введённых параметров ЖК: {a}–{b}.","n_loan_tbd":"Выполнимый диапазон кредита временно уточняется. Скорректируйте параметры и повторите расчёт.","n_loan_low":"Выполнимый диапазон кредита находится у нижней границы слайдера.","n_loan_one":"Выполнимый диапазон кредита сузился до одного значения: {a}.","n_loan_min":"Текущее значение кредита близко к нижней границе рекомендуемого диапазона: {a}.","n_loan_max":"Текущее значение кредита близко к верхней границе рекомендуемого диапазона: {a}.","n_plan":"Выполнимый плановый период для введённых параметров ЖК: {r}.","n_plan_tbd":"Выполнимый плановый период временно уточняется. Скорректируйте параметры и повторите расчёт.","n_plan_at":"Текущий период находится на верхней границе рекомендуемого диапазона: {r}.","n_plan_near":"Текущий период близок к верхней границе рекомендуемого диапазона: {r}.","n_pace":"Выполнимый диапазон темпа продаж: {a}–{b}.","n_pace_none":"В текущем диапазоне темпа продаж не найдено значение с положительным ROI. Попробуйте изменить срок продаж, цену или кредит.","n_pace_target":"Целевой ROI недостижим по темпу; оставлен диапазон с положительным ROI: {a}–{b}.","n_pace_near":"Темп продаж близок к нижней границе по {c}: {a}.","crit_target":"целевому ROI ≥ {x}x","crit_pos":"положительному ROI","months":"{n} мес.","lt1":"< 1 мес.","never":"не окупается","mo_signed":"{s}{n} мес.","start":"Старт","m":"М{i}","ds_with":"С DPrice (чистая прибыль)","ds_without":"Без оптимизации цен (валовая прибыль)","tt_start":"Старт модели","tt_cover":"Поступившая выручка: {v}","tt_int":"Накопл. проценты: {v}","tt_dp":"DPrice начислено: {v}","tt_unc":"Непокрытый долг: {v}"},"ar":{"doc_title":"DPrice — حاسبة العائد على الاستثمار","badge":"حاسبة العائد","back":"العودة إلى DPrice","r_global":"العالم","r_uae":"الإمارات","r_th":"تايلاند","r_ru":"روسيا","hero_tag":"تحليل مالي بالسيناريوهات","hero_h1":"كم تخسر من دون تسعير <span>أمثل</span>؟","hero_p":"أدخل معايير مشروعك واحصل على تقدير للأثر المحتمل. تعتمد النتائج على البيانات المُدخلة.","st_ru1_v":"حتى +81%","st_ru1":"زيادة الأرباح في حالات فردية","st_ru2_v":"حتى 50–200x","st_ru2":"العائد على الاستثمار في حالات مماثلة","st_ru3_v":"من شهر واحد","st_ru3":"فترة الاسترداد المحتملة","st_ru4_v":"حتى 100%","st_ru4":"دعم الوفاء بالتزامات تمويل المشروع","st_cur":"عملة الحساب","st_cover":"من دفعات المشترين تخفض القرض قبل التسليم","st_cost":"تكلفة DPrice السنوية في النموذج","st_rate":"سعر الفائدة الافتراضي","p_title":"معايير المشروع","p_sub":"أدخل بيانات مشروعك","sec_mix":"مزيج الوحدات","lots":"عدد الشقق","lots_tip":"إجمالي عدد الوحدات في المشروع","u_pcs":"وحدة","area":"متوسط مساحة الوحدة، {au}","area_tip":"متوسط مساحة الشقة في المشروع","price":"متوسط سعر {au}، {cur}","price_tip":"متوسط السعر الحالي لكل {au} في المشروع","sec_fin":"تمويل المشروع","sec_fin_ru":"تمويل المشروع","loan":"قرض المشروع، مليون {cur}","loan_ru":"قرض تمويل المشروع، مليون {cur}","loan_tip":"قرض بنكي للبناء","u_mln":"مليون {cur}","rate":"سعر فائدة القرض، %","rate_ru":"سعر فائدة تمويل المشروع، %","rate_tip":"سعر الفائدة السنوي على القرض","u_rate":"% سنويًا","sec_sales":"ديناميكية المبيعات","planned":"فترة البيع المخططة، أشهر","planned_tip":"فترة البيع المخططة وفق النموذج المالي للمشروع","u_mo":"شهر","pace":"وتيرة المبيعات الحالية","pace_tip":"وتيرة المبيعات الملاحظة عند السعر الحالي؛ تُستخدم لمعايرة الطلب","u_pace":"وحدة/شهر","example":"تحميل مثال المنطقة","res_title":"نتيجة الحساب","res_sub":"تُحدَّث فورًا","m_roi":"العائد على الاستثمار من DPrice","payback":"الاسترداد:","model_badge":"حساب وفق نموذج DPrice","m_pf":"الفوائد الموفّرة","debt_close":"تغطية القرض:","m_rev":"إيرادات إضافية","m_rev_sub":"من تحسين أسعار الوحدات","m_total":"زيادة الربح","m_total_sub":"بعد تكلفة DPrice","m_pf_loss":"الفوائد من دون DPrice","m_pf_loss_sub":"وفق نموذج شهري للقرض","period_before":"فترة البيع من دون DPrice","period_after":"فترة البيع مع DPrice","with":"مع DPrice","without":"من دون DPrice","chart_cap":"الربح التراكمي — مقارنة السيناريوهات","comp_title":"المقارنة: قبل DPrice وبعده","th_metric":"المؤشر","th_before":"من دون DPrice","th_after":"مع DPrice","th_delta":"التغيير","r_sales":"إجمالي المبيعات، وحدة","r_price":"متوسط السعر لكل {au}","r_rev":"إجمالي الإيرادات","r_int":"الفوائد المتراكمة على القرض","r_gross":"الربح الإجمالي قبل تكلفة DPrice","r_cost":"تكلفة DPrice","r_net":"صافي الربح بعد تكلفة DPrice","r_geff":"الأثر الإجمالي للتحسين","r_neff":"الأثر الصافي بعد تكلفة DPrice","r_roi":"العائد على الاستثمار","r_debt":"شهر تغطية القرض","r_plan":"التحقق من خطة المبيعات","ok":"تم","not_met":"لم تتحقق","plan_delta":"من دون تحسين: {a} / مع DPrice: {b}","how_title":"كيف تتكوّن النتيجة","how1_t":"سيناريو من دون تحسين","how1_p":"نتوقع النتيجة مع الإبقاء على نهج التسعير الحالي ونقارنها بالسيناريو المحسّن.","how2_t":"التمويل ودفعات المشترين","how2_p":"تأخذ المقارنة في الحسبان وتيرة المبيعات ودفعات المشترين التي تغطي القرض ({cover}% من السعر قبل التسليم في هذه المنطقة) وأثرها على الفوائد.","how3_t":"السيناريو المحسّن","how3_p":"تختار الخوارزمية مسار أسعار ضمن الحدود المحددة لتحسين الربح النهائي والعائد مع الحفاظ على أهداف المبيعات.","a_title":"افتراضات هذه المنطقة","a_cur":"العملة {cur}، والمساحة بـ {au}.","a_cost":"تكلفة DPrice في النموذج: {v} سنويًا — محوّلة من 5 ملايين روبل بسعر صرف {date} ({src}). تقدير للحساب وليست عرض سعر.","a_cost_ru":"تكلفة DPrice في النموذج: {v} سنويًا (قيمة الحاسبة الأصلية).","a_cover":"حصة دفعات المشترين التي تخفض القرض قبل التسليم: {c}% — {why}","a_rate":"سعر الفائدة الافتراضي {r}% — {why}","a_price":"السعر الافتراضي {p} — {why}","a_note":"النطاقات والقيم الافتراضية نقاط بداية قابلة للتعديل وليست إحصاءات سوقية. الحساب نموذج سيناريو وليس نتيجة مضمونة.","why_cover_ru":"رصيد حساب الضمان يغطي قرض تمويل المشروع.","why_cover_uae":"خطة الدفع 20/40/40: يُدفع 60% قبل التسليم، وتُصرف أموال حساب الضمان حسب مراحل البناء (افتراض).","why_cover_th":"دفعة مقدمة معتادة 30% قبل نقل الملكية و70% عند النقل (بيانات وسيط، افتراض).","why_cover_global":"افتراض متوسط عبر الأسواق.","why_rate_ru":"قيمة الحاسبة الأصلية.","why_rate_uae":"افتراض: تكلفة رأس مال المطوّر (إيبور 3 أشهر 4.22% في 2 أكتوبر 2026 مضافًا إليه هامش).","why_rate_th":"افتراض: أسعار إقراض البنوك التايلاندية لقروض المشاريع.","why_rate_global":"افتراض.","why_price_ru":"قيمة الحاسبة الأصلية.","why_price_uae":"قريب من الأسعار المعروضة في The Eden، Sobha Central (نحو 2,800–2,900 درهم للقدم المربعة).","why_price_th":"قريب من وسيط أسعار LOVE Charoen Nakhon (نحو 141,000 بات للمتر المربع).","why_price_global":"افتراض.","cta_h":"هل تريد حسابًا دقيقًا لمشروعك؟","cta_p":"سنُجري محاكاة تفصيلية على البيانات الفعلية لمشروعك. فترة تجريبية — 3 أشهر.","cta_btn":"اطلب عرضًا مع حساب العائد ←","cta_note_ru":"من 300,000 روبل شهريًا · الربط خلال 7 أيام · يمكنك الإلغاء في أي وقت","cta_note":"الربط خلال 7 أيام · يمكنك الإلغاء في أي وقت","footer":"DPrice — منصة تحسين التسعير للمطورين العقاريين","n_loan":"نطاق القرض الممكن لهذه المدخلات: {a}–{b}.","n_loan_tbd":"يجري تحديد نطاق القرض الممكن. عدّل المدخلات وأعد الحساب.","n_loan_low":"نطاق القرض الممكن عند الحد الأدنى للمؤشر.","n_loan_one":"ضاق نطاق القرض الممكن إلى قيمة واحدة: {a}.","n_loan_min":"قيمة القرض قريبة من الحد الأدنى للنطاق الموصى به: {a}.","n_loan_max":"قيمة القرض قريبة من الحد الأعلى للنطاق الموصى به: {a}.","n_plan":"الفترة المخططة الممكنة لهذه المدخلات: {r}.","n_plan_tbd":"يجري تحديد الفترة المخططة الممكنة. عدّل المدخلات وأعد الحساب.","n_plan_at":"الفترة عند الحد الأعلى للنطاق الموصى به: {r}.","n_plan_near":"الفترة قريبة من الحد الأعلى للنطاق الموصى به: {r}.","n_pace":"وتيرة المبيعات الممكنة: {a}–{b}.","n_pace_none":"لا توجد وتيرة مبيعات بعائد موجب في هذا النطاق. جرّب تغيير الفترة أو السعر أو القرض.","n_pace_target":"لا يمكن بلوغ العائد المستهدف عبر الوتيرة؛ أُبقي النطاق ذو العائد الموجب: {a}–{b}.","n_pace_near":"وتيرة المبيعات قريبة من الحد الأدنى وفق {c}: {a}.","crit_target":"العائد المستهدف ≥ {x}x","crit_pos":"العائد الموجب","months":"{n} شهر","lt1":"أقل من شهر","never":"لا يُسترد","mo_signed":"{s}{n} شهر","start":"البداية","m":"ش{i}","ds_with":"مع DPrice (صافي الربح)","ds_without":"من دون تحسين الأسعار (الربح الإجمالي)","tt_start":"بداية النموذج","tt_cover":"الإيرادات المحصّلة: {v}","tt_int":"الفوائد المتراكمة: {v}","tt_dp":"تكلفة DPrice المستحقة: {v}","tt_unc":"الدين غير المغطى: {v}"},"th":{"doc_title":"DPrice — เครื่องคำนวณ ROI","badge":"เครื่องคำนวณ ROI","back":"กลับไปหน้า DPrice","r_global":"ทั่วโลก","r_uae":"ยูเออี","r_th":"ประเทศไทย","r_ru":"รัสเซีย","hero_tag":"การวิเคราะห์ทางการเงินแบบสถานการณ์","hero_h1":"คุณเสียไปเท่าไร หากไม่ได้ตั้งราคาแบบ <span>เหมาะสมที่สุด</span>?","hero_p":"กรอกข้อมูลโครงการของคุณเพื่อดูแนวทางผลลัพธ์ที่เป็นไปได้ ผลลัพธ์ขึ้นอยู่กับข้อมูลที่กรอก","st_ru1_v":"สูงสุด +81%","st_ru1":"กำไรที่เพิ่มขึ้นในบางกรณี","st_ru2_v":"สูงสุด 50–200x","st_ru2":"ROI ในกรณีที่เทียบเคียงได้","st_ru3_v":"ตั้งแต่ 1 เดือน","st_ru3":"ระยะคืนทุนที่เป็นไปได้","st_ru4_v":"สูงสุด 100%","st_ru4":"ช่วยให้ปฏิบัติตามเงื่อนไขเงินกู้โครงการ","st_cur":"สกุลเงินที่ใช้คำนวณ","st_cover":"ของเงินผู้ซื้อที่ใช้ลดหนี้ก่อนโอน","st_cost":"ค่าใช้จ่าย DPrice ต่อปีในโมเดล","st_rate":"อัตราดอกเบี้ยเริ่มต้น","p_title":"ข้อมูลโครงการ","p_sub":"กรอกข้อมูลโครงการของคุณ","sec_mix":"สัดส่วนยูนิต","lots":"จำนวนห้อง","lots_tip":"จำนวนยูนิตทั้งหมดในโครงการ","u_pcs":"ยูนิต","area":"พื้นที่เฉลี่ยต่อยูนิต {au}","area_tip":"พื้นที่เฉลี่ยของห้องทั้งโครงการ","price":"ราคาเฉลี่ยต่อ {au} ({cur})","price_tip":"ราคาเฉลี่ยปัจจุบันต่อ {au} ทั้งโครงการ","sec_fin":"เงินทุนโครงการ","sec_fin_ru":"เงินทุนโครงการ","loan":"เงินกู้โครงการ ล้าน {cur}","loan_ru":"เงินกู้โครงการ ล้าน {cur}","loan_tip":"เงินกู้ธนาคารเพื่อการก่อสร้าง","u_mln":"ล้าน {cur}","rate":"อัตราดอกเบี้ยเงินกู้ %","rate_ru":"อัตราดอกเบี้ยเงินกู้โครงการ %","rate_tip":"อัตราดอกเบี้ยต่อปีของเงินกู้","u_rate":"% ต่อปี","sec_sales":"พลวัตการขาย","planned":"ระยะเวลาขายตามแผน (เดือน)","planned_tip":"ระยะเวลาขายตามโมเดลการเงินของโครงการ","u_mo":"เดือน","pace":"อัตราการขายปัจจุบัน","pace_tip":"อัตราการขายที่สังเกตได้ที่ราคาปัจจุบัน ใช้ปรับเทียบดีมานด์","u_pace":"ยูนิต/เดือน","example":"โหลดตัวอย่างของภูมิภาค","res_title":"ผลการคำนวณ","res_sub":"อัปเดตแบบเรียลไทม์","m_roi":"ROI จากการใช้ DPrice","payback":"คืนทุน:","model_badge":"คำนวณตามโมเดล DPrice","m_pf":"ดอกเบี้ยที่ประหยัดได้","debt_close":"ปิดหนี้:","m_rev":"รายได้ที่เพิ่มขึ้น","m_rev_sub":"จากการปรับราคายูนิต","m_total":"กำไรที่เพิ่มขึ้น","m_total_sub":"หลังหักค่าใช้จ่าย DPrice","m_pf_loss":"ดอกเบี้ยเมื่อไม่ใช้ DPrice","m_pf_loss_sub":"ตามโมเดลเงินกู้รายเดือน","period_before":"ระยะเวลาขายเมื่อไม่ใช้ DPrice","period_after":"ระยะเวลาขายเมื่อใช้ DPrice","with":"ใช้ DPrice","without":"ไม่ใช้ DPrice","chart_cap":"กำไรสะสม — เปรียบเทียบสถานการณ์","comp_title":"เปรียบเทียบ: ก่อนและหลังใช้ DPrice","th_metric":"ตัวชี้วัด","th_before":"ไม่ใช้ DPrice","th_after":"ใช้ DPrice","th_delta":"การเปลี่ยนแปลง","r_sales":"ยอดขายรวม (ยูนิต)","r_price":"ราคาเฉลี่ยต่อ {au}","r_rev":"รายได้รวม","r_int":"ดอกเบี้ยเงินกู้สะสม","r_gross":"กำไรขั้นต้นก่อนหักค่า DPrice","r_cost":"ค่าใช้จ่าย DPrice","r_net":"กำไรสุทธิหลังหักค่า DPrice","r_geff":"ผลรวมจากการปรับราคา","r_neff":"ผลสุทธิหลังหักค่า DPrice","r_roi":"ROI","r_debt":"เดือนที่ครอบคลุมหนี้ได้","r_plan":"ตรวจสอบแผนการขาย","ok":"ผ่าน","not_met":"ไม่ผ่าน","plan_delta":"ไม่ปรับราคา: {a} / ใช้ DPrice: {b}","how_title":"ผลลัพธ์คำนวณอย่างไร","how1_t":"สถานการณ์ไม่ปรับราคา","how1_p":"เราคาดการณ์ผลลัพธ์หากใช้วิธีตั้งราคาแบบเดิม แล้วเปรียบเทียบกับสถานการณ์ที่ปรับให้เหมาะสม","how2_t":"เงินทุนและเงินจากผู้ซื้อ","how2_p":"การเปรียบเทียบคำนึงถึงอัตราการขาย เงินจากผู้ซื้อที่ใช้ลดหนี้ ({cover}% ของราคาก่อนโอนในภูมิภาคนี้) และผลต่อดอกเบี้ย","how3_t":"สถานการณ์ที่ปรับให้เหมาะสม","how3_p":"อัลกอริทึมเลือกเส้นทางราคาภายในขอบเขตที่กำหนด เพื่อเพิ่มกำไรสุดท้ายและ ROI โดยยังคงเป้าหมายการขาย","a_title":"สมมติฐานของภูมิภาคนี้","a_cur":"สกุลเงิน {cur} พื้นที่เป็น {au}","a_cost":"ค่าใช้จ่าย DPrice ในโมเดล: {v} ต่อปี — แปลงจาก 5 ล้านรูเบิลด้วยอัตราแลกเปลี่ยน ณ {date} ({src}) เป็นแนวทางการคำนวณ ไม่ใช่ข้อเสนอราคา","a_cost_ru":"ค่าใช้จ่าย DPrice ในโมเดล: {v} ต่อปี (ค่าจากเครื่องคำนวณต้นฉบับ)","a_cover":"สัดส่วนเงินผู้ซื้อที่ใช้ลดหนี้ก่อนโอน: {c}% — {why}","a_rate":"อัตราดอกเบี้ยเริ่มต้น {r}% — {why}","a_price":"ราคาเริ่มต้น {p} — {why}","a_note":"ช่วงค่าและค่าเริ่มต้นเป็นจุดเริ่มต้นที่ปรับได้ ไม่ใช่สถิติตลาด การคำนวณเป็นโมเดลสถานการณ์ ไม่ใช่ผลลัพธ์ที่รับประกัน","why_cover_ru":"เงินในบัญชีเอสโครว์ใช้ครอบคลุมเงินกู้โครงการ","why_cover_uae":"แผนชำระ 20/40/40: ชำระ 60% ก่อนส่งมอบ เงินเอสโครว์ปล่อยตามความคืบหน้าการก่อสร้าง (สมมติฐาน)","why_cover_th":"เงินดาวน์ทั่วไป 30% ก่อนโอน และ 70% เมื่อโอน (ข้อมูลนายหน้า สมมติฐาน)","why_cover_global":"สมมติฐานค่ากลางของหลายตลาด","why_rate_ru":"ค่าจากเครื่องคำนวณต้นฉบับ","why_rate_uae":"สมมติฐาน: ต้นทุนเงินทุนของผู้พัฒนา (EIBOR 3 เดือน 4.22% ณ 2 ต.ค. 2026 บวกส่วนเพิ่ม)","why_rate_th":"สมมติฐาน: อัตราดอกเบี้ยเงินกู้โครงการของธนาคารไทย","why_rate_global":"สมมติฐาน","why_price_ru":"ค่าจากเครื่องคำนวณต้นฉบับ","why_price_uae":"ใกล้เคียงราคาที่ประกาศของ The Eden, Sobha Central (~2,800–2,900 ดีแรห์มต่อตร.ฟุต)","why_price_th":"ใกล้เคียงค่ามัธยฐานของ LOVE Charoen Nakhon (~141,000 บาทต่อตร.ม.)","why_price_global":"สมมติฐาน","cta_h":"ต้องการผลคำนวณที่แม่นยำสำหรับโครงการของคุณ?","cta_p":"เราจะจำลองโดยละเอียดด้วยข้อมูลจริงของโครงการคุณ ทดลองใช้ 3 เดือน","cta_btn":"ขอดูเดโมพร้อมการคำนวณ ROI →","cta_note_ru":"เริ่มต้น 300,000 รูเบิล/เดือน · เชื่อมต่อใน 7 วัน · ยกเลิกได้ทุกเมื่อ","cta_note":"เชื่อมต่อใน 7 วัน · ยกเลิกได้ทุกเมื่อ","footer":"DPrice — แพลตฟอร์มปรับราคาให้เหมาะสมสำหรับผู้พัฒนาอสังหาฯ","n_loan":"ช่วงเงินกู้ที่เป็นไปได้สำหรับข้อมูลนี้: {a}–{b}","n_loan_tbd":"กำลังปรับช่วงเงินกู้ที่เป็นไปได้ โปรดปรับข้อมูลแล้วคำนวณใหม่","n_loan_low":"ช่วงเงินกู้ที่เป็นไปได้อยู่ที่ขอบล่างของแถบเลื่อน","n_loan_one":"ช่วงเงินกู้ที่เป็นไปได้เหลือค่าเดียว: {a}","n_loan_min":"เงินกู้ใกล้ขอบล่างของช่วงที่แนะนำ: {a}","n_loan_max":"เงินกู้ใกล้ขอบบนของช่วงที่แนะนำ: {a}","n_plan":"ระยะเวลาตามแผนที่เป็นไปได้: {r}","n_plan_tbd":"กำลังปรับระยะเวลาตามแผนที่เป็นไปได้ โปรดปรับข้อมูลแล้วคำนวณใหม่","n_plan_at":"ระยะเวลาอยู่ที่ขอบบนของช่วงที่แนะนำ: {r}","n_plan_near":"ระยะเวลาใกล้ขอบบนของช่วงที่แนะนำ: {r}","n_pace":"อัตราการขายที่เป็นไปได้: {a}–{b}","n_pace_none":"ไม่พบอัตราการขายที่ให้ ROI เป็นบวกในช่วงนี้ ลองเปลี่ยนระยะเวลา ราคา หรือเงินกู้","n_pace_target":"อัตราการขายไม่ถึง ROI เป้าหมาย จึงคงช่วงที่ ROI เป็นบวก: {a}–{b}","n_pace_near":"อัตราการขายใกล้ขอบล่างตาม {c}: {a}","crit_target":"ROI เป้าหมาย ≥ {x}x","crit_pos":"ROI ที่เป็นบวก","months":"{n} เดือน","lt1":"< 1 เดือน","never":"ไม่คืนทุน","mo_signed":"{s}{n} เดือน","start":"เริ่ม","m":"ด.{i}","ds_with":"ใช้ DPrice (กำไรสุทธิ)","ds_without":"ไม่ปรับราคา (กำไรขั้นต้น)","tt_start":"เริ่มโมเดล","tt_cover":"รายได้ที่ได้รับ: {v}","tt_int":"ดอกเบี้ยสะสม: {v}","tt_dp":"ค่า DPrice สะสม: {v}","tt_unc":"หนี้ที่ยังไม่ครอบคลุม: {v}"}};
+
+const SLIDER_LIMITS = {
+  lots: { min: 100, max: 500, step: 1 },
+  area: { min: 24, max: 42, step: 1 },
+  price: { min: 150000, max: 750000, step: 5000 },
+  loan: { min: 400, max: 8000, step: 50 },
+  rate: { min: 10, max: 24, step: 0.5 },
+  planned: { min: 12, max: 120, step: 1 },
+  pace: { min: 4, max: 22, step: 0.1 }
+};
+
+const LOAN_LIMIT_CONFIG = {
+  // Абсолютные технические границы интерфейса; экономический диапазон считается внутри них.
+  HARD_MIN_MLN: 400,
+  HARD_MAX_MLN: 8000,
+  // Если корень Pi(B0)=0 ровно попадает на шаг слайдера, max слайдера уводится на шаг ниже.
+  STRICT_EPS_MLN: 1e-6,
+  // Нижняя граница кредита строится по ROI относительно baseline p0.
+  MIN_ROI_X: 0,
+  MIN_NET_GAIN_MLN: 0,
+  NOTE_WARNING_RATIO: 0.1
+};
+
+let lastLoanLimitInfo = {
+  rawMin: SLIDER_LIMITS.loan.min,
+  rawMax: SLIDER_LIMITS.loan.max,
+  rawProfitMax: SLIDER_LIMITS.loan.max,
+  roiMin: SLIDER_LIMITS.loan.min,
+  roiMax: SLIDER_LIMITS.loan.max,
+  sliderMin: SLIDER_LIMITS.loan.min,
+  sliderMax: SLIDER_LIMITS.loan.max,
+  bestLoan: SLIDER_LIMITS.loan.min,
+  bestRoi: null,
+  bestNetGain: null,
+  hasPositiveRoiLoan: true,
+  source: 'initial',
+  isBelowUiMin: false,
+  cappedByHardMax: false
+};
+
+const PLANNED_LIMIT_CONFIG = {
+  HARD_MIN_MONTHS: 12,
+  HARD_MAX_MONTHS: 120,
+  NOTE_WARNING_RATIO: 0.9,
+  // Граница периода строится не по абсолютной прибыли DPrice, а по ROI относительно baseline p0.
+  // 0 означает просто "ROI > 0". 75 означает "допускать период только если ROI >= 75x".
+  MIN_ROI_X: 75,
+  MIN_NET_GAIN_MLN: 0
+};
+
+let lastPlannedLimitInfo = {
+  min: SLIDER_LIMITS.planned.min,
+  max: SLIDER_LIMITS.planned.max,
+  selloutMin: SLIDER_LIMITS.planned.min,
+  selloutMax: SLIDER_LIMITS.planned.max,
+  profitMin: null,
+  profitMax: null,
+  positiveMin: null,
+  positiveMax: null,
+  targetMin: null,
+  targetMax: null,
+  bestRoi: null,
+  hasFeasibleSelloutPeriod: true,
+  hasPositiveProfitPeriod: true,
+  source: 'initial'
+};
+
+const PACE_LIMIT_CONFIG = {
+  HARD_MIN: 4,
+  HARD_MAX: 22,
+  STEP: 0.1,
+  // Темп продаж ограничивается так, чтобы существовал хотя бы один плановый период
+  // с положительным net gain и положительным ROI относительно baseline p0.
+  REQUIRE_TARGET_ROI: false,
+  NOTE_WARNING_RATIO: 0.1
+};
+
+let lastPaceLimitInfo = {
+  min: SLIDER_LIMITS.pace.min,
+  max: SLIDER_LIMITS.pace.max,
+  bestPace: 11,
+  bestRoi: null,
+  bestNetGain: null,
+  hasPositiveRoiPace: true,
+  hasTargetRoiPace: true,
+  source: 'initial'
+};
+
+const MODEL_CONSTANTS = {
+  PRICE_POLICY_MIN: 150000,
+  DEMAND_EPS: 0.02,
+  DPRICE_ANNUAL_COST_MLN: 5,
+  EPS: 1e-9,
+  GROSS_TOL: 1e-6,
+  MODEL_TOL: 1e-6,
+  MAX_OPT_ITER: 50,
+  BISECTION_ITERS: 80,
+  PROJECTION_ITERS: 200
+};
+
+const IS_CLIENT_MODE = true;
+const DEBUG_MODEL = !IS_CLIENT_MODE;
+const DEBUG_SCENARIO_AUDIT_ONCE = !IS_CLIENT_MODE;
+let debugScenarioAuditDone = false;
+
+const state = {
+  lots: 361,
+  area: 34,
+  price: 250000,
+  loan: 2500,
+  rate: 17,
+  planned: 42,
+  pace: 11
+};
+
+let recalcTimer = null;
+let chart = null;
+const strategyCharts = {};
+let deferredRenderToken = 0;
+
+function clamp(value, lo, hi) {
+  return Math.min(hi, Math.max(lo, value));
+}
+
+function clampFinite(value, fallback = 0) {
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function stepClamp(value, min, max, step) {
+  const lo = Math.min(min, max);
+  const hi = Math.max(min, max);
+  const safe = clamp(clampFinite(value, lo), lo, hi);
+  const snapped = lo + Math.round((safe - lo) / step) * step;
+  return Number(clamp(snapped, lo, hi).toFixed(6));
+}
+
+function safeLogit(prob, eps = MODEL_CONSTANTS.EPS) {
+  const p = clamp(prob, eps, 1 - eps);
+  return Math.log(p / (1 - p));
+}
+
+function scheduleRecalc() {
+  if (recalcTimer) clearTimeout(recalcTimer);
+  recalcTimer = setTimeout(() => {
+    recalcTimer = null;
+    recalc();
+  }, 90);
+}
+
+function updateSliderGradient(el) {
+  if (!el) return;
+  const min = parseFloat(el.min);
+  const max = parseFloat(el.max);
+  const val = parseFloat(el.value);
+  const pct = Math.abs(max - min) < MODEL_CONSTANTS.EPS
+    ? 100
+    : ((val - min) / (max - min)) * 100;
+  el.style.setProperty('--pct', pct + '%');
+  el.style.background = `linear-gradient(to right, #4EC94B 0%, #4EC94B ${pct}%, #E2E8F0 ${pct}%)`;
+}
+
+function applySliderBounds() {
+  Object.entries(SLIDER_LIMITS).forEach(([key, cfg]) => {
+    state[key] = stepClamp(state[key], cfg.min, cfg.max, cfg.step);
+
+    const range = document.getElementById('r-' + key);
+    const input = document.getElementById('i-' + key);
+
+    if (range) {
+      range.min = String(cfg.min);
+      range.max = String(cfg.max);
+      range.step = String(cfg.step);
+      range.value = String(state[key]);
+      updateSliderGradient(range);
+    }
+
+    if (input) {
+      input.min = String(cfg.min);
+      input.max = String(cfg.max);
+      input.step = String(cfg.step);
+      input.value = String(state[key]);
+    }
+  });
+}
+
+function updateLoanLimitNote(info) {
+  const node = document.getElementById('loan-limit-note');
+  if (!node || !info) return;
+
+  const rawMin = Number.isFinite(info.rawMin) ? info.rawMin : SLIDER_LIMITS.loan.min;
+  const rawMax = Number.isFinite(info.rawMax) ? info.rawMax : SLIDER_LIMITS.loan.max;
+  const sliderMin = Number.isFinite(info.sliderMin) ? info.sliderMin : SLIDER_LIMITS.loan.min;
+  const sliderMax = Number.isFinite(info.sliderMax) ? info.sliderMax : SLIDER_LIMITS.loan.max;
+  const span = Math.max(sliderMax - sliderMin, MODEL_CONSTANTS.EPS);
+  const distanceFromMin = state.loan - sliderMin;
+  const distanceFromMax = sliderMax - state.loan;
+
+  let tone = 'var(--gray-light)';
+  let text = `Выполнимый диапазон кредита для введенных параметров ЖК: ${fmtMln(sliderMin)}–${fmtMln(sliderMax)}.`;
+
+  if (!info.hasPositiveRoiLoan) {
+    tone = '#F59E0B';
+    text = `Выполнимый диапазон кредита для введенных параметров ЖК временно уточняется. Скорректируйте параметры и повторите расчет.`;
+  } else if (info.isBelowUiMin) {
+    tone = '#F59E0B';
+    text = `Выполнимый диапазон кредита для введенных параметров ЖК находится у нижней границы слайдера.`;
+  } else if (sliderMax <= sliderMin + MODEL_CONSTANTS.EPS) {
+    tone = '#F59E0B';
+    text = `Выполнимый диапазон кредита для введенных параметров ЖК сузился до одного значения: ${fmtMln(sliderMin)}.`;
+  } else if (info.cappedByHardMax) {
+    tone = 'var(--gray-light)';
+    text = `Выполнимый диапазон кредита для введенных параметров ЖК: ${fmtMln(sliderMin)}–${fmtMln(sliderMax)}.`;
+  } else if (distanceFromMin <= LOAN_LIMIT_CONFIG.NOTE_WARNING_RATIO * span + MODEL_CONSTANTS.EPS) {
+    tone = '#F59E0B';
+    text = `Текущее значение кредита близко к нижней границе рекомендуемого диапазона: ${fmtMln(sliderMin)}.`;
+  } else if (distanceFromMax <= LOAN_LIMIT_CONFIG.NOTE_WARNING_RATIO * span + MODEL_CONSTANTS.EPS) {
+    tone = '#F59E0B';
+    text = `Текущее значение кредита близко к верхней границе рекомендуемого диапазона: ${fmtMln(sliderMax)}.`;
+  }
+
+  node.style.color = tone;
+  node.textContent = text;
+}
+
+function fmtMonthsRange(min, max) {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return '—';
+  if (Math.round(min) === Math.round(max)) return `${Math.round(min)} мес.`;
+  return `${Math.round(min)}–${Math.round(max)} мес.`;
+}
+
+function plannedCriterionLabel(info = lastPlannedLimitInfo) {
+  const target = PLANNED_LIMIT_CONFIG.MIN_ROI_X;
+  if (Number.isFinite(target) && target > 0) return `целевому ROI ≥ ${rawNumber(target, 0)}x`;
+  return 'положительному ROI';
+}
+
+function updatePlannedLimitNote(info) {
+  const node = document.getElementById('planned-limit-note');
+  if (!node || !info) return;
+
+  let tone = 'var(--gray-light)';
+  let text = `Выполнимый плановый период для введенных параметров ЖК: ${fmtMonthsRange(info.min, info.max)}.`;
+
+  if (!info.hasFeasibleSelloutPeriod) {
+    tone = '#F59E0B';
+    text = `Выполнимый плановый период для введенных параметров ЖК временно уточняется. Скорректируйте параметры и повторите расчет.`;
+  } else {
+    const ratio = info.max > MODEL_CONSTANTS.EPS ? state.planned / info.max : Infinity;
+    if (ratio >= 1) {
+      tone = '#F59E0B';
+      text = `Текущий период находится на верхней границе рекомендуемого диапазона: ${fmtMonthsRange(info.min, info.max)}.`;
+    } else if (ratio >= PLANNED_LIMIT_CONFIG.NOTE_WARNING_RATIO) {
+      tone = '#F59E0B';
+      text = `Текущий период близок к верхней границе рекомендуемого диапазона: ${fmtMonthsRange(info.min, info.max)}.`;
+    }
+  }
+
+  node.style.color = tone;
+  node.textContent = text;
+}
+
+
+function fmtPace(v) {
+  if (!Number.isFinite(v)) return '—';
+  return `${Number(v).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} кв./мес.`;
+}
+
+function paceCriterionLabel(info = lastPaceLimitInfo) {
+  if (PACE_LIMIT_CONFIG.REQUIRE_TARGET_ROI && Number.isFinite(PLANNED_LIMIT_CONFIG.MIN_ROI_X) && PLANNED_LIMIT_CONFIG.MIN_ROI_X > 0) {
+    return `ROI ≥ ${rawNumber(PLANNED_LIMIT_CONFIG.MIN_ROI_X, 0)}x`;
+  }
+  return 'положительному ROI';
+}
+
+function updatePaceLimitNote(info) {
+  const node = document.getElementById('pace-limit-note');
+  if (!node || !info) return;
+
+  const criterion = paceCriterionLabel(info);
+  let tone = 'var(--gray-light)';
+  let text = `Выполнимый диапазон темпа продаж: ${fmtPace(info.min)}–${fmtPace(info.max)}.`;
+
+  if (!info.hasPositiveRoiPace) {
+    tone = '#DC2626';
+    text = `В текущем диапазоне темпа продаж не найдено значение с положительным ROI. Попробуйте изменить срок продаж, цену или кредит.`;
+  } else if (PACE_LIMIT_CONFIG.REQUIRE_TARGET_ROI && !info.hasTargetRoiPace) {
+    tone = '#F59E0B';
+    text = `Целевой ROI недостижим по темпу; оставлен диапазон с положительным ROI: ${fmtPace(info.min)}–${fmtPace(info.max)}.`;
+  } else {
+    const span = Math.max(info.max - info.min, MODEL_CONSTANTS.EPS);
+    const distanceFromMin = state.pace - info.min;
+    if (distanceFromMin <= PACE_LIMIT_CONFIG.NOTE_WARNING_RATIO * span + MODEL_CONSTANTS.EPS) {
+      tone = '#F59E0B';
+      text = `Темп продаж близок к нижней границе по ${criterion}: ${fmtPace(info.min)}.`;
+    }
+  }
+
+  node.style.color = tone;
+  node.textContent = text;
+}
+
+
+function buildCoreParamsForAdaptivePeriod(values, plannedMonths) {
+  const savedPlannedMin = SLIDER_LIMITS.planned.min;
+  const savedPlannedMax = SLIDER_LIMITS.planned.max;
+  const savedPaceMin = SLIDER_LIMITS.pace.min;
+  const savedPaceMax = SLIDER_LIMITS.pace.max;
+  const savedLoanMin = SLIDER_LIMITS.loan.min;
+  const savedLoanMax = SLIDER_LIMITS.loan.max;
+
+  try {
+    SLIDER_LIMITS.planned.min = PLANNED_LIMIT_CONFIG.HARD_MIN_MONTHS;
+    SLIDER_LIMITS.planned.max = PLANNED_LIMIT_CONFIG.HARD_MAX_MONTHS;
+    // При сканировании planned и pace нельзя использовать уже суженные adaptive-границы pace,
+    // иначе появится гистерезис: нижняя граница темпа сможет только расти, но не снижаться.
+    SLIDER_LIMITS.pace.min = PACE_LIMIT_CONFIG.HARD_MIN;
+    SLIDER_LIMITS.pace.max = PACE_LIMIT_CONFIG.HARD_MAX;
+    // Аналогично для кредита: planned/pace/loan-сканы должны видеть технический диапазон,
+    // а не предыдущий adaptive min/max.
+    SLIDER_LIMITS.loan.min = LOAN_LIMIT_CONFIG.HARD_MIN_MLN;
+    SLIDER_LIMITS.loan.max = LOAN_LIMIT_CONFIG.HARD_MAX_MLN;
+    return buildCoreParams({ ...values, planned: plannedMonths });
+  } finally {
+    SLIDER_LIMITS.planned.min = savedPlannedMin;
+    SLIDER_LIMITS.planned.max = savedPlannedMax;
+    SLIDER_LIMITS.pace.min = savedPaceMin;
+    SLIDER_LIMITS.pace.max = savedPaceMax;
+    SLIDER_LIMITS.loan.min = savedLoanMin;
+    SLIDER_LIMITS.loan.max = savedLoanMax;
+  }
+}
+
+function interestForArithmeticEscrow(B0, monthlyRevenue, T, monthlyRate) {
+  const B = Math.max(0, clampFinite(B0, 0));
+  const R = Math.max(0, clampFinite(monthlyRevenue, 0));
+  const r = Math.max(0, clampFinite(monthlyRate, 0));
+  const N = Math.max(0, Math.floor(clampFinite(T, 0)));
+
+  if (B <= MODEL_CONSTANTS.EPS || r <= MODEL_CONSTANTS.EPS || N <= 0) return 0;
+  if (R <= MODEL_CONSTANTS.EPS) return r * B * N;
+
+  // Месяцы n = 0,...,m-1 имеют startEscrow = nR < B.
+  const m = Math.min(N, Math.max(0, Math.ceil(B / R - MODEL_CONSTANTS.EPS)));
+  return r * (m * B - R * m * (m - 1) / 2);
+}
+
+function estimateBaseP0MetricsFast(params) {
+  const T = params.plannedMonths;
+  const unitRevenue = params.area * params.price / 1_000_000;
+  const q0 = Math.max(0, params.pace);
+  const monthlyRevenueFull = unitRevenue * q0;
+
+  let X = 0;
+  let E = 0;
+  let interest = 0;
+
+  // T <= 120, поэтому маленький численный цикл здесь дешевле и точнее, чем громоздкая формула с последним частичным месяцем.
+  for (let n = 0; n < T; n++) {
+    interest += params.monthlyRate * Math.max(params.loan - COVER * E, 0);
+    const unitsSold = Math.min(q0, Math.max(params.lots - X, 0));
+    X += unitsSold;
+    E += unitsSold * unitRevenue;
+    if (X >= params.lots - MODEL_CONSTANTS.MODEL_TOL && E >= params.loan - MODEL_CONSTANTS.MODEL_TOL) {
+      // После sell-out и покрытия долга дальнейшие месяцы уже не меняют прибыль baseline.
+      // Если долг не покрыт, цикл должен продолжаться, потому что проценты продолжают начисляться.
+    }
+  }
+
+  return {
+    finalSales: X,
+    totalRevenue: E,
+    totalInterest: interest,
+    profitGross: E - params.loan - interest,
+    profit: E - params.loan - interest
+  };
+}
+
+function estimateFlatSelloutPeriodMetrics(values, plannedMonths) {
+  const params = buildCoreParamsForAdaptivePeriod(values, plannedMonths);
+  const demandParams = buildDemandParams(params);
+  const T = params.plannedMonths;
+
+  if (!(T > 0)) {
+    return { feasible: false, netGain: -Infinity, roi: -Infinity, dpriceProfit: -Infinity, baseProfit: -Infinity };
+  }
+
+  const q = params.lots / T;
+  if (q < demandParams.qMin - MODEL_CONSTANTS.MODEL_TOL) {
+    return { feasible: false, reason: 'too_fast', netGain: -Infinity, roi: -Infinity, dpriceProfit: -Infinity, baseProfit: -Infinity };
+  }
+  if (q > demandParams.qMax + MODEL_CONSTANTS.MODEL_TOL) {
+    return { feasible: false, reason: 'too_slow', netGain: -Infinity, roi: -Infinity, dpriceProfit: -Infinity, baseProfit: -Infinity };
+  }
+
+  // Baseline p_n = p0, быстро и без построения rows.
+  const base = estimateBaseP0MetricsFast(params);
+
+  // Reference DPrice: равномерный full sell-out за T месяцев.
+  const price = inverseDemand(q, demandParams);
+  const totalArea = params.lots * params.area;
+  const totalRevenue = totalArea * price / 1_000_000;
+  const monthlyRevenue = totalRevenue / T;
+  const totalInterest = interestForArithmeticEscrow(params.loan, monthlyRevenue * COVER, T, params.monthlyRate);
+  const dpriceCost = MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN * T / 12;
+  const dpriceProfitGross = totalRevenue - params.loan - totalInterest;
+  const dpriceProfit = dpriceProfitGross - dpriceCost;
+
+  const netGain = dpriceProfit - base.profit;
+  const grossGain = dpriceProfitGross - base.profitGross;
+  const roi = dpriceCost > MODEL_CONSTANTS.EPS ? netGain / dpriceCost : Infinity;
+
+  return {
+    feasible: true,
+    q,
+    price,
+    baseProfit: base.profit,
+    dpriceProfit,
+    baseGross: base.profitGross,
+    dpriceGross: dpriceProfitGross,
+    grossGain,
+    netGain,
+    roi,
+    baseFinalSales: base.finalSales,
+    dpriceFinalSales: params.lots
+  };
+}
+
+function estimateAdaptivePlannedLimit(values) {
+  const hardMin = PLANNED_LIMIT_CONFIG.HARD_MIN_MONTHS;
+  const hardMax = PLANNED_LIMIT_CONFIG.HARD_MAX_MONTHS;
+  const params0 = buildCoreParamsForAdaptivePeriod(values, clampFinite(values.planned, state.planned));
+  const demandParams = buildDemandParams(params0);
+
+  const selloutMinRaw = Math.ceil(params0.lots / Math.max(demandParams.qMax, MODEL_CONSTANTS.EPS));
+  const selloutMaxRaw = Math.floor(params0.lots / Math.max(demandParams.qMin, MODEL_CONSTANTS.EPS));
+  const selloutMin = Math.max(1, selloutMinRaw);
+  const selloutMax = Math.max(selloutMin, selloutMaxRaw);
+
+  const scanMin = Math.max(hardMin, selloutMin);
+  const scanMax = Math.min(hardMax, selloutMax);
+
+  if (scanMin > scanMax) {
+    const collapsed = selloutMin > hardMax ? hardMax : hardMin;
+    return {
+      min: collapsed,
+      max: collapsed,
+      selloutMin,
+      selloutMax,
+      positiveMin: null,
+      positiveMax: null,
+      targetMin: null,
+      targetMax: null,
+      profitMin: null,
+      profitMax: null,
+      bestProfit: -Infinity,
+      bestRoi: -Infinity,
+      hasFeasibleSelloutPeriod: false,
+      hasPositiveProfitPeriod: false,
+      source: 'sellout_infeasible'
+    };
+  }
+
+  let firstPositive = null;
+  let lastPositive = null;
+  let firstTarget = null;
+  let lastTarget = null;
+  let bestNetGain = -Infinity;
+  let bestRoi = -Infinity;
+  let bestT = scanMin;
+
+  const minRoi = Math.max(0, clampFinite(PLANNED_LIMIT_CONFIG.MIN_ROI_X, 0));
+  const minNetGain = Math.max(0, clampFinite(PLANNED_LIMIT_CONFIG.MIN_NET_GAIN_MLN, 0));
+
+  for (let T = scanMin; T <= scanMax; T++) {
+    const metrics = estimateFlatSelloutPeriodMetrics(values, T);
+    if (!metrics.feasible) continue;
+
+    if (metrics.netGain > bestNetGain) {
+      bestNetGain = metrics.netGain;
+      bestRoi = metrics.roi;
+      bestT = T;
+    }
+
+    if (metrics.netGain > MODEL_CONSTANTS.MODEL_TOL && metrics.roi > MODEL_CONSTANTS.MODEL_TOL) {
+      if (firstPositive === null) firstPositive = T;
+      lastPositive = T;
+    }
+
+    if (metrics.netGain > minNetGain + MODEL_CONSTANTS.MODEL_TOL && metrics.roi >= minRoi - MODEL_CONSTANTS.MODEL_TOL) {
+      if (firstTarget === null) firstTarget = T;
+      lastTarget = T;
+    }
+  }
+
+  if (firstTarget !== null) {
+    return {
+      min: firstTarget,
+      max: lastTarget,
+      selloutMin,
+      selloutMax,
+      positiveMin: firstPositive,
+      positiveMax: lastPositive,
+      targetMin: firstTarget,
+      targetMax: lastTarget,
+      profitMin: firstTarget,
+      profitMax: lastTarget,
+      bestProfit: bestNetGain,
+      bestRoi,
+      bestT,
+      hasFeasibleSelloutPeriod: true,
+      hasPositiveProfitPeriod: true,
+      source: minRoi > 0 ? 'target_roi_scan' : 'positive_roi_scan'
+    };
+  }
+
+  if (firstPositive !== null) {
+    return {
+      min: firstPositive,
+      max: lastPositive,
+      selloutMin,
+      selloutMax,
+      positiveMin: firstPositive,
+      positiveMax: lastPositive,
+      targetMin: null,
+      targetMax: null,
+      profitMin: firstPositive,
+      profitMax: lastPositive,
+      bestProfit: bestNetGain,
+      bestRoi,
+      bestT,
+      hasFeasibleSelloutPeriod: true,
+      hasPositiveProfitPeriod: true,
+      source: 'positive_roi_fallback'
+    };
+  }
+
+  return {
+    min: bestT,
+    max: bestT,
+    selloutMin,
+    selloutMax,
+    positiveMin: null,
+    positiveMax: null,
+    targetMin: null,
+    targetMax: null,
+    profitMin: null,
+    profitMax: null,
+    bestProfit: bestNetGain,
+    bestRoi,
+    bestT,
+    hasFeasibleSelloutPeriod: true,
+    hasPositiveProfitPeriod: false,
+    source: 'roi_scan_no_positive'
+  };
+}
+
+
+function buildCoreParamsForAdaptivePace(values, pace) {
+  const savedMin = SLIDER_LIMITS.pace.min;
+  const savedMax = SLIDER_LIMITS.pace.max;
+
+  try {
+    SLIDER_LIMITS.pace.min = PACE_LIMIT_CONFIG.HARD_MIN;
+    SLIDER_LIMITS.pace.max = PACE_LIMIT_CONFIG.HARD_MAX;
+    return buildCoreParams({ ...values, pace });
+  } finally {
+    SLIDER_LIMITS.pace.min = savedMin;
+    SLIDER_LIMITS.pace.max = savedMax;
+  }
+}
+
+function paceCandidates() {
+  const out = [];
+  const start = Math.round(PACE_LIMIT_CONFIG.HARD_MIN / PACE_LIMIT_CONFIG.STEP);
+  const end = Math.round(PACE_LIMIT_CONFIG.HARD_MAX / PACE_LIMIT_CONFIG.STEP);
+  for (let k = start; k <= end; k++) {
+    out.push(Number((k * PACE_LIMIT_CONFIG.STEP).toFixed(6)));
+  }
+  return out;
+}
+
+function estimateAdaptivePaceLimit(values) {
+  const hardMin = PACE_LIMIT_CONFIG.HARD_MIN;
+  const hardMax = PACE_LIMIT_CONFIG.HARD_MAX;
+  const step = PACE_LIMIT_CONFIG.STEP;
+  const memo = new Map();
+
+  const norm = pace => Number(clamp(pace, hardMin, hardMax).toFixed(6));
+  const getInfo = pace => {
+    const key = norm(pace).toFixed(6);
+    if (!memo.has(key)) {
+      memo.set(key, estimateAdaptivePlannedLimit({ ...values, pace: Number(key) }));
+    }
+    return memo.get(key);
+  };
+
+  const hasPositive = pace => {
+    const info = getInfo(pace);
+    return !!(info.hasPositiveProfitPeriod && info.positiveMin !== null);
+  };
+
+  const hasTarget = pace => {
+    const info = getInfo(pace);
+    return !!(info.hasPositiveProfitPeriod && info.targetMin !== null);
+  };
+
+  const findLowerBound = predicate => {
+    if (predicate(hardMin)) return hardMin;
+    if (!predicate(hardMax)) return null;
+
+    let lo = hardMin;
+    let hi = hardMax;
+    for (let i = 0; i < 28; i++) {
+      const mid = 0.5 * (lo + hi);
+      if (predicate(mid)) hi = mid;
+      else lo = mid;
+    }
+
+    // Привязка к шагу слайдера + локальная проверка, чтобы не получить ложноположительный min.
+    let candidate = Math.ceil((hi - MODEL_CONSTANTS.EPS) / step) * step;
+    candidate = norm(candidate);
+    while (candidate <= hardMax + MODEL_CONSTANTS.EPS && !predicate(candidate)) {
+      candidate = norm(candidate + step);
+    }
+    return candidate <= hardMax + MODEL_CONSTANTS.EPS ? candidate : null;
+  };
+
+  const positiveMin = findLowerBound(hasPositive);
+  const targetMin = findLowerBound(hasTarget);
+  const highInfo = getInfo(hardMax);
+  const lowInfo = getInfo(hardMin);
+
+  const bestInfo = highInfo.bestRoi >= lowInfo.bestRoi ? highInfo : lowInfo;
+  const bestPace = highInfo.bestRoi >= lowInfo.bestRoi ? hardMax : hardMin;
+  const bestRoi = Number.isFinite(bestInfo.bestRoi) ? bestInfo.bestRoi : -Infinity;
+  const bestNetGain = Number.isFinite(bestInfo.bestProfit) ? bestInfo.bestProfit : -Infinity;
+
+  const requireTarget = !!PACE_LIMIT_CONFIG.REQUIRE_TARGET_ROI;
+
+  if (requireTarget && targetMin !== null) {
+    return {
+      min: targetMin,
+      max: hardMax,
+      positiveMin,
+      positiveMax: positiveMin !== null ? hardMax : null,
+      targetMin,
+      targetMax: hardMax,
+      bestPace,
+      bestRoi,
+      bestNetGain,
+      hasPositiveRoiPace: positiveMin !== null,
+      hasTargetRoiPace: true,
+      source: 'target_roi_pace_bisect'
+    };
+  }
+
+  if (positiveMin !== null) {
+    return {
+      min: positiveMin,
+      max: hardMax,
+      positiveMin,
+      positiveMax: hardMax,
+      targetMin,
+      targetMax: targetMin !== null ? hardMax : null,
+      bestPace,
+      bestRoi,
+      bestNetGain,
+      hasPositiveRoiPace: true,
+      hasTargetRoiPace: targetMin !== null,
+      source: requireTarget ? 'positive_roi_pace_fallback_bisect' : 'positive_roi_pace_bisect'
+    };
+  }
+
+  return {
+    min: bestPace,
+    max: bestPace,
+    positiveMin: null,
+    positiveMax: null,
+    targetMin: null,
+    targetMax: null,
+    bestPace,
+    bestRoi,
+    bestNetGain,
+    hasPositiveRoiPace: false,
+    hasTargetRoiPace: false,
+    source: 'pace_bisect_no_positive_roi'
+  };
+}
+
+function updateAdaptivePaceLimit(values = state) {
+  const info = estimateAdaptivePaceLimit(values);
+  const step = SLIDER_LIMITS.pace.step;
+
+  let sliderMin = Math.ceil((info.min - MODEL_CONSTANTS.EPS) / step) * step;
+  let sliderMax = Math.floor((info.max + MODEL_CONSTANTS.EPS) / step) * step;
+
+  sliderMin = clamp(sliderMin, PACE_LIMIT_CONFIG.HARD_MIN, PACE_LIMIT_CONFIG.HARD_MAX);
+  sliderMax = clamp(sliderMax, PACE_LIMIT_CONFIG.HARD_MIN, PACE_LIMIT_CONFIG.HARD_MAX);
+
+  if (sliderMax < sliderMin) sliderMax = sliderMin;
+
+  SLIDER_LIMITS.pace.min = Number(sliderMin.toFixed(6));
+  SLIDER_LIMITS.pace.max = Number(sliderMax.toFixed(6));
+
+  if (state.pace < SLIDER_LIMITS.pace.min) state.pace = SLIDER_LIMITS.pace.min;
+  if (state.pace > SLIDER_LIMITS.pace.max) state.pace = SLIDER_LIMITS.pace.max;
+
+  lastPaceLimitInfo = {
+    ...info,
+    min: SLIDER_LIMITS.pace.min,
+    max: SLIDER_LIMITS.pace.max
+  };
+
+  applySliderBounds();
+  updatePaceLimitNote(lastPaceLimitInfo);
+
+  return lastPaceLimitInfo;
+}
+
+
+function updateAdaptivePlannedLimit(values = state) {
+  const info = estimateAdaptivePlannedLimit(values);
+  const step = SLIDER_LIMITS.planned.step;
+
+  let sliderMin = Math.ceil(info.min / step) * step;
+  let sliderMax = Math.floor(info.max / step) * step;
+
+  sliderMin = clamp(sliderMin, PLANNED_LIMIT_CONFIG.HARD_MIN_MONTHS, PLANNED_LIMIT_CONFIG.HARD_MAX_MONTHS);
+  sliderMax = clamp(sliderMax, PLANNED_LIMIT_CONFIG.HARD_MIN_MONTHS, PLANNED_LIMIT_CONFIG.HARD_MAX_MONTHS);
+
+  if (sliderMax < sliderMin) sliderMax = sliderMin;
+
+  SLIDER_LIMITS.planned.min = sliderMin;
+  SLIDER_LIMITS.planned.max = sliderMax;
+
+  if (state.planned < sliderMin) state.planned = sliderMin;
+  if (state.planned > sliderMax) state.planned = sliderMax;
+
+  lastPlannedLimitInfo = {
+    ...info,
+    min: sliderMin,
+    max: sliderMax
+  };
+
+  applySliderBounds();
+  updatePlannedLimitNote(lastPlannedLimitInfo);
+
+  return lastPlannedLimitInfo;
+}
+
+
+function buildCoreParamsForAdaptiveLoan(values, loanMln) {
+  const savedLoanMin = SLIDER_LIMITS.loan.min;
+  const savedLoanMax = SLIDER_LIMITS.loan.max;
+
+  try {
+    SLIDER_LIMITS.loan.min = LOAN_LIMIT_CONFIG.HARD_MIN_MLN;
+    SLIDER_LIMITS.loan.max = LOAN_LIMIT_CONFIG.HARD_MAX_MLN;
+    return buildCoreParams({ ...values, loan: loanMln });
+  } finally {
+    SLIDER_LIMITS.loan.min = savedLoanMin;
+    SLIDER_LIMITS.loan.max = savedLoanMax;
+  }
+}
+
+function estimateFlatSelloutLoanMetrics(values, loanMln) {
+  const plannedMonths = Math.round(clampFinite(values.planned, state.planned));
+  return estimateFlatSelloutPeriodMetrics({ ...values, loan: loanMln }, plannedMonths);
+}
+
+function estimateAdaptiveLoanRoiRange(values, rawProfitMax = LOAN_LIMIT_CONFIG.HARD_MAX_MLN) {
+  const hardMin = LOAN_LIMIT_CONFIG.HARD_MIN_MLN;
+  const hardMax = LOAN_LIMIT_CONFIG.HARD_MAX_MLN;
+  const step = SLIDER_LIMITS.loan.step;
+  const scanMax = Math.max(hardMin, Math.min(hardMax, clampFinite(rawProfitMax, hardMax)));
+  const minRoi = Math.max(0, clampFinite(LOAN_LIMIT_CONFIG.MIN_ROI_X, 0));
+  const minNetGain = Math.max(0, clampFinite(LOAN_LIMIT_CONFIG.MIN_NET_GAIN_MLN, 0));
+
+  let firstGood = null;
+  let lastGood = null;
+  let bestLoan = hardMin;
+  let bestRoi = -Infinity;
+  let bestNetGain = -Infinity;
+  let blockStarted = false;
+  let blockEnded = false;
+
+  for (let B = hardMin; B <= scanMax + MODEL_CONSTANTS.EPS; B += step) {
+    const loan = Number(B.toFixed(6));
+    const metrics = estimateFlatSelloutLoanMetrics(values, loan);
+
+    if (Number.isFinite(metrics.roi) && metrics.roi > bestRoi) {
+      bestRoi = metrics.roi;
+      bestNetGain = metrics.netGain;
+      bestLoan = loan;
+    }
+
+    const good = !!(
+      metrics.feasible &&
+      metrics.dpriceProfit > MODEL_CONSTANTS.MODEL_TOL &&
+      metrics.netGain > minNetGain + MODEL_CONSTANTS.MODEL_TOL &&
+      metrics.roi > minRoi + MODEL_CONSTANTS.MODEL_TOL
+    );
+
+    if (good && !blockEnded) {
+      if (!blockStarted) {
+        firstGood = loan;
+        blockStarted = true;
+      }
+      lastGood = loan;
+    } else if (blockStarted) {
+      blockEnded = true;
+      break;
+    }
+  }
+
+  if (firstGood !== null) {
+    return {
+      rawMin: firstGood,
+      rawMax: lastGood,
+      roiMin: firstGood,
+      roiMax: lastGood,
+      bestLoan,
+      bestRoi,
+      bestNetGain,
+      hasPositiveRoiLoan: true,
+      source: 'flat_sellout_roi_loan_scan'
+    };
+  }
+
+  return {
+    rawMin: bestLoan,
+    rawMax: bestLoan,
+    roiMin: null,
+    roiMax: null,
+    bestLoan,
+    bestRoi,
+    bestNetGain,
+    hasPositiveRoiLoan: false,
+    source: 'loan_scan_no_positive_roi'
+  };
+}
+
+function computeMaxLoanForPositiveProfitFromRows(rows, monthlyRate, dpriceCostMln) {
+  if (!Array.isArray(rows) || !rows.length) return 0;
+
+  const startEscrows = rows
+    .map(row => COVER * Number(row.startEscrow))
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (!startEscrows.length) return 0;
+
+  const finalEscrow = Number(rows[rows.length - 1].endEscrow);
+  const r = Math.max(0, clampFinite(monthlyRate, 0));
+  const c = Math.max(0, clampFinite(dpriceCostMln, 0));
+
+  if (!Number.isFinite(finalEscrow) || finalEscrow - c <= MODEL_CONSTANTS.EPS) {
+    return 0;
+  }
+
+  const profitAt = B0 => {
+    let interest = 0;
+    for (const E of startEscrows) {
+      interest += r * Math.max(B0 - E, 0);
+    }
+    return finalEscrow - B0 - interest - c;
+  };
+
+  let prefixSum = 0;
+  const T = startEscrows.length;
+
+  for (let k = 0; k <= T; k++) {
+    const numerator = finalEscrow - c + r * prefixSum;
+    const denominator = 1 + r * k;
+    const candidate = numerator / denominator;
+
+    const left = k === 0 ? -Infinity : startEscrows[k - 1];
+    const right = k === T ? Infinity : startEscrows[k];
+
+    if (Number.isFinite(candidate) && candidate > left - 1e-7 && candidate <= right + 1e-7) {
+      return Math.max(0, candidate);
+    }
+
+    if (k < T) prefixSum += startEscrows[k];
+  }
+
+  // Защитный fallback: монотонная бисекция по Pi(B0).
+  let lo = 0;
+  let hi = Math.max(finalEscrow - c, 0);
+
+  if (profitAt(lo) <= 0) return 0;
+  if (profitAt(hi) > 0) return hi;
+
+  for (let i = 0; i < 80; i++) {
+    const mid = 0.5 * (lo + hi);
+    if (profitAt(mid) > 0) lo = mid;
+    else hi = mid;
+  }
+
+  return Math.max(0, lo);
+}
+
+function buildFlatSelloutRows(params, demandParams) {
+  const N = params.plannedMonths;
+  const q = clamp(params.lots / Math.max(N, 1), demandParams.qMin, demandParams.qMax);
+  const price = inverseDemand(q, demandParams);
+
+  const rows = [];
+  let X = 0;
+  let E = 0;
+
+  for (let n = 0; n < N; n++) {
+    const startEscrow = E;
+    const remainingLots = Math.max(params.lots - X, 0);
+    const unitsSold = Math.min(q, remainingLots);
+    const revenue = params.area * price * unitsSold / 1_000_000;
+    X += unitsSold;
+    E += revenue;
+    rows.push({ month: n + 1, startEscrow, endEscrow: E, revenue });
+  }
+
+  return rows;
+}
+
+function estimateAdaptiveLoanLimit(values) {
+  // Верхняя граница: DPrice-сценарий должен иметь строго положительную чистую прибыль.
+  // Reference-модель не должна зависеть от текущего положения loan-слайдера.
+  const referenceParams = buildCoreParamsForAdaptiveLoan(values, LOAN_LIMIT_CONFIG.HARD_MIN_MLN);
+  referenceParams.loan = 0;
+
+  const demandParams = buildDemandParams(referenceParams);
+  const dpriceCost = MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN * referenceParams.plannedMonths / 12;
+
+  let rawProfitMax = 0;
+  let upperSource = 'unknown';
+
+  try {
+    const basePolicy = buildBasePolicy(referenceParams, demandParams);
+    const optCandidate = optimizeControlPolicy(referenceParams, demandParams, { baseUnits: basePolicy.units });
+    rawProfitMax = computeMaxLoanForPositiveProfitFromRows(
+      optCandidate.sim.rows,
+      referenceParams.monthlyRate,
+      dpriceCost
+    );
+    upperSource = `reference-${optCandidate.convergenceInfo.source}`;
+  } catch (err) {
+    if (!IS_CLIENT_MODE) {
+      console.warn('Adaptive loan upper limit optimizer failed; fallback to flat sell-out.', err);
+    }
+    const fallbackRows = buildFlatSelloutRows(referenceParams, demandParams);
+    rawProfitMax = computeMaxLoanForPositiveProfitFromRows(fallbackRows, referenceParams.monthlyRate, dpriceCost);
+    upperSource = 'flat_sellout_profit_fallback';
+  }
+
+  if (!Number.isFinite(rawProfitMax) || rawProfitMax <= 0) {
+    rawProfitMax = 0;
+  }
+
+  // Нижняя граница: ROI относительно baseline p0 должен быть строго положительным.
+  const roiRange = estimateAdaptiveLoanRoiRange(values, rawProfitMax);
+  let rawMin = roiRange.hasPositiveRoiLoan ? roiRange.rawMin : roiRange.bestLoan;
+  let rawMax = roiRange.hasPositiveRoiLoan ? Math.min(rawProfitMax, roiRange.rawMax) : roiRange.bestLoan;
+
+  if (!Number.isFinite(rawMin)) rawMin = LOAN_LIMIT_CONFIG.HARD_MIN_MLN;
+  if (!Number.isFinite(rawMax)) rawMax = rawMin;
+  if (rawMax < rawMin) rawMax = rawMin;
+
+  return {
+    rawMin,
+    rawMax,
+    rawProfitMax,
+    roiMin: roiRange.roiMin,
+    roiMax: roiRange.roiMax,
+    bestLoan: roiRange.bestLoan,
+    bestRoi: roiRange.bestRoi,
+    bestNetGain: roiRange.bestNetGain,
+    hasPositiveRoiLoan: roiRange.hasPositiveRoiLoan,
+    source: `${upperSource}; ${roiRange.source}`
+  };
+}
+
+function updateAdaptiveLoanLimit(values = state) {
+  const step = SLIDER_LIMITS.loan.step;
+  const hardMin = LOAN_LIMIT_CONFIG.HARD_MIN_MLN;
+  const hardMax = LOAN_LIMIT_CONFIG.HARD_MAX_MLN;
+  const info = estimateAdaptiveLoanLimit(values);
+
+  const finiteRawMin = Number.isFinite(info.rawMin) ? Math.max(hardMin, info.rawMin) : hardMin;
+  const finiteRawMax = Number.isFinite(info.rawMax) ? Math.max(finiteRawMin, info.rawMax) : finiteRawMin;
+  const cappedMax = Math.min(finiteRawMax, hardMax);
+
+  let sliderMin = Math.ceil((finiteRawMin - MODEL_CONSTANTS.EPS) / step) * step;
+  let sliderMax = Math.floor((cappedMax + MODEL_CONSTANTS.EPS) / step) * step;
+
+  // Если верхний предел задан именно корнем Pi(B0)=0, не даём попасть в точку нулевой прибыли.
+  if (Number.isFinite(info.rawProfitMax) && sliderMax >= info.rawProfitMax - LOAN_LIMIT_CONFIG.STRICT_EPS_MLN) {
+    sliderMax -= step;
+  }
+
+  sliderMin = Math.max(hardMin, Math.min(hardMax, sliderMin));
+  sliderMax = Math.max(sliderMin, Math.min(hardMax, sliderMax));
+
+  SLIDER_LIMITS.loan.min = sliderMin;
+  SLIDER_LIMITS.loan.max = sliderMax;
+
+  if (state.loan < sliderMin) {
+    state.loan = sliderMin;
+  }
+  if (state.loan > sliderMax) {
+    state.loan = sliderMax;
+  }
+
+  lastLoanLimitInfo = {
+    ...info,
+    rawMin: finiteRawMin,
+    rawMax: finiteRawMax,
+    sliderMin,
+    sliderMax,
+    isBelowUiMin: finiteRawMax < hardMin,
+    cappedByHardMax: finiteRawMax > hardMax,
+    source: info.source
+  };
+
+  applySliderBounds();
+  updateLoanLimitNote(lastLoanLimitInfo);
+
+  return lastLoanLimitInfo;
+}
+
+function applyAdaptiveSliderBounds() {
+  const before = { loan: state.loan, planned: state.planned, pace: state.pace };
+
+  // Порядок важен: pace задаёт форму спроса, planned зависит от pace и loan, loan зависит от planned.
+  updateAdaptivePaceLimit(state);
+  updateAdaptivePlannedLimit(state);
+  updateAdaptiveLoanLimit(state);
+
+  // После clamp кредита или темпа допустимый диапазон периода может измениться.
+  if (
+    Math.abs(state.loan - before.loan) > MODEL_CONSTANTS.EPS ||
+    Math.abs(state.pace - before.pace) > MODEL_CONSTANTS.EPS ||
+    Math.abs(state.planned - before.planned) > MODEL_CONSTANTS.EPS
+  ) {
+    updateAdaptivePaceLimit(state);
+    updateAdaptivePlannedLimit(state);
+    updateAdaptiveLoanLimit(state);
+  }
+}
+
+function syncInput(key, val) {
+  state[key] = parseFloat(val);
+  const input = document.getElementById('i-' + key);
+  if (input) input.value = String(val);
+  applySliderBounds();
+  scheduleRecalc();
+}
+
+function syncRange(key, val) {
+  state[key] = parseFloat(val);
+  const range = document.getElementById('r-' + key);
+  if (range) {
+    range.value = String(val);
+    updateSliderGradient(range);
+  }
+  const input = document.getElementById('i-' + key);
+  if (input) input.value = String(val);
+  applySliderBounds();
+  scheduleRecalc();
+}
+
+function fmtMln(v) {
+  if (!Number.isFinite(v)) return '—';
+  const sign = v < 0 ? '−' : '';
+  const x = Math.abs(v);
+  if (x >= 1000) return `${sign}${(x / 1000).toFixed(2)} млрд ₽`;
+  return `${sign}${x.toFixed(1)} млн ₽`;
+}
+
+function fmtPriceM2(v) {
+  if (!Number.isFinite(v)) return '—';
+  return `${new Intl.NumberFormat('ru-RU').format(Math.round(v))} ₽/м²`;
+}
+
+function fmtX(v) {
+  if (!Number.isFinite(v)) return '—';
+  return `${v.toFixed(2)}x`;
+}
+
+function fmtMonth(v) {
+  if (!Number.isFinite(v)) return '—';
+  return `${v.toFixed(1)} мес.`;
+}
+
+function fmtMonthInt(v) {
+  if (!Number.isFinite(v)) return '—';
+  return `${Math.round(v)} мес.`;
+}
+
+function rawNumber(v, digits = 3) {
+  if (!Number.isFinite(v)) return '—';
+  return Number(v).toLocaleString('ru-RU', { maximumFractionDigits: digits });
+}
+
+function rawSigned(v, digits = 3, suffix = '') {
+  if (!Number.isFinite(v)) return '—';
+  const sign = v >= 0 ? '+' : '−';
+  const body = Math.abs(v).toLocaleString('ru-RU', { maximumFractionDigits: digits });
+  return `${sign}${body}${suffix ? ` ${suffix}` : ''}`;
+}
+
+function maxAbsDiff(a, b) {
+  const n = Math.min(a.length, b.length);
+  let maxDiff = 0;
+  for (let i = 0; i < n; i++) {
+    const diff = Math.abs((a[i] || 0) - (b[i] || 0));
+    if (diff > maxDiff) maxDiff = diff;
+  }
+  return maxDiff;
+}
+
+function hasNaNOrInfinity(values) {
+  for (let i = 0; i < values.length; i++) {
+    if (!Number.isFinite(values[i])) return true;
+  }
+  return false;
+}
+
+function getDynamicPriceBounds(p0) {
+  const priceMin = MODEL_CONSTANTS.PRICE_POLICY_MIN;
+  const safeP0 = clampFinite(p0, priceMin);
+  const rawPriceMax = 2 * safeP0 + MODEL_CONSTANTS.PRICE_POLICY_MIN;
+  const priceMax = Number.isFinite(rawPriceMax) ? Math.max(priceMin, rawPriceMax) : priceMin;
+  return { priceMin, priceMax };
+}
+
+function buildCoreParams(values) {
+  const lots = Math.round(stepClamp(values.lots, SLIDER_LIMITS.lots.min, SLIDER_LIMITS.lots.max, SLIDER_LIMITS.lots.step));
+  const area = stepClamp(values.area, SLIDER_LIMITS.area.min, SLIDER_LIMITS.area.max, SLIDER_LIMITS.area.step);
+  const price = stepClamp(values.price, SLIDER_LIMITS.price.min, SLIDER_LIMITS.price.max, SLIDER_LIMITS.price.step);
+  const loan = stepClamp(values.loan, SLIDER_LIMITS.loan.min, SLIDER_LIMITS.loan.max, SLIDER_LIMITS.loan.step);
+  const rate = stepClamp(values.rate, SLIDER_LIMITS.rate.min, SLIDER_LIMITS.rate.max, SLIDER_LIMITS.rate.step);
+  const plannedMonths = Math.round(stepClamp(values.planned, SLIDER_LIMITS.planned.min, SLIDER_LIMITS.planned.max, SLIDER_LIMITS.planned.step));
+  const pace = stepClamp(values.pace, SLIDER_LIMITS.pace.min, SLIDER_LIMITS.pace.max, SLIDER_LIMITS.pace.step);
+
+  const annualRate = rate / 100;
+  const monthlyRate = Math.pow(1 + annualRate, 1 / 12) - 1;
+  const { priceMin, priceMax } = getDynamicPriceBounds(price);
+
+  return {
+    lots,
+    area,
+    price,
+    loan,
+    rate,
+    plannedMonths,
+    pace,
+    annualRate,
+    monthlyRate,
+    PRICE_POLICY_MIN: priceMin,
+    PRICE_POLICY_MAX: priceMax,
+    DEMAND_EPS: MODEL_CONSTANTS.DEMAND_EPS,
+    DPRICE_ANNUAL_COST_MLN: MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN,
+    dpriceMonthlyCostMln: MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN / 12
+  };
+}
+
+function logisticV(priceM2, demandParams) {
+  const z = clamp(demandParams.a - demandParams.b * priceM2, -60, 60);
+  return 1 / (1 + Math.exp(-z));
+}
+
+function expectedUnits(priceM2, demandParams) {
+  return demandParams.lambda * logisticV(priceM2, demandParams);
+}
+
+function buildDemandParams(params) {
+  const eps = clamp(MODEL_CONSTANTS.DEMAND_EPS, 1e-6, 0.49);
+  const priceMin = params.PRICE_POLICY_MIN;
+  const priceMax = params.PRICE_POLICY_MAX;
+  const priceSpan = Math.max(priceMax - priceMin, MODEL_CONSTANTS.EPS);
+  const logitEps = Math.log(eps / (1 - eps));
+  const b = -2 * logitEps / priceSpan;
+  const a = b * priceMax + logitEps;
+
+  const temp = { a, b };
+  const v0 = logisticV(params.price, temp);
+  const lambda = params.pace / Math.max(v0, MODEL_CONSTANTS.EPS);
+
+  const demandParams = {
+    a,
+    b,
+    lambda,
+    demandEps: eps,
+    logitEps,
+    priceMin,
+    priceMax,
+    v0,
+    q0: params.pace,
+    p0: params.price,
+    vClampMin: MODEL_CONSTANTS.EPS,
+    vClampMax: 1 - MODEL_CONSTANTS.EPS
+  };
+
+  demandParams.qMin = expectedUnits(priceMax, demandParams);
+  demandParams.qMax = expectedUnits(priceMin, demandParams);
+
+  return demandParams;
+}
+
+function inverseDemand(unitsPerMonth, demandParams) {
+  if (!(demandParams.lambda > MODEL_CONSTANTS.EPS) || !(demandParams.b > MODEL_CONSTANTS.EPS)) {
+    return clamp(demandParams.p0, demandParams.priceMin, demandParams.priceMax);
+  }
+  const vRaw = unitsPerMonth / demandParams.lambda;
+  const v = clamp(vRaw, demandParams.vClampMin, demandParams.vClampMax);
+  const p = (demandParams.a - safeLogit(v, MODEL_CONSTANTS.EPS)) / demandParams.b;
+  return clamp(p, demandParams.priceMin, demandParams.priceMax);
+}
+
+function revenueForUnits(units, params, demandParams) {
+  const price = inverseDemand(units, demandParams);
+  return params.area * price * units / 1_000_000;
+}
+
+function finiteDiffMarginalRevenue(units, params, demandParams) {
+  const h = Math.max(1e-5, Math.abs(units) * 1e-4);
+  const qPlus = units + h;
+  const qMinus = Math.max(units - h, MODEL_CONSTANTS.EPS);
+  const rp = revenueForUnits(qPlus, params, demandParams);
+  const rm = revenueForUnits(qMinus, params, demandParams);
+  return (rp - rm) / Math.max((qPlus - qMinus), MODEL_CONSTANTS.EPS);
+}
+
+function marginalRevenueForUnits(units, params, demandParams) {
+  const q = Math.max(units, MODEL_CONSTANTS.EPS);
+  const lambda = Math.max(demandParams.lambda, MODEL_CONSTANTS.EPS);
+  const v = clamp(q / lambda, MODEL_CONSTANTS.EPS, 1 - MODEL_CONSTANTS.EPS);
+  const p = (demandParams.a - safeLogit(v, MODEL_CONSTANTS.EPS)) / demandParams.b;
+
+  if (!(demandParams.b > MODEL_CONSTANTS.EPS)) {
+    return finiteDiffMarginalRevenue(q, params, demandParams);
+  }
+
+  const denom = demandParams.b * Math.max(1 - v, MODEL_CONSTANTS.EPS);
+  const mr = (params.area / 1_000_000) * (p - 1 / denom);
+
+  if (!Number.isFinite(mr)) {
+    return finiteDiffMarginalRevenue(q, params, demandParams);
+  }
+  return mr;
+}
+
+function simulatePolicy(prices, params, demandParams, options = {}) {
+  const N = params.plannedMonths;
+  const rows = [];
+  const warnings = [];
+  const withDPrice = !!options.withDPrice;
+  const monthlyDpriceCost = withDPrice ? MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN / 12 : 0;
+
+  let X = 0;
+  let E = 0;
+  let I = 0;
+  let totalRevenue = 0;
+  let dpriceCostToDate = 0;
+  let debtFreeMonth = null;
+  let soldOutMonth = null;
+  let weightedPrice = 0;
+
+  for (let n = 0; n < N; n++) {
+    const startEscrow = E;
+    const uncoveredDebt = Math.max(params.loan - COVER * startEscrow, 0);
+    const interest = params.monthlyRate * uncoveredDebt;
+
+    const pRaw = prices[n] ?? prices[prices.length - 1] ?? params.price;
+    const price = clamp(clampFinite(pRaw, params.price), params.PRICE_POLICY_MIN, params.PRICE_POLICY_MAX);
+    const unitsDemand = expectedUnits(price, demandParams);
+    const remainingLots = Math.max(params.lots - X, 0);
+    const unitsSold = Math.min(unitsDemand, remainingLots);
+    const revenue = params.area * price * unitsSold / 1_000_000;
+
+    if (!Number.isFinite(unitsSold) || !Number.isFinite(revenue) || !Number.isFinite(interest)) {
+      warnings.push('Обнаружены некорректные численные значения в simulatePolicy.');
+      break;
+    }
+
+    I += interest;
+    X += unitsSold;
+    E += revenue;
+    totalRevenue += revenue;
+    weightedPrice += price * unitsSold;
+
+    if (withDPrice) dpriceCostToDate += monthlyDpriceCost;
+
+    if (soldOutMonth === null && X >= params.lots - 1e-6) soldOutMonth = n + 1;
+    if (debtFreeMonth === null && COVER * E >= params.loan - 1e-9) debtFreeMonth = n + 1;
+
+    const profitGrossToDate = E - params.loan - I;
+    const profitNetToDate = profitGrossToDate - dpriceCostToDate;
+
+    rows.push({
+      month: n + 1,
+      price,
+      unitsSold,
+      revenue,
+      startEscrow,
+      uncoveredDebt,
+      interest,
+      endEscrow: E,
+      cumulativeInterest: I,
+      cumulativeSales: X,
+      dpriceCostAccrued: dpriceCostToDate,
+      profitGrossToDate,
+      profitNetToDate,
+      cumulativeProfitGross: profitGrossToDate,
+      cumulativeProfit: profitNetToDate
+    });
+  }
+
+  const dpriceCost = monthlyDpriceCost * N;
+  const profitGross = E - params.loan - I;
+  const profit = profitGross - dpriceCost;
+
+  return {
+    rows,
+    finalSales: X,
+    totalRevenue,
+    totalEscrow: E,
+    totalInterest: I,
+    profitGross,
+    dpriceCost,
+    profit,
+    avgPriceM2: X > MODEL_CONSTANTS.EPS ? (weightedPrice / X) : NaN,
+    salesDuration: soldOutMonth ?? N,
+    debtFreeMonth,
+    warnings
+  };
+}
+
+function simulateUnitsPolicy(units, params, demandParams, options = {}) {
+  const N = params.plannedMonths;
+  const rows = [];
+  const warnings = [];
+  const withDPrice = !!options.withDPrice;
+  const monthlyDpriceCost = withDPrice ? MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN / 12 : 0;
+
+  const qMin = demandParams.qMin;
+  const qMax = demandParams.qMax;
+
+  let X = 0;
+  let E = 0;
+  let I = 0;
+  let totalRevenue = 0;
+  let dpriceCostToDate = 0;
+  let debtFreeMonth = null;
+  let soldOutMonth = null;
+  let weightedPrice = 0;
+
+  for (let n = 0; n < N; n++) {
+    const startEscrow = E;
+    const uncoveredDebt = Math.max(params.loan - COVER * startEscrow, 0);
+    const interest = params.monthlyRate * uncoveredDebt;
+
+    const qRaw = units[n] ?? units[units.length - 1] ?? (params.lots / N);
+    const qTarget = clamp(clampFinite(qRaw, params.lots / N), qMin, qMax);
+    const remainingLots = Math.max(params.lots - X, 0);
+    const q = Math.min(qTarget, remainingLots);
+    const price = inverseDemand(qTarget, demandParams);
+    const revenue = params.area * price * q / 1_000_000;
+
+    if (!Number.isFinite(q) || !Number.isFinite(price) || !Number.isFinite(revenue) || !Number.isFinite(interest)) {
+      warnings.push('Обнаружены некорректные численные значения в simulateUnitsPolicy.');
+      break;
+    }
+
+    I += interest;
+    X += q;
+    E += revenue;
+    totalRevenue += revenue;
+    weightedPrice += price * q;
+
+    if (withDPrice) dpriceCostToDate += monthlyDpriceCost;
+
+    if (soldOutMonth === null && X >= params.lots - 1e-6) soldOutMonth = n + 1;
+    if (debtFreeMonth === null && COVER * E >= params.loan - 1e-9) debtFreeMonth = n + 1;
+
+    const profitGrossToDate = E - params.loan - I;
+    const profitNetToDate = profitGrossToDate - dpriceCostToDate;
+
+    rows.push({
+      month: n + 1,
+      price,
+      unitsSold: q,
+      revenue,
+      startEscrow,
+      uncoveredDebt,
+      interest,
+      endEscrow: E,
+      cumulativeInterest: I,
+      cumulativeSales: X,
+      dpriceCostAccrued: dpriceCostToDate,
+      profitGrossToDate,
+      profitNetToDate,
+      cumulativeProfitGross: profitGrossToDate,
+      cumulativeProfit: profitNetToDate
+    });
+  }
+
+  const dpriceCost = monthlyDpriceCost * N;
+  const profitGross = E - params.loan - I;
+  const profit = profitGross - dpriceCost;
+
+  return {
+    rows,
+    finalSales: X,
+    totalRevenue,
+    totalEscrow: E,
+    totalInterest: I,
+    profitGross,
+    dpriceCost,
+    profit,
+    avgPriceM2: X > MODEL_CONSTANTS.EPS ? (weightedPrice / X) : NaN,
+    salesDuration: soldOutMonth ?? N,
+    debtFreeMonth,
+    warnings
+  };
+}
+
+function buildBasePolicy(params, demandParams) {
+  const N = params.plannedMonths;
+  const warnings = [];
+  const pBase = clamp(params.price, params.PRICE_POLICY_MIN, params.PRICE_POLICY_MAX);
+  const qBase = expectedUnits(pBase, demandParams);
+  const potentialSales = qBase * N;
+
+  if (potentialSales < params.lots - 0.5) {
+    warnings.push('Базовый сценарий без DPrice держит текущую цену p₀ и не распродаёт все лоты за плановый горизонт.');
+  }
+  if (potentialSales > params.lots + 0.5) {
+    warnings.push('Базовый сценарий без DPrice держит текущую цену p₀ и распродаёт объект раньше планового горизонта; продажи после sell-out обнуляются.');
+  }
+
+  return {
+    prices: Array(N).fill(pBase),
+    units: Array(N).fill(qBase),
+    warnings
+  };
+}
+
+function projectUnitsToSellout(units, target, qMin, qMax) {
+  const out = units.map(q => clamp(clampFinite(q, target / Math.max(units.length, 1)), qMin, qMax));
+  const tol = MODEL_CONSTANTS.MODEL_TOL;
+
+  for (let iter = 0; iter < MODEL_CONSTANTS.PROJECTION_ITERS; iter++) {
+    const sum = out.reduce((a, b) => a + b, 0);
+    const diff = target - sum;
+    if (Math.abs(diff) <= tol) break;
+
+    if (diff > 0) {
+      const idx = out.map((v, i) => ({ v, i })).filter(x => x.v < qMax - tol).map(x => x.i);
+      if (!idx.length) break;
+      const totalCap = idx.reduce((acc, i) => acc + (qMax - out[i]), 0);
+      if (totalCap <= tol) break;
+      const need = Math.min(diff, totalCap);
+      let remain = need;
+      for (let k = 0; k < idx.length; k++) {
+        const i = idx[k];
+        const share = remain / (idx.length - k);
+        const add = Math.min(qMax - out[i], share);
+        out[i] += add;
+        remain -= add;
+      }
+    } else {
+      const idx = out.map((v, i) => ({ v, i })).filter(x => x.v > qMin + tol).map(x => x.i);
+      if (!idx.length) break;
+      const totalCap = idx.reduce((acc, i) => acc + (out[i] - qMin), 0);
+      if (totalCap <= tol) break;
+      const need = Math.min(-diff, totalCap);
+      let remain = need;
+      for (let k = 0; k < idx.length; k++) {
+        const i = idx[k];
+        const share = remain / (idx.length - k);
+        const sub = Math.min(out[i] - qMin, share);
+        out[i] -= sub;
+        remain -= sub;
+      }
+    }
+  }
+
+  return out;
+}
+
+function computeShadowWeights(sim, params) {
+  const N = params.plannedMonths;
+  const starts = sim.rows.map(row => row.startEscrow);
+  const weights = Array(N).fill(1);
+
+  for (let j = 0; j < N; j++) {
+    let uncoveredCount = 0;
+    for (let n = j + 1; n < N; n++) {
+      if (COVER * (starts[n] ?? params.loan / COVER) < params.loan - MODEL_CONSTANTS.MODEL_TOL) uncoveredCount += 1;
+    }
+    weights[j] = 1 + COVER * params.monthlyRate * uncoveredCount;
+  }
+
+  return weights;
+}
+
+function solveUnitForMu(weight, mu, qMin, qMax, params, demandParams) {
+  const gMin = weight * marginalRevenueForUnits(qMin, params, demandParams);
+  const gMax = weight * marginalRevenueForUnits(qMax, params, demandParams);
+
+  if (!Number.isFinite(gMin) || !Number.isFinite(gMax)) {
+    return 0.5 * (qMin + qMax);
+  }
+
+  if (mu >= gMin) return qMin;
+  if (mu <= gMax) return qMax;
+
+  let lo = qMin;
+  let hi = qMax;
+  for (let i = 0; i < MODEL_CONSTANTS.BISECTION_ITERS; i++) {
+    const mid = 0.5 * (lo + hi);
+    const gMid = weight * marginalRevenueForUnits(mid, params, demandParams);
+    if (!Number.isFinite(gMid)) {
+      lo = mid;
+      continue;
+    }
+    if (gMid > mu) lo = mid;
+    else hi = mid;
+  }
+  return 0.5 * (lo + hi);
+}
+
+function allocateUnitsGivenWeights(weights, params, demandParams, targetLots = params.lots) {
+  const N = params.plannedMonths;
+  const qMin = demandParams.qMin;
+  const qMax = demandParams.qMax;
+
+  if (targetLots <= N * qMin + MODEL_CONSTANTS.MODEL_TOL) return Array(N).fill(qMin);
+  if (targetLots >= N * qMax - MODEL_CONSTANTS.MODEL_TOL) return Array(N).fill(qMax);
+
+  const w = weights.length === N ? weights.slice() : Array(N).fill(1);
+  let muLow = Infinity;
+  let muHigh = -Infinity;
+
+  for (let j = 0; j < N; j++) {
+    const wj = Math.max(w[j], MODEL_CONSTANTS.EPS);
+    const low = wj * marginalRevenueForUnits(qMax, params, demandParams);
+    const high = wj * marginalRevenueForUnits(qMin, params, demandParams);
+    if (Number.isFinite(low)) muLow = Math.min(muLow, low);
+    if (Number.isFinite(high)) muHigh = Math.max(muHigh, high);
+  }
+
+  if (!Number.isFinite(muLow) || !Number.isFinite(muHigh) || muLow >= muHigh) {
+    return projectUnitsToSellout(Array(N).fill(targetLots / N), targetLots, qMin, qMax);
+  }
+
+  let best = Array(N).fill(targetLots / N);
+  for (let i = 0; i < MODEL_CONSTANTS.BISECTION_ITERS; i++) {
+    const mu = 0.5 * (muLow + muHigh);
+    const units = w.map(wj => solveUnitForMu(Math.max(wj, MODEL_CONSTANTS.EPS), mu, qMin, qMax, params, demandParams));
+    const sum = units.reduce((a, b) => a + b, 0);
+    best = units;
+
+    if (sum > targetLots) muLow = mu;
+    else muHigh = mu;
+  }
+
+  return projectUnitsToSellout(best, targetLots, qMin, qMax);
+}
+
+function projectedCoordinateSearch(initialUnits, params, demandParams, targetLots) {
+  const N = params.plannedMonths;
+  const qMin = demandParams.qMin;
+  const qMax = demandParams.qMax;
+  let units = projectUnitsToSellout(initialUnits, targetLots, qMin, qMax);
+
+  const objective = sim => sim.totalEscrow - sim.totalInterest;
+  let bestSim = simulateUnitsPolicy(units, params, demandParams, { withDPrice: true });
+  let bestObj = objective(bestSim);
+
+  for (let pass = 0; pass < 4; pass++) {
+    let improved = false;
+    const delta = Math.max(0.05, (qMax - qMin) / 80);
+
+    for (let i = 0; i < N - 1; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const candidates = [
+          { from: j, to: i },
+          { from: i, to: j }
+        ];
+
+        for (const move of candidates) {
+          const trial = units.slice();
+          const moveCap = Math.min(trial[move.from] - qMin, qMax - trial[move.to]);
+          if (moveCap <= MODEL_CONSTANTS.MODEL_TOL) continue;
+          const d = Math.min(delta, moveCap);
+          trial[move.from] -= d;
+          trial[move.to] += d;
+
+          const sim = simulateUnitsPolicy(trial, params, demandParams, { withDPrice: true });
+          const obj = objective(sim);
+          if (Number.isFinite(obj) && obj > bestObj + 1e-7) {
+            units = trial;
+            bestSim = sim;
+            bestObj = obj;
+            improved = true;
+          }
+        }
+      }
+    }
+
+    if (!improved) break;
+  }
+
+  return {
+    units,
+    sim: bestSim
+  };
+}
+
+function optimizeControlPolicy(params, demandParams, options = {}) {
+  const N = params.plannedMonths;
+  const qMin = demandParams.qMin;
+  const qMax = demandParams.qMax;
+  const warnings = [];
+
+  const minTotal = N * qMin;
+  const maxTotal = N * qMax;
+
+  let targetLots = params.lots;
+  let feasibleSellout = true;
+  if (params.lots < minTotal - MODEL_CONSTANTS.MODEL_TOL || params.lots > maxTotal + MODEL_CONSTANTS.MODEL_TOL) {
+    feasibleSellout = false;
+    warnings.push('При текущей модели спроса и границах цены невозможно продать ровно S лотов за T месяцев. Проверьте planned, pace, price или диапазон цены.');
+    targetLots = clamp(params.lots, minTotal, maxTotal);
+  }
+
+  const baseUnitsRaw = Array.isArray(options.baseUnits) && options.baseUnits.length === N
+    ? options.baseUnits.slice()
+    : Array(N).fill(clamp(params.lots / N, qMin, qMax));
+  const baseUnitsProjected = projectUnitsToSellout(baseUnitsRaw, targetLots, qMin, qMax);
+  const baseSimCandidate = simulateUnitsPolicy(baseUnitsProjected, params, demandParams, { withDPrice: true });
+
+  let best = {
+    source: 'base_candidate',
+    units: baseUnitsProjected,
+    sim: baseSimCandidate
+  };
+
+  let units = Array(N).fill(clamp(targetLots / N, qMin, qMax));
+  units = projectUnitsToSellout(units, targetLots, qMin, qMax);
+
+  let converged = false;
+  let iterCount = 0;
+  let lastObjective = -Infinity;
+  let hadNumericIssue = false;
+
+  for (let iter = 0; iter < MODEL_CONSTANTS.MAX_OPT_ITER; iter++) {
+    iterCount = iter + 1;
+    const sim = simulateUnitsPolicy(units, params, demandParams, { withDPrice: true });
+    const objective = sim.totalEscrow - sim.totalInterest;
+
+    if (!Number.isFinite(objective)) {
+      hadNumericIssue = true;
+      break;
+    }
+
+    const weights = computeShadowWeights(sim, params);
+    const candidateUnits = allocateUnitsGivenWeights(weights, params, demandParams, targetLots);
+
+    const mixed = candidateUnits.map((q, i) => 0.65 * q + 0.35 * units[i]);
+    const normalized = projectUnitsToSellout(mixed, targetLots, qMin, qMax);
+
+    const diff = maxAbsDiff(normalized, units);
+    const candidateSim = simulateUnitsPolicy(normalized, params, demandParams, { withDPrice: true });
+    const candidateObjective = candidateSim.totalEscrow - candidateSim.totalInterest;
+
+    units = normalized;
+
+    if (!Number.isFinite(candidateObjective)) {
+      hadNumericIssue = true;
+      break;
+    }
+
+    const objectiveDelta = Math.abs(candidateObjective - lastObjective);
+    lastObjective = candidateObjective;
+
+    if (diff < 1e-5 || objectiveDelta < 1e-7) {
+      converged = true;
+      break;
+    }
+  }
+
+  if (hadNumericIssue) {
+    warnings.push('Оптимизатор столкнулся с численной нестабильностью; показан fallback-сценарий.');
+    const fallback = projectedCoordinateSearch(units, params, demandParams, targetLots);
+    units = fallback.units;
+  }
+
+  let sim = simulateUnitsPolicy(units, params, demandParams, { withDPrice: true });
+
+  if (!Number.isFinite(sim.profit) || sim.rows.some(row => !Number.isFinite(row.price) || !Number.isFinite(row.revenue))) {
+    warnings.push('В расчетах возникли NaN/Infinity; использован fallback base-as-candidate.');
+    units = baseUnitsProjected.slice();
+    sim = simulateUnitsPolicy(units, params, demandParams, { withDPrice: true });
+  }
+
+  if (sim.profitGross > best.sim.profitGross + MODEL_CONSTANTS.GROSS_TOL) {
+    best = {
+      source: 'optimized',
+      units,
+      sim
+    };
+  } else if (sim.profitGross < best.sim.profitGross - MODEL_CONSTANTS.GROSS_TOL) {
+    warnings.push('Оптимизатор дал результат хуже базовой допустимой стратегии. Применён fallback base-as-candidate.');
+  }
+
+  if (!converged) {
+    warnings.push('Оптимизатор не достиг строгой сходимости, показано лучшее найденное решение.');
+  }
+
+  if (Math.abs(best.sim.finalSales - params.lots) > 0.5) {
+    warnings.push('Терминальное ограничение X_T = S выполнено приближённо.');
+  }
+
+  const prices = best.units.map(q => inverseDemand(q, demandParams));
+
+  return {
+    source: best.source,
+    prices,
+    units: best.units,
+    sim: best.sim,
+    warnings,
+    convergenceInfo: {
+      converged,
+      iterations: iterCount,
+      targetLots,
+      minTotal,
+      maxTotal,
+      feasibleSellout,
+      source: best.source,
+      numericIssue: hadNumericIssue
+    }
+  };
+}
+
+function collectInvariantViolations(simName, sim, params, withDPrice) {
+  const warnings = [];
+  const details = [];
+  const tol = MODEL_CONSTANTS.MODEL_TOL;
+
+  const rowKeys = ['price', 'unitsSold', 'revenue', 'startEscrow', 'endEscrow', 'uncoveredDebt', 'interest', 'cumulativeInterest', 'cumulativeSales', 'profitGrossToDate', 'profitNetToDate'];
+  let prevSales = -Infinity;
+
+  for (let i = 0; i < sim.rows.length; i++) {
+    const row = sim.rows[i];
+    const values = rowKeys.map(k => row[k]);
+    if (hasNaNOrInfinity(values)) {
+      warnings.push(`${simName}: обнаружены NaN/Infinity в строках таблицы.`);
+      details.push({ simName, type: 'finite', row: row.month, values });
+      break;
+    }
+
+    if (row.interest < -tol) {
+      warnings.push(`${simName}: найдены отрицательные проценты.`);
+      details.push({ simName, type: 'interest_nonnegative', row: row.month, interest: row.interest });
+    }
+
+    if (row.endEscrow + tol < row.startEscrow) {
+      warnings.push(`${simName}: escrow не монотонен.`);
+      details.push({ simName, type: 'escrow_monotone', row: row.month, startEscrow: row.startEscrow, endEscrow: row.endEscrow });
+    }
+
+    if (row.cumulativeSales + tol < prevSales) {
+      warnings.push(`${simName}: cumulative sales не монотонны.`);
+      details.push({ simName, type: 'sales_monotone', row: row.month, prevSales, currentSales: row.cumulativeSales });
+    }
+
+    const expectedUncovered = Math.max(params.loan - COVER * row.startEscrow, 0);
+    if (Math.abs(row.uncoveredDebt - expectedUncovered) > 1e-5) {
+      warnings.push(`${simName}: нарушена формула uncovered debt.`);
+      details.push({ simName, type: 'uncovered_debt', row: row.month, actual: row.uncoveredDebt, expected: expectedUncovered });
+    }
+
+    const expectedInterest = params.monthlyRate * row.uncoveredDebt;
+    if (Math.abs(row.interest - expectedInterest) > 1e-5) {
+      warnings.push(`${simName}: нарушена формула процентов.`);
+      details.push({ simName, type: 'interest_formula', row: row.month, actual: row.interest, expected: expectedInterest });
+    }
+
+    const expectedGross = row.endEscrow - params.loan - row.cumulativeInterest;
+    if (Math.abs(row.profitGrossToDate - expectedGross) > 1e-5) {
+      warnings.push(`${simName}: нарушена формула валовой прибыли по строкам.`);
+      details.push({ simName, type: 'row_profit_gross', row: row.month, actual: row.profitGrossToDate, expected: expectedGross });
+    }
+
+    const expectedNet = expectedGross - row.dpriceCostAccrued;
+    if (Math.abs(row.profitNetToDate - expectedNet) > 1e-5) {
+      warnings.push(`${simName}: нарушена формула чистой прибыли по строкам.`);
+      details.push({ simName, type: 'row_profit_net', row: row.month, actual: row.profitNetToDate, expected: expectedNet });
+    }
+
+    prevSales = row.cumulativeSales;
+  }
+
+  if (!Number.isFinite(sim.profitGross) || !Number.isFinite(sim.profit) || !Number.isFinite(sim.totalEscrow) || !Number.isFinite(sim.totalInterest) || !Number.isFinite(sim.finalSales)) {
+    warnings.push(`${simName}: некорректные финальные агрегаты (NaN/Infinity).`);
+  }
+
+  const expectedProfitGross = sim.totalEscrow - params.loan - sim.totalInterest;
+  if (Math.abs(sim.profitGross - expectedProfitGross) > 1e-6) {
+    warnings.push(`${simName}: нарушена identity profitGross = E_N - loan - I_N.`);
+    details.push({ simName, type: 'profit_gross_identity', actual: sim.profitGross, expected: expectedProfitGross });
+  }
+
+  const expectedProfitNet = sim.profitGross - sim.dpriceCost;
+  if (Math.abs(sim.profit - expectedProfitNet) > 1e-6) {
+    warnings.push(`${simName}: нарушена identity profitNet = profitGross - dpriceCost.`);
+    details.push({ simName, type: 'profit_net_identity', actual: sim.profit, expected: expectedProfitNet });
+  }
+
+  if (!withDPrice && Math.abs(sim.dpriceCost) > 1e-9) {
+    warnings.push(`${simName}: для base-сценария dpriceCost должен быть 0.`);
+  }
+
+  if (withDPrice && sim.dpriceCost < -1e-9) {
+    warnings.push(`${simName}: dpriceCost отрицательный.`);
+  }
+
+  return { warnings: Array.from(new Set(warnings)), details };
+}
+
+function logInvariantWarnings(warnings, details) {
+  if (IS_CLIENT_MODE) return;
+  if (!warnings.length) return;
+  warnings.forEach(text => console.warn('[DPrice invariant]', text));
+  if (details.length) console.warn('[DPrice invariant details]', details);
+}
+
+function normalizeClientWarning(text) {
+  const source = String(text || '').trim();
+  const lower = source.toLowerCase();
+  if (!source) return null;
+
+  if (lower.includes('nan') || lower.includes('infinity')) {
+    return 'Расчет для текущих параметров временно недоступен. Измените один из параметров и повторите.';
+  }
+  if (lower.includes('калибровка спроса')) {
+    return 'Проверьте входные параметры: часть значений сейчас дает нестабильный расчет.';
+  }
+  if (lower.includes('не распрода') || lower.includes('sell-out')) {
+    return 'В базовом сценарии объект может не закрыть план продаж в выбранный срок.';
+  }
+  if (lower.includes('отрицательный') && lower.includes('roi')) {
+    return 'Для текущих значений ROI может быть отрицательным. Попробуйте скорректировать срок, кредит или темп продаж.';
+  }
+  if (lower.includes('оптимизатор') || lower.includes('fallback') || lower.includes('сходим')) {
+    return 'Для текущих параметров точность оценки ограничена. Рекомендуем скорректировать значения и повторить расчет.';
+  }
+  if (lower.includes('identity') || lower.includes('строках таблицы') || lower.includes('терминальн') || lower.includes('x_t') || lower.includes('монотон') || lower.includes('формула')) {
+    return 'Для выбранных параметров обнаружены внутренние ограничения модели. Измените значения и повторите расчет.';
+  }
+  if (lower.includes('некорректн') || lower.includes('невозможно продать')) {
+    return 'Комбинация параметров выходит за рекомендуемые границы модели. Скорректируйте вводные данные.';
+  }
+
+  return source
+    .replaceAll('p₀', 'текущей цены')
+    .replaceAll('baseline', 'базового сценария')
+    .replaceAll('sell-out', 'полного объема продаж');
+}
+
+function prepareWarningsForDisplay(warnings) {
+  const unique = Array.from(new Set((warnings || []).filter(Boolean)));
+  if (!IS_CLIENT_MODE) return unique;
+
+  const mapped = unique
+    .map(normalizeClientWarning)
+    .filter(Boolean);
+
+  if (!mapped.length && unique.length) {
+    return ['Расчет требует уточнения входных параметров. Скорректируйте значения и повторите попытку.'];
+  }
+
+  return Array.from(new Set(mapped)).slice(0, 4);
+}
+
+function showWarnings(warnings) {
+  const warningNode = document.getElementById('model-warning');
+  if (!warningNode) return;
+
+  const prepared = prepareWarningsForDisplay(warnings);
+  if (!prepared.length) {
+    warningNode.style.display = 'none';
+    warningNode.innerHTML = '';
+    return;
+  }
+
+  warningNode.style.display = 'block';
+  warningNode.innerHTML = prepared.map(text => `• ${text}`).join('<br>');
+}
+
+function renderStepTables(base, opt) {
+  const renderRows = sim => sim.rows.map(row => `
+    <tr>
+      <td>М${row.month}</td>
+      <td>${fmtPriceM2(row.price)}</td>
+      <td>${rawNumber(row.unitsSold, 2)}</td>
+      <td>${rawNumber(row.revenue, 2)}</td>
+      <td>${rawNumber(row.startEscrow, 2)}</td>
+      <td>${rawNumber(row.uncoveredDebt, 2)}</td>
+      <td>${rawNumber(row.interest, 2)}</td>
+      <td>${rawNumber(row.endEscrow, 2)}</td>
+      <td>${rawNumber(row.cumulativeInterest, 2)}</td>
+      <td>${rawNumber(row.profitGrossToDate, 2)}</td>
+      <td>${rawNumber(row.profitNetToDate, 2)}</td>
+    </tr>
+  `).join('');
+
+  const baseBody = document.getElementById('base-step-body');
+  const optBody = document.getElementById('opt-step-body');
+  if (baseBody) baseBody.innerHTML = renderRows(base);
+  if (optBody) optBody.innerHTML = renderRows(opt);
+}
+
+function renderStaticParamTable(params, demandParams) {
+  const N = params.plannedMonths;
+  const qMin = demandParams.qMin;
+  const qMax = demandParams.qMax;
+  const feasible = (params.lots >= N * qMin - MODEL_CONSTANTS.MODEL_TOL) && (params.lots <= N * qMax + MODEL_CONSTANTS.MODEL_TOL);
+  const monthlyDpriceCost = MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN / 12;
+
+  const rows = [
+    ['S', rawNumber(params.lots, 0), 'Всего лотов (квартир)'],
+    ['A', rawNumber(params.area, 2), 'Средняя площадь квартиры, м²'],
+    ['G = S*A', rawNumber(params.lots * params.area, 0), 'Общая продаваемая площадь ЖК, м²'],
+    ['p0', fmtPriceM2(params.price), 'Текущая цена за м²'],
+    ['q0', rawNumber(params.pace, 2), 'Текущий темп продаж, кв./мес.'],
+    ['pace slider min', rawNumber(lastPaceLimitInfo.min, 1), `Фактический min слайдера темпа; источник: ${lastPaceLimitInfo.source}`],
+    ['pace slider max', rawNumber(lastPaceLimitInfo.max, 1), `Фактический max слайдера темпа; лучший ROI: ${fmtX(lastPaceLimitInfo.bestRoi)}`],
+    ['pace positive ROI range', lastPaceLimitInfo.positiveMin !== null ? `${rawNumber(lastPaceLimitInfo.positiveMin, 1)}–${rawNumber(lastPaceLimitInfo.positiveMax, 1)}` : '—', 'Диапазон q0, где существует хотя бы один период с ROI > 0 относительно baseline p0'],
+    ['T', rawNumber(params.plannedMonths, 0), 'Горизонт продаж, месяцев'],
+    ['B0', fmtMln(params.loan), 'Проектный кредит, млн ₽'],
+    ['annualRate', rawNumber(params.annualRate, 6), 'Годовая ставка в долях'],
+    ['monthlyRate', rawNumber(params.monthlyRate, 6), 'Месячная эффективная ставка'],
+    ['PRICE_POLICY_MIN', fmtPriceM2(params.PRICE_POLICY_MIN), 'Минимальная допустимая цена управления'],
+    ['PRICE_POLICY_MAX', fmtPriceM2(params.PRICE_POLICY_MAX), 'Максимальная допустимая цена управления (= 2*p0 + 150000)'],
+    ['DEMAND_EPS', rawNumber(MODEL_CONSTANTS.DEMAND_EPS, 6), 'Параметр калибровки логистики'],
+    ['a', rawNumber(demandParams.a, 6), 'Параметр логистики спроса'],
+    ['b', rawNumber(demandParams.b, 9), 'Параметр наклона логистики'],
+    ['Lambda', rawNumber(demandParams.lambda, 6), 'Емкость спроса, кв./мес.'],
+    ['v(p0)', rawNumber(demandParams.v0, 6), 'Нормированный спрос при p0'],
+    ['qMin', rawNumber(qMin, 6), 'q(PRICE_POLICY_MAX)'],
+    ['qMax', rawNumber(qMax, 6), 'q(PRICE_POLICY_MIN)'],
+    ['feasibility', feasible ? 'true' : 'false', 'Проверка N*qMin <= S <= N*qMax'],
+    ['T_min_sellout', rawNumber(lastPlannedLimitInfo.selloutMin, 0), 'Минимальный период из условия S/T <= qMax'],
+    ['T_max_sellout', rawNumber(lastPlannedLimitInfo.selloutMax, 0), 'Максимальный период из условия S/T >= qMin'],
+    ['T_min_positive_ROI', lastPlannedLimitInfo.positiveMin !== null ? rawNumber(lastPlannedLimitInfo.positiveMin, 0) : '—', 'Минимальный период с ROI > 0 относительно baseline p0'],
+    ['T_min_target_ROI', lastPlannedLimitInfo.targetMin !== null ? rawNumber(lastPlannedLimitInfo.targetMin, 0) : '—', `Минимальный период по целевому ROI >= ${rawNumber(PLANNED_LIMIT_CONFIG.MIN_ROI_X, 0)}x`],
+    ['T_max_profit', lastPlannedLimitInfo.hasPositiveProfitPeriod ? rawNumber(lastPlannedLimitInfo.profitMax, 0) : '—', 'Максимальный период по выбранному ROI-критерию'],
+    ['planned ROI criterion', plannedCriterionLabel(lastPlannedLimitInfo), 'Критерий адаптивного ограничения планового периода'],
+    ['planned slider min', rawNumber(lastPlannedLimitInfo.min, 0), `Фактический min слайдера; источник: ${lastPlannedLimitInfo.source}`],
+    ['planned slider max', rawNumber(lastPlannedLimitInfo.max, 0), `Фактический max слайдера; источник: ${lastPlannedLimitInfo.source}`],
+    ['B0_min_ROI', fmtMln(lastLoanLimitInfo.rawMin), 'Нижний порог кредита: ROI относительно baseline p0 становится положительным'],
+    ['B0_max_profit', fmtMln(lastLoanLimitInfo.rawProfitMax), 'Верхний порог кредита: Pi_DPrice(T) = 0 для reference DPrice-траектории'],
+    ['loan positive ROI range', lastLoanLimitInfo.hasPositiveRoiLoan ? `${fmtMln(lastLoanLimitInfo.roiMin)}–${fmtMln(lastLoanLimitInfo.roiMax)}` : '—', `Диапазон кредита с ROI > ${rawNumber(LOAN_LIMIT_CONFIG.MIN_ROI_X, 0)}x; лучший ROI: ${fmtX(lastLoanLimitInfo.bestRoi)}`],
+    ['loan slider min', fmtMln(lastLoanLimitInfo.sliderMin), `Фактический min слайдера; источник: ${lastLoanLimitInfo.source}`],
+    ['loan slider max', fmtMln(lastLoanLimitInfo.sliderMax), `Фактический max слайдера; источник: ${lastLoanLimitInfo.source}`],
+    ['DPRICE_ANNUAL_COST_MLN', rawNumber(MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN, 2), 'Стоимость DPrice, млн ₽ в год'],
+    ['monthly DPrice cost', rawNumber(monthlyDpriceCost, 4), 'Стоимость DPrice, млн ₽ в месяц'],
+    ['DPrice billing rule', 'pro-rata по месяцам', 'dpriceCost = DPRICE_ANNUAL_COST_MLN * N / 12']
+  ];
+
+  const tbody = document.getElementById('static-param-body');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(([name, value, note]) => `
+    <tr>
+      <td>${name}</td>
+      <td>${value}</td>
+      <td>${note}</td>
+    </tr>
+  `).join('');
+}
+
+function animVal(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.textContent !== val) {
+    el.classList.remove('num-update');
+    void el.offsetWidth;
+    el.classList.add('num-update');
+    el.textContent = val;
+  }
+}
+
+function renderComparisonTable(base, opt, optCandidate, params, audit) {
+  const grossGain = opt.profitGross - base.profitGross;
+  const netGain = opt.profit - base.profit;
+  const roi = opt.dpriceCost > MODEL_CONSTANTS.EPS ? netGain / opt.dpriceCost : NaN;
+
+  const xtBaseOk = Math.abs(base.finalSales - params.lots) <= 0.5;
+  const xtOptOk = Math.abs(opt.finalSales - params.lots) <= 0.5;
+
+  const debtMonthBase = base.debtFreeMonth === null ? '—' : String(base.debtFreeMonth);
+  const debtMonthOpt = opt.debtFreeMonth === null ? '—' : String(opt.debtFreeMonth);
+
+  const rows = [
+    ['Итоговые продажи, кв.', rawNumber(base.finalSales, 2), rawNumber(opt.finalSales, 2), rawSigned(opt.finalSales - base.finalSales, 2), opt.finalSales >= base.finalSales, false],
+    ['Средняя цена м², ₽/м²', fmtPriceM2(base.avgPriceM2), fmtPriceM2(opt.avgPriceM2), rawSigned(opt.avgPriceM2 - base.avgPriceM2, 2, '₽/м²'), (opt.avgPriceM2 - base.avgPriceM2) >= 0, false],
+    ['Итоговый эскроу / выручка, млн ₽', rawNumber(base.totalEscrow, 2), rawNumber(opt.totalEscrow, 2), rawSigned(opt.totalEscrow - base.totalEscrow, 2, 'млн ₽'), (opt.totalEscrow - base.totalEscrow) >= 0, false],
+    ['Накопленные проценты ПФ, млн ₽', rawNumber(base.totalInterest, 2), rawNumber(opt.totalInterest, 2), rawSigned(opt.totalInterest - base.totalInterest, 2, 'млн ₽'), (opt.totalInterest - base.totalInterest) <= 0, false],
+    ['Валовая прибыль без стоимости DPrice, млн ₽', rawNumber(base.profitGross, 2), rawNumber(opt.profitGross, 2), rawSigned(grossGain, 2, 'млн ₽'), grossGain >= -MODEL_CONSTANTS.GROSS_TOL, true],
+    ['Стоимость DPrice, млн ₽', '0', rawNumber(opt.dpriceCost, 2), rawSigned(-opt.dpriceCost, 2, 'млн ₽'), false, false],
+    ['Чистая прибыль после стоимости DPrice, млн ₽', rawNumber(base.profit, 2), rawNumber(opt.profit, 2), rawSigned(netGain, 2, 'млн ₽'), netGain >= 0, true],
+    ['Валовый эффект оптимизации, млн ₽', '0', rawNumber(grossGain, 2), rawSigned(grossGain, 2, 'млн ₽'), grossGain >= -MODEL_CONSTANTS.GROSS_TOL, true],
+    ['Чистый эффект после стоимости DPrice, млн ₽', '0', rawNumber(netGain, 2), rawSigned(netGain, 2, 'млн ₽'), netGain >= 0, true],
+    ['ROI', '—', fmtX(roi), fmtX(roi), roi >= 0, true],
+    ['Месяц покрытия кредита эскроу', debtMonthBase, debtMonthOpt, '—', (opt.debtFreeMonth ?? Infinity) <= (base.debtFreeMonth ?? Infinity), false],
+    ['Проверка выполнения плана продаж', xtBaseOk ? 'OK' : 'не выполнен', xtOptOk ? 'OK' : '≈', `без оптимизации: ${rawNumber(base.finalSales - params.lots, 2)} / с DPrice: ${rawNumber(opt.finalSales - params.lots, 2)}`, xtOptOk, false]
+  ];
+
+  const tbody = document.getElementById('comp-body');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(([label, before, after, delta, positive, highlight]) => `
+    <tr class="${highlight ? 'highlight-row' : ''}">
+      <td>${label}</td>
+      <td class="val-red">${before}</td>
+      <td class="val-green">${after}</td>
+      <td><span class="val-delta ${positive ? '' : 'negative'}">${delta}</span></td>
+    </tr>
+  `).join('');
+}
+
+function buildChart(base, opt) {
+  const maxMonths = Math.max(base.rows.length, opt.rows.length);
+  const labels = Array.from({ length: maxMonths + 1 }, (_, i) => i === 0 ? 'Старт' : `М${i}`);
+
+  const series = (sim, key) => {
+    const values = [0];
+    for (let i = 0; i < maxMonths; i++) {
+      const row = sim.rows[Math.min(i, sim.rows.length - 1)];
+      values.push(row ? row[key] : values[values.length - 1]);
+    }
+    return values;
+  };
+
+  const dataWithoutGross = series(base, 'profitGrossToDate');
+  const dataWithNet = series(opt, 'profitNetToDate');
+
+  if (chart) chart.destroy();
+  const canvas = document.getElementById('myChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'С DPrice (чистая прибыль)',
+          data: dataWithNet,
+          borderColor: '#4EC94B',
+          backgroundColor: 'rgba(78,201,75,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.25,
+          fill: true
+        },
+        {
+          label: 'Без оптимизации цен (валовая прибыль)',
+          data: dataWithoutGross,
+          borderColor: '#EF4444',
+          backgroundColor: 'rgba(239,68,68,0.06)',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.25,
+          fill: true,
+          borderDash: [5, 3]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: { font: { size: 12, family: 'Arial' }, boxWidth: 20, padding: 12, usePointStyle: true, pointStyleWidth: 16 }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${rawNumber(ctx.parsed.y, 2)} млн ₽`,
+            afterLabel: ctx => {
+              const dataIndex = ctx.dataIndex;
+              if (dataIndex === 0) return ['Старт модели'];
+              const sim = ctx.datasetIndex === 0 ? opt : base;
+              const row = sim.rows[Math.min(dataIndex - 1, sim.rows.length - 1)];
+              if (!row) return [];
+              return [
+                `Эскроу: ${rawNumber(row.endEscrow, 2)} млн ₽`,
+                `Накопл. проценты: ${rawNumber(row.cumulativeInterest, 2)} млн ₽`,
+                `DPrice начислено: ${rawNumber(row.dpriceCostAccrued, 2)} млн ₽`,
+                `Непокрытый долг: ${rawNumber(row.uncoveredDebt, 2)} млн ₽`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: { size: 10 },
+            maxTicksLimit: 8,
+            color: '#94A3B8'
+          }
+        },
+        y: {
+          grid: { color: '#F1F5F9' },
+          ticks: {
+            font: { size: 10 },
+            color: '#94A3B8',
+            callback: v => `${rawNumber(v, 1)} млн`
+          }
+        }
+      },
+      interaction: { mode: 'index', intersect: false },
+      elements: { line: { borderCapStyle: 'round' } }
+    }
+  });
+}
+
+function buildStrategyCharts(base, opt) {
+  const maxMonths = Math.max(base.rows.length, opt.rows.length);
+  const labels = Array.from({ length: maxMonths }, (_, i) => `М${i + 1}`);
+
+  const metricSeries = getter => ({
+    withDPrice: Array.from({ length: maxMonths }, (_, i) => {
+      const row = opt.rows[Math.min(i, opt.rows.length - 1)];
+      return row ? getter(row) : NaN;
+    }),
+    withoutDPrice: Array.from({ length: maxMonths }, (_, i) => {
+      const row = base.rows[Math.min(i, base.rows.length - 1)];
+      return row ? getter(row) : NaN;
+    })
+  });
+
+  const fmtValue = (value, fractionDigits = 1) => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: fractionDigits });
+
+  const metrics = [
+    {
+      canvasId: 'strategy-price-chart',
+      unit: '₽/м²',
+      fractionDigits: 0,
+      tickDigits: 0,
+      values: metricSeries(row => row.price)
+    },
+    {
+      canvasId: 'strategy-sales-chart',
+      unit: 'кв.',
+      fractionDigits: 2,
+      tickDigits: 1,
+      values: metricSeries(row => row.unitsSold)
+    },
+    {
+      canvasId: 'strategy-revenue-chart',
+      unit: 'млн ₽',
+      fractionDigits: 2,
+      tickDigits: 1,
+      values: metricSeries(row => row.revenue)
+    },
+    {
+      canvasId: 'strategy-debt-chart',
+      unit: 'млн ₽',
+      fractionDigits: 2,
+      tickDigits: 1,
+      values: metricSeries(row => row.uncoveredDebt)
+    }
+  ];
+
+  Object.keys(strategyCharts).forEach(key => {
+    if (strategyCharts[key]) {
+      strategyCharts[key].destroy();
+      strategyCharts[key] = null;
+    }
+  });
+
+  metrics.forEach(metric => {
+    const canvas = document.getElementById(metric.canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    strategyCharts[metric.canvasId] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'С DPrice',
+            data: metric.values.withDPrice,
+            borderColor: '#4EC94B',
+            backgroundColor: 'rgba(78,201,75,0.08)',
+            borderWidth: 2.3,
+            pointRadius: 0,
+            tension: 0.25
+          },
+          {
+            label: 'Без оптимизации цен',
+            data: metric.values.withoutDPrice,
+            borderColor: '#EF4444',
+            backgroundColor: 'rgba(239,68,68,0.06)',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.25,
+            borderDash: [5, 3]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: {
+              font: { size: 11, family: 'Arial' },
+              boxWidth: 16,
+              padding: 10,
+              usePointStyle: true,
+              pointStyleWidth: 14
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${fmtValue(ctx.parsed.y, metric.fractionDigits)} ${metric.unit}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 10 },
+              maxTicksLimit: 8,
+              color: '#94A3B8'
+            }
+          },
+          y: {
+            grid: { color: '#F1F5F9' },
+            ticks: {
+              font: { size: 10 },
+              color: '#94A3B8',
+              callback: value => `${fmtValue(value, metric.tickDigits)}`
+            }
+          }
+        },
+        interaction: { mode: 'index', intersect: false },
+        elements: { line: { borderCapStyle: 'round' } }
+      }
+    });
+  });
+}
+
+function renderDeferredVisuals(base, opt) {
+  const token = ++deferredRenderToken;
+
+  requestAnimationFrame(() => {
+    if (token !== deferredRenderToken) return;
+    buildChart(base, opt);
+  });
+}
+
+function logModelAudit(params, demandParams, base, opt, optCandidate, feasibleSellout, grossGain, netGain, roi) {
+  if (!DEBUG_MODEL) return;
+
+  const summary = {
+    lots: params.lots,
+    plannedMonths: params.plannedMonths,
+    price: params.price,
+    pace: params.pace,
+    lambda: demandParams.lambda,
+    qMin: demandParams.qMin,
+    qMax: demandParams.qMax,
+    feasibleSellout,
+    baseGross: base.profitGross,
+    optGross: opt.profitGross,
+    grossGain,
+    dpriceCost: opt.dpriceCost,
+    netGain,
+    roi,
+    baseFinalSales: base.finalSales,
+    optFinalSales: opt.finalSales,
+    baseInterest: base.totalInterest,
+    optInterest: opt.totalInterest,
+    baseEscrow: base.totalEscrow,
+    optEscrow: opt.totalEscrow,
+    optimizerSource: optCandidate.convergenceInfo.source
+  };
+
+  const toDebugRows = sim => sim.rows.map(row => ({
+    month: row.month,
+    price: row.price,
+    unitsSold: row.unitsSold,
+    revenue: row.revenue,
+    startEscrow: row.startEscrow,
+    endEscrow: row.endEscrow,
+    uncoveredDebt: row.uncoveredDebt,
+    interest: row.interest,
+    cumulativeInterest: row.cumulativeInterest,
+    cumulativeSales: row.cumulativeSales,
+    profitGrossToDate: row.profitGrossToDate,
+    profitNetToDate: row.profitNetToDate
+  }));
+
+  console.group('DPrice model audit');
+  console.table(summary);
+  console.table(toDebugRows(base));
+  console.table(toDebugRows(opt));
+  console.groupEnd();
+}
+
+function evaluateScenario(values, label) {
+  const params = buildCoreParams(values);
+  const demand = buildDemandParams(params);
+  const basePolicy = buildBasePolicy(params, demand);
+  const base = simulatePolicy(basePolicy.prices, params, demand, { withDPrice: false });
+  const optResult = optimizeControlPolicy(params, demand, { baseUnits: basePolicy.units });
+  const opt = optResult.sim;
+
+  const feasible = params.lots >= params.plannedMonths * demand.qMin - MODEL_CONSTANTS.MODEL_TOL
+    && params.lots <= params.plannedMonths * demand.qMax + MODEL_CONSTANTS.MODEL_TOL;
+
+  const grossGain = opt.profitGross - base.profitGross;
+  const netGain = opt.profit - base.profit;
+  const roi = opt.dpriceCost > MODEL_CONSTANTS.EPS ? netGain / opt.dpriceCost : NaN;
+
+  return {
+    scenario: label,
+    feasibleSellout: feasible,
+    baseFinalSales: base.finalSales,
+    optFinalSales: opt.finalSales,
+    baseGross: base.profitGross,
+    optGross: opt.profitGross,
+    grossGain,
+    netGain,
+    roi,
+    grossDominance: opt.profitGross + MODEL_CONSTANTS.GROSS_TOL >= base.profitGross,
+    hasNaN: hasNaNOrInfinity([base.profitGross, opt.profitGross, base.finalSales, opt.finalSales, base.totalEscrow, opt.totalEscrow])
+  };
+}
+
+function runScenarioAuditOnce() {
+  if (!DEBUG_MODEL || !DEBUG_SCENARIO_AUDIT_ONCE || debugScenarioAuditDone) return;
+  debugScenarioAuditDone = true;
+
+  const scenarios = [
+    { label: 'A', values: { lots: 300, area: 34, price: 250000, loan: 2500, rate: 17, planned: 42, pace: 10 } },
+    { label: 'B', values: { lots: 300, area: 34, price: 250000, loan: 6000, rate: 24, planned: 42, pace: 10 } },
+    { label: 'C', values: { lots: 300, area: 34, price: 250000, loan: 800, rate: 10, planned: 42, pace: 10 } },
+    { label: 'D', values: { lots: 700, area: 42, price: 400000, loan: 8000, rate: 20, planned: 66, pace: 14 } },
+    { label: 'E', values: { lots: 700, area: 24, price: 750000, loan: 8000, rate: 24, planned: 30, pace: 3 } }
+  ];
+
+  const summary = scenarios.map(s => evaluateScenario(s.values, s.label));
+
+  console.group('DPrice scenario audit A-E');
+  console.table(summary);
+  console.groupEnd();
+
+  summary.forEach(row => {
+    if (row.hasNaN) {
+      console.warn('[DPrice scenario audit] NaN/Infinity detected', row);
+    }
+    if (row.feasibleSellout && !row.grossDominance) {
+      console.warn('[DPrice scenario audit] Gross dominance violated on feasible scenario', row);
+    }
+  });
+}
+
+function recalc() {
+  try {
+    applyAdaptiveSliderBounds();
+
+    const params = buildCoreParams(state);
+    const demandParams = buildDemandParams(params);
+    const warnings = [];
+
+    if (!(demandParams.lambda > MODEL_CONSTANTS.EPS)) {
+      warnings.push('Калибровка спроса дала некорректную емкость Lambda; проверьте входные параметры.');
+    }
+
+    const feasibleSellout = params.lots >= params.plannedMonths * demandParams.qMin - MODEL_CONSTANTS.MODEL_TOL
+      && params.lots <= params.plannedMonths * demandParams.qMax + MODEL_CONSTANTS.MODEL_TOL;
+
+    const basePolicy = buildBasePolicy(params, demandParams);
+    warnings.push(...basePolicy.warnings);
+
+    const base = simulatePolicy(basePolicy.prices, params, demandParams, { withDPrice: false });
+    warnings.push(...base.warnings);
+
+    let optCandidate = optimizeControlPolicy(params, demandParams, { baseUnits: basePolicy.units });
+    let opt = optCandidate.sim;
+    warnings.push(...optCandidate.warnings);
+    warnings.push(...opt.warnings);
+
+    if (base.finalSales < params.lots - 0.5) {
+      warnings.push('Базовый сценарий p₀ не выполняет sell-out за плановый горизонт.');
+    }
+
+    const grossGainBeforeGuard = opt.profitGross - base.profitGross;
+    if (feasibleSellout && grossGainBeforeGuard < -MODEL_CONSTANTS.GROSS_TOL) {
+      warnings.push('Оптимизатор дал результат хуже базовой допустимой стратегии. Применён fallback: базовая стратегия как нижняя граница.');
+      const fallbackSim = simulateUnitsPolicy(basePolicy.units, params, demandParams, { withDPrice: true });
+      optCandidate = {
+        ...optCandidate,
+        source: 'forced_base_guard',
+        sim: fallbackSim,
+        units: basePolicy.units.slice(),
+        prices: basePolicy.prices.slice(),
+        convergenceInfo: {
+          ...optCandidate.convergenceInfo,
+          source: 'forced_base_guard'
+        }
+      };
+      opt = optCandidate.sim;
+    }
+
+    const baseInvariant = collectInvariantViolations('base', base, params, false);
+    const optInvariant = collectInvariantViolations('opt', opt, params, true);
+    warnings.push(...baseInvariant.warnings);
+    warnings.push(...optInvariant.warnings);
+    logInvariantWarnings(baseInvariant.warnings, baseInvariant.details);
+    logInvariantWarnings(optInvariant.warnings, optInvariant.details);
+
+    const grossGain = opt.profitGross - base.profitGross;
+    const netGain = opt.profit - base.profit;
+    const revenueDelta = opt.totalRevenue - base.totalRevenue;
+    const interestSavings = base.totalInterest - opt.totalInterest;
+
+    if (feasibleSellout && grossGain < -MODEL_CONSTANTS.GROSS_TOL) {
+      warnings.push('Валовый эффект оптимизации отрицательный: это ошибка оптимизатора или ограничений.');
+    }
+
+    if (grossGain >= -MODEL_CONSTANTS.GROSS_TOL && netGain < -MODEL_CONSTANTS.GROSS_TOL) {
+      warnings.push('Валовый эффект оптимизации положительный, но после стоимости DPrice чистый ROI отрицательный.');
+    }
+
+    /*
+      Если opt.profitGross >= base.profitGross, но opt.profit < base.profit,
+      это не ошибка математики: оптимизация улучшила валовую траекторию,
+      но коммерческая стоимость DPrice оказалась выше валового выигрыша.
+      Если же opt.profitGross < base.profitGross, это ошибка оптимизатора,
+      поэтому применяется fallback base-as-candidate.
+    */
+    const roi = opt.dpriceCost > MODEL_CONSTANTS.EPS ? netGain / opt.dpriceCost : NaN;
+    const monthlyProfitGain = netGain / Math.max(params.plannedMonths, 1);
+    const paybackMonths = monthlyProfitGain > MODEL_CONSTANTS.EPS
+      ? opt.dpriceCost / monthlyProfitGain
+      : Infinity;
+
+    let debtSavingsText = '—';
+    if (base.debtFreeMonth !== null && opt.debtFreeMonth !== null) {
+      const savedDebtMonths = base.debtFreeMonth - opt.debtFreeMonth;
+      debtSavingsText = `${savedDebtMonths >= 0 ? '+' : '−'}${Math.abs(savedDebtMonths).toFixed(1)} мес.`;
+    }
+
+    animVal('m-roi', fmtX(roi));
+    animVal('m-payback', Number.isFinite(paybackMonths) ? (paybackMonths < 1 ? '< 1 мес.' : fmtMonthInt(paybackMonths)) : 'не окупается');
+    animVal('m-pf', fmtMln(interestSavings));
+    animVal('m-extra', debtSavingsText);
+    animVal('m-rev', fmtMln(revenueDelta));
+    animVal('m-total', fmtMln(netGain));
+    animVal('m-pf-loss', fmtMln(base.totalInterest));
+    animVal('m-period-before', fmtMonth(base.salesDuration));
+    animVal('m-period-after', fmtMonth(opt.salesDuration));
+
+    const beforePeriod = Math.max(base.salesDuration, 1);
+    const afterPeriod = Math.max(opt.salesDuration, 0);
+    const barPct = Math.min(100, (afterPeriod / beforePeriod) * 100);
+    const barNode = document.getElementById('pb-bar');
+    if (barNode) barNode.style.width = `${barPct}%`;
+
+    renderComparisonTable(base, opt, optCandidate, params, null);
+    if (!IS_CLIENT_MODE) {
+      renderStaticParamTable(params, demandParams);
+      renderStepTables(base, opt);
+    }
+    renderDeferredVisuals(base, opt);
+    logModelAudit(params, demandParams, base, opt, optCandidate, feasibleSellout, grossGain, netGain, roi);
+  } catch (err) {
+    if (!IS_CLIENT_MODE) console.error('recalc failed', err);
+  }
+}
+
+function loadRealExample() {
+  const ex = {
+    lots: 361,
+    area: 34,
+    price: 250000,
+    loan: 2500,
+    rate: 17,
+    planned: 42,
+    pace: 11
+  };
+
+  Object.assign(state, ex);
+  applyAdaptiveSliderBounds();
+  recalc();
+}
+
+
+
+/* ===================== РЕГИОНЫ И ЯЗЫКИ (поверх исходной модели calculator_v4) ===================== */
+// Курс для пересчёта стоимости DPrice из рублей. Источник и дата показываются на странице.
+const FX = { date: '2026-10-09', src: 'open.er-api.com', perUSD: { USD: 1, RUB: 85.432836, THB: 33.66797, AED: 3.6725 } };
+const DPRICE_COST_RUB_MLN = 5; // исходный калькулятор: 5 млн ₽ в год
+
+// lim: [min, max, step, значение по умолчанию]. cover — доля платежей покупателей, гасящих кредит до сдачи.
+const REGIONS = {
+  global: { cur: 'USD', au: 'm2', cover: 0.5, priceMin: 1000,
+    lim: { lots: [100, 1000, 1, 300], area: [30, 150, 1, 70], price: [1000, 12000, 50, 4000], loan: [5, 400, 1, 40],
+           rate: [3, 15, 0.25, 8], planned: [12, 96, 1, 36], pace: [2, 25, 0.1, 9] } },
+  uae:    { cur: 'AED', au: 'sqft', cover: 0.6, priceMin: 800,
+    lim: { lots: [100, 1000, 1, 300], area: [400, 1800, 10, 750], price: [800, 6000, 25, 2900], loan: [20, 1500, 5, 200],
+           rate: [4, 12, 0.25, 7.5], planned: [12, 96, 1, 36], pace: [2, 25, 0.1, 9] } },
+  th:     { cur: 'THB', au: 'm2', cover: 0.3, priceMin: 50000,
+    lim: { lots: [100, 1500, 1, 400], area: [22, 90, 1, 35], price: [50000, 350000, 1000, 140000], loan: [100, 6000, 10, 800],
+           rate: [3, 10, 0.25, 6], planned: [12, 96, 1, 36], pace: [3, 25, 0.1, 12] } },
+  ru:     { cur: 'RUB', au: 'm2', cover: 1, priceMin: 150000,
+    lim: { lots: [100, 500, 1, 361], area: [24, 42, 1, 34], price: [150000, 750000, 5000, 250000], loan: [400, 8000, 50, 2500],
+           rate: [10, 24, 0.5, 17], planned: [12, 120, 1, 42], pace: [4, 22, 0.1, 11] } }
+};
+const REGION_ORDER = ['global', 'uae', 'th', 'ru'];
+const REGION_LANG = { global: 'en', uae: 'en', th: 'th', ru: 'ru' };
+const LANGS = ['en', 'ru', 'ar', 'th'];
+const LOCALE = { en: 'en-GB', ru: 'ru-RU', ar: 'ar-AE-u-nu-latn', th: 'th-TH' };
+const AU = { en: { m2: 'm²', sqft: 'sq ft' }, ru: { m2: 'м²', sqft: 'кв. фут' }, ar: { m2: 'م²', sqft: 'قدم²' }, th: { m2: 'ตร.ม.', sqft: 'ตร.ฟุต' } };
+
+let REGION = 'global', LANG = 'en';
+const R = () => REGIONS[REGION];
+const costMln = cur => cur === 'RUB' ? DPRICE_COST_RUB_MLN : DPRICE_COST_RUB_MLN / FX.perUSD.RUB * FX.perUSD[cur];
+
+function t(key, vars = {}) {
+  const k = key;
+  let s = (CALC_I18N[LANG] && CALC_I18N[LANG][k]) ?? CALC_I18N.en[k] ?? k;
+  const all = { cur: curSym(), au: AU[LANG][R().au], ...vars };
+  for (const [a, b] of Object.entries(all)) s = s.split('{' + a + '}').join(b);
+  return s;
+}
+function curSym() {
+  try {
+    return new Intl.NumberFormat(LOCALE[LANG], { style: 'currency', currency: R().cur, currencyDisplay: 'narrowSymbol' })
+      .formatToParts(0).find(p => p.type === 'currency').value;
+  } catch (e) { return R().cur; }
+}
+const nf = o => new Intl.NumberFormat(LOCALE[LANG], o);
+
+/* ---- форматирование: переопределяет функции исходника (последнее объявление побеждает) ---- */
+function fmtMln(v) {
+  if (!Number.isFinite(v)) return '—';
+  return nf({ style: 'currency', currency: R().cur, notation: 'compact', maximumFractionDigits: Math.abs(v) < 1 || Math.abs(v) >= 1000 ? 2 : 1 }).format(v * 1e6);
+}
+function fmtPriceM2(v) {
+  if (!Number.isFinite(v)) return '—';
+  return nf({ style: 'currency', currency: R().cur, maximumFractionDigits: 0 }).format(Math.round(v)) + '/' + AU[LANG][R().au];
+}
+function fmtMonth(v) { return Number.isFinite(v) ? t('months', { n: nf({ minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v) }) : '—'; }
+function fmtMonthInt(v) { return Number.isFinite(v) ? t('months', { n: Math.round(v) }) : '—'; }
+function rawNumber(v, digits = 3) { return Number.isFinite(v) ? nf({ maximumFractionDigits: digits }).format(v) : '—'; }
+function rawSigned(v, digits = 3, suffix = '') {
+  if (!Number.isFinite(v)) return '—';
+  return `${v >= 0 ? '+' : '−'}${nf({ maximumFractionDigits: digits }).format(Math.abs(v))}${suffix ? ' ' + suffix : ''}`;
+}
+const signedMoney = v => Number.isFinite(v) ? (v >= 0 ? '+' : '−') + fmtMln(Math.abs(v)) : '—';
+function fmtMonthsRange(min, max) {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return '—';
+  if (Math.round(min) === Math.round(max)) return t('months', { n: Math.round(min) });
+  return t('months', { n: `${Math.round(min)}–${Math.round(max)}` });
+}
+function fmtPace(v) { return Number.isFinite(v) ? `${nf({ maximumFractionDigits: 1 }).format(v)} ${t('u_pace')}` : '—'; }
+function plannedCriterionLabel() {
+  const x = PLANNED_LIMIT_CONFIG.MIN_ROI_X;
+  return Number.isFinite(x) && x > 0 ? t('crit_target', { x: rawNumber(x, 0) }) : t('crit_pos');
+}
+function paceCriterionLabel() {
+  return PACE_LIMIT_CONFIG.REQUIRE_TARGET_ROI && PLANNED_LIMIT_CONFIG.MIN_ROI_X > 0 ? t('crit_target', { x: rawNumber(PLANNED_LIMIT_CONFIG.MIN_ROI_X, 0) }) : t('crit_pos');
+}
+function updateSliderGradient(el) {
+  if (!el) return;
+  const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+  const pct = Math.abs(max - min) < MODEL_CONSTANTS.EPS ? 100 : ((val - min) / (max - min)) * 100;
+  el.style.setProperty('--pct', pct + '%');
+  const dir = document.documentElement.dir === 'rtl' ? 'to left' : 'to right';
+  el.style.background = `linear-gradient(${dir}, #22b866 0%, #22b866 ${pct}%, #E3E7E1 ${pct}%)`;
+}
+
+/* ---- подсказки под ползунками ---- */
+const WARN = '#C77C02', ALERT = '#C2412F';
+function updateLoanLimitNote(info) {
+  const node = document.getElementById('loan-limit-note');
+  if (!node || !info) return;
+  const L = SLIDER_LIMITS.loan;
+  const sliderMin = Number.isFinite(info.sliderMin) ? info.sliderMin : L.min;
+  const sliderMax = Number.isFinite(info.sliderMax) ? info.sliderMax : L.max;
+  const span = Math.max(sliderMax - sliderMin, MODEL_CONSTANTS.EPS);
+  let tone = 'var(--gray-light)', text = t('n_loan', { a: fmtMln(sliderMin), b: fmtMln(sliderMax) });
+  if (!info.hasPositiveRoiLoan) { tone = WARN; text = t('n_loan_tbd'); }
+  else if (info.isBelowUiMin) { tone = WARN; text = t('n_loan_low'); }
+  else if (sliderMax <= sliderMin + MODEL_CONSTANTS.EPS) { tone = WARN; text = t('n_loan_one', { a: fmtMln(sliderMin) }); }
+  else if (info.cappedByHardMax) { /* обычный текст */ }
+  else if (state.loan - sliderMin <= LOAN_LIMIT_CONFIG.NOTE_WARNING_RATIO * span + MODEL_CONSTANTS.EPS) { tone = WARN; text = t('n_loan_min', { a: fmtMln(sliderMin) }); }
+  else if (sliderMax - state.loan <= LOAN_LIMIT_CONFIG.NOTE_WARNING_RATIO * span + MODEL_CONSTANTS.EPS) { tone = WARN; text = t('n_loan_max', { a: fmtMln(sliderMax) }); }
+  node.style.color = tone; node.textContent = text.replace(/..$/, '.');
+}
+function updatePlannedLimitNote(info) {
+  const node = document.getElementById('planned-limit-note');
+  if (!node || !info) return;
+  let tone = 'var(--gray-light)', text = t('n_plan', { r: fmtMonthsRange(info.min, info.max) });
+  if (!info.hasFeasibleSelloutPeriod) { tone = WARN; text = t('n_plan_tbd'); }
+  else {
+    const ratio = info.max > MODEL_CONSTANTS.EPS ? state.planned / info.max : Infinity;
+    if (ratio >= 1) { tone = WARN; text = t('n_plan_at', { r: fmtMonthsRange(info.min, info.max) }); }
+    else if (ratio >= PLANNED_LIMIT_CONFIG.NOTE_WARNING_RATIO) { tone = WARN; text = t('n_plan_near', { r: fmtMonthsRange(info.min, info.max) }); }
+  }
+  node.style.color = tone; node.textContent = text.replace(/..$/, '.');
+}
+function updatePaceLimitNote(info) {
+  const node = document.getElementById('pace-limit-note');
+  if (!node || !info) return;
+  let tone = 'var(--gray-light)', text = t('n_pace', { a: fmtPace(info.min), b: fmtPace(info.max) });
+  if (!info.hasPositiveRoiPace) { tone = ALERT; text = t('n_pace_none'); }
+  else if (PACE_LIMIT_CONFIG.REQUIRE_TARGET_ROI && !info.hasTargetRoiPace) { tone = WARN; text = t('n_pace_target', { a: fmtPace(info.min), b: fmtPace(info.max) }); }
+  else {
+    const span = Math.max(info.max - info.min, MODEL_CONSTANTS.EPS);
+    if (state.pace - info.min <= PACE_LIMIT_CONFIG.NOTE_WARNING_RATIO * span + MODEL_CONSTANTS.EPS) { tone = WARN; text = t('n_pace_near', { c: paceCriterionLabel(), a: fmtPace(info.min) }); }
+  }
+  node.style.color = tone; node.textContent = text.replace(/..$/, '.');
+}
+
+/* ---- таблица сравнения и график ---- */
+function renderComparisonTable(base, opt, optCandidate, params) {
+  const grossGain = opt.profitGross - base.profitGross, netGain = opt.profit - base.profit;
+  const roi = opt.dpriceCost > MODEL_CONSTANTS.EPS ? netGain / opt.dpriceCost : NaN;
+  const xtBaseOk = Math.abs(base.finalSales - params.lots) <= 0.5, xtOptOk = Math.abs(opt.finalSales - params.lots) <= 0.5;
+  const rows = [
+    [t('r_sales'), rawNumber(base.finalSales, 2), rawNumber(opt.finalSales, 2), rawSigned(opt.finalSales - base.finalSales, 2), opt.finalSales >= base.finalSales, false],
+    [t('r_price'), fmtPriceM2(base.avgPriceM2), fmtPriceM2(opt.avgPriceM2), (opt.avgPriceM2 - base.avgPriceM2 >= 0 ? '+' : '−') + fmtPriceM2(Math.abs(opt.avgPriceM2 - base.avgPriceM2)), opt.avgPriceM2 - base.avgPriceM2 >= 0, false],
+    [t('r_rev'), fmtMln(base.totalRevenue), fmtMln(opt.totalRevenue), signedMoney(opt.totalRevenue - base.totalRevenue), opt.totalRevenue - base.totalRevenue >= 0, false],
+    [t('r_int'), fmtMln(base.totalInterest), fmtMln(opt.totalInterest), signedMoney(opt.totalInterest - base.totalInterest), opt.totalInterest - base.totalInterest <= 0, false],
+    [t('r_gross'), fmtMln(base.profitGross), fmtMln(opt.profitGross), signedMoney(grossGain), grossGain >= -MODEL_CONSTANTS.GROSS_TOL, true],
+    [t('r_cost'), fmtMln(0), fmtMln(opt.dpriceCost), signedMoney(-opt.dpriceCost), false, false],
+    [t('r_net'), fmtMln(base.profit), fmtMln(opt.profit), signedMoney(netGain), netGain >= 0, true],
+    [t('r_geff'), fmtMln(0), fmtMln(grossGain), signedMoney(grossGain), grossGain >= -MODEL_CONSTANTS.GROSS_TOL, true],
+    [t('r_neff'), fmtMln(0), fmtMln(netGain), signedMoney(netGain), netGain >= 0, true],
+    [t('r_roi'), '—', fmtX(roi), fmtX(roi), roi >= 0, true],
+    [t('r_debt'), base.debtFreeMonth === null ? '—' : String(base.debtFreeMonth), opt.debtFreeMonth === null ? '—' : String(opt.debtFreeMonth), '—', (opt.debtFreeMonth ?? Infinity) <= (base.debtFreeMonth ?? Infinity), false],
+    [t('r_plan'), xtBaseOk ? t('ok') : t('not_met'), xtOptOk ? t('ok') : '≈', t('plan_delta', { a: rawNumber(base.finalSales - params.lots, 2), b: rawNumber(opt.finalSales - params.lots, 2) }), xtOptOk, false]
+  ];
+  document.getElementById('comp-body').innerHTML = rows.map(([label, before, after, delta, positive, hl]) =>
+    `<tr class="${hl ? 'highlight-row' : ''}"><td>${label}</td><td class="val-red">${before}</td><td class="val-green">${after}</td><td><span class="val-delta ${positive ? '' : 'negative'}">${delta}</span></td></tr>`).join('');
+}
+function buildChart(base, opt) {
+  const maxMonths = Math.max(base.rows.length, opt.rows.length);
+  const labels = Array.from({ length: maxMonths + 1 }, (_, i) => i === 0 ? t('start') : t('m', { i }));
+  const series = (sim, key) => { const v = [0]; for (let i = 0; i < maxMonths; i++) { const row = sim.rows[Math.min(i, sim.rows.length - 1)]; v.push(row ? row[key] : v[v.length - 1]); } return v; };
+  if (chart) chart.destroy();
+  const canvas = document.getElementById('myChart');
+  if (!canvas) return;
+  const font = { family: getComputedStyle(document.body).fontFamily };
+  chart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: t('ds_with'), data: series(opt, 'profitNetToDate'), borderColor: '#22b866', backgroundColor: 'rgba(63,221,132,0.12)', borderWidth: 2.5, pointRadius: 0, tension: 0.25, fill: true },
+      { label: t('ds_without'), data: series(base, 'profitGrossToDate'), borderColor: '#d9483b', backgroundColor: 'rgba(217,72,59,0.05)', borderWidth: 2, pointRadius: 0, tension: 0.25, fill: true, borderDash: [5, 3] }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', align: 'end', rtl: LANG === 'ar', labels: { font: { size: 12, ...font }, boxWidth: 20, padding: 12, usePointStyle: true, pointStyleWidth: 16 } },
+        tooltip: { mode: 'index', intersect: false, rtl: LANG === 'ar', callbacks: {
+          label: c => `${c.dataset.label}: ${fmtMln(c.parsed.y)}`,
+          afterLabel: c => {
+            if (c.dataIndex === 0) return [t('tt_start')];
+            const sim = c.datasetIndex === 0 ? opt : base, row = sim.rows[Math.min(c.dataIndex - 1, sim.rows.length - 1)];
+            return row ? [t('tt_cover', { v: fmtMln(row.endEscrow) }), t('tt_int', { v: fmtMln(row.cumulativeInterest) }), t('tt_dp', { v: fmtMln(row.dpriceCostAccrued) }), t('tt_unc', { v: fmtMln(row.uncoveredDebt) })] : [];
+          } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10, ...font }, maxTicksLimit: 8, color: '#8b93a0' } },
+        y: { grid: { color: '#EEF1ED' }, ticks: { font: { size: 10, ...font }, color: '#8b93a0', callback: v => fmtMln(v) } }
+      },
+      interaction: { mode: 'index', intersect: false }, elements: { line: { borderCapStyle: 'round' } }
+    }
+  });
+}
+
+/* ---- пересчёт: тот же порядок, что в исходнике, тексты — на выбранном языке ---- */
+function recalc() {
+  try {
+    applyAdaptiveSliderBounds();
+    const params = buildCoreParams(state), demandParams = buildDemandParams(params);
+    const feasibleSellout = params.lots >= params.plannedMonths * demandParams.qMin - MODEL_CONSTANTS.MODEL_TOL
+      && params.lots <= params.plannedMonths * demandParams.qMax + MODEL_CONSTANTS.MODEL_TOL;
+    const basePolicy = buildBasePolicy(params, demandParams);
+    const base = simulatePolicy(basePolicy.prices, params, demandParams, { withDPrice: false });
+    let optCandidate = optimizeControlPolicy(params, demandParams, { baseUnits: basePolicy.units });
+    let opt = optCandidate.sim;
+    if (feasibleSellout && opt.profitGross - base.profitGross < -MODEL_CONSTANTS.GROSS_TOL) {
+      const fallbackSim = simulateUnitsPolicy(basePolicy.units, params, demandParams, { withDPrice: true });
+      optCandidate = { ...optCandidate, source: 'forced_base_guard', sim: fallbackSim, units: basePolicy.units.slice(), prices: basePolicy.prices.slice() };
+      opt = optCandidate.sim;
+    }
+    const netGain = opt.profit - base.profit;
+    const revenueDelta = opt.totalRevenue - base.totalRevenue, interestSavings = base.totalInterest - opt.totalInterest;
+    const roi = opt.dpriceCost > MODEL_CONSTANTS.EPS ? netGain / opt.dpriceCost : NaN;
+    const monthlyGain = netGain / Math.max(params.plannedMonths, 1);
+    const paybackMonths = monthlyGain > MODEL_CONSTANTS.EPS ? opt.dpriceCost / monthlyGain : Infinity;
+    let debtText = '—';
+    if (base.debtFreeMonth !== null && opt.debtFreeMonth !== null) {
+      const d = base.debtFreeMonth - opt.debtFreeMonth;
+      debtText = t('mo_signed', { s: d >= 0 ? '+' : '−', n: nf({ maximumFractionDigits: 1 }).format(Math.abs(d)) });
+    }
+    animVal('m-roi', fmtX(roi));
+    animVal('m-payback', Number.isFinite(paybackMonths) ? (paybackMonths < 1 ? t('lt1') : fmtMonthInt(paybackMonths)) : t('never'));
+    animVal('m-pf', fmtMln(interestSavings));
+    animVal('m-extra', debtText);
+    animVal('m-rev', fmtMln(revenueDelta));
+    animVal('m-total', fmtMln(netGain));
+    animVal('m-pf-loss', fmtMln(base.totalInterest));
+    animVal('m-period-before', fmtMonth(base.salesDuration));
+    animVal('m-period-after', fmtMonth(opt.salesDuration));
+    const bar = document.getElementById('pb-bar');
+    if (bar) bar.style.width = `${Math.min(100, Math.max(opt.salesDuration, 0) / Math.max(base.salesDuration, 1) * 100)}%`;
+    renderComparisonTable(base, opt, optCandidate, params);
+    renderDeferredVisuals(base, opt);
+    window.__lastCalc = { base, opt, roi, netGain, revenueDelta, interestSavings, params };
+  } catch (err) {
+    console.error('recalc failed', err);
+  }
+}
+
+/* ---- регион ---- */
+function applyRegion(r) {
+  REGION = r;
+  const reg = R();
+  COVER = reg.cover;
+  MODEL_CONSTANTS.PRICE_POLICY_MIN = reg.priceMin;
+  MODEL_CONSTANTS.DPRICE_ANNUAL_COST_MLN = costMln(reg.cur);
+  for (const [k, [min, max, step, def]] of Object.entries(reg.lim)) { SLIDER_LIMITS[k] = { min, max, step }; state[k] = def; }
+  Object.assign(LOAN_LIMIT_CONFIG, { HARD_MIN_MLN: reg.lim.loan[0], HARD_MAX_MLN: reg.lim.loan[1] });
+  Object.assign(PLANNED_LIMIT_CONFIG, { HARD_MIN_MONTHS: reg.lim.planned[0], HARD_MAX_MONTHS: reg.lim.planned[1] });
+  Object.assign(PACE_LIMIT_CONFIG, { HARD_MIN: reg.lim.pace[0], HARD_MAX: reg.lim.pace[1], STEP: reg.lim.pace[2] });
+  const L = reg.lim;
+  Object.assign(lastLoanLimitInfo, { rawMin: L.loan[0], rawMax: L.loan[1], rawProfitMax: L.loan[1], roiMin: L.loan[0], roiMax: L.loan[1], sliderMin: L.loan[0], sliderMax: L.loan[1], bestLoan: L.loan[0], source: 'initial' });
+  Object.assign(lastPlannedLimitInfo, { min: L.planned[0], max: L.planned[1], selloutMin: L.planned[0], selloutMax: L.planned[1], source: 'initial' });
+  Object.assign(lastPaceLimitInfo, { min: L.pace[0], max: L.pace[1], bestPace: L.pace[3], source: 'initial' });
+  applySliderBounds();
+}
+function loadRealExample() { applyRegion(REGION); renderStatic(); recalc(); }
+
+function renderStatic() {
+  const html = document.documentElement;
+  html.lang = LANG; html.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.title = t('doc_title');
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const key = REGION === 'ru' && el.dataset.tRuRegion ? el.dataset.tRuRegion : el.dataset.t;
+    el.innerHTML = t(key, { cover: Math.round(R().cover * 100) });
+  });
+  document.querySelectorAll('[data-tip]').forEach(el => el.setAttribute('data-tooltip', t(el.dataset.tip)));
+  document.querySelectorAll('[data-t-title]').forEach(el => el.title = t(el.dataset.tTitle));
+  document.querySelectorAll('[data-v]').forEach(el => { el.textContent = el.dataset.v === 'au' ? AU[LANG][R().au] : `${curSym()}/${AU[LANG][R().au]}`; });
+  document.getElementById('cta-note').textContent = t(REGION === 'ru' ? 'cta_note_ru' : 'cta_note');
+  document.getElementById('regions').innerHTML = REGION_ORDER.map(r => `<button type="button" data-r="${r}" aria-pressed="${r === REGION}">${t('r_' + r)}</button>`).join('');
+  document.getElementById('langs').innerHTML = LANGS.map(l => `<button type="button" data-l="${l}" lang="${l}" aria-pressed="${l === LANG}">${{ en: 'EN', ru: 'RU', ar: 'عربي', th: 'ไทย' }[l]}</button>`).join('');
+  document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { const r = b.dataset.r; if (LANG !== 'ar') LANG = REGION_LANG[r]; applyRegion(r); renderStatic(); recalc(); });
+  document.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { LANG = b.dataset.l; renderStatic(); recalc(); });
+  const reg = R(), cost = fmtMln(costMln(reg.cur));
+  const stats = REGION === 'ru'
+    ? [['st_ru1_v', 'st_ru1'], ['st_ru2_v', 'st_ru2'], ['st_ru3_v', 'st_ru3'], ['st_ru4_v', 'st_ru4']].map(([v, l]) => [t(v), t(l)])
+    : [[reg.cur, t('st_cur')], [Math.round(reg.cover * 100) + '%', t('st_cover')], [cost, t('st_cost')], [nf({ maximumFractionDigits: 2 }).format(reg.lim.rate[3]) + '%', t('st_rate')]];
+  document.getElementById('hero-stats').innerHTML = stats.map(([v, l]) => `<div class="hero-stat"><span class="hero-stat-num">${v}</span><div class="hero-stat-label">${l}</div></div>`).join('');
+  const priceDef = fmtPriceM2(reg.lim.price[3]);
+  document.getElementById('assumptions').innerHTML = [
+    t('a_cur', { cur: reg.cur }),
+    REGION === 'ru' ? t('a_cost_ru', { v: cost }) : t('a_cost', { v: cost, date: FX.date, src: FX.src }),
+    t('a_cover', { c: Math.round(reg.cover * 100), why: t('why_cover_' + REGION) }),
+    t('a_rate', { r: nf({ maximumFractionDigits: 2 }).format(reg.lim.rate[3]), why: t('why_rate_' + REGION) }),
+    t('a_price', { p: priceDef, why: t('why_price_' + REGION) }),
+  ].map(s => `<li>${s}</li>`).join('') + `<li class="note">${t('a_note')}</li>`;
+  history.replaceState(null, '', `?region=${REGION}&lang=${LANG}`);
+}
+
+(function boot() {
+  const q = new URLSearchParams(location.search);
+  const r = REGION_ORDER.includes(q.get('region')) ? q.get('region') : 'global';
+  LANG = LANGS.includes(q.get('lang')) ? q.get('lang') : REGION_LANG[r];
+  applyRegion(r);
+  renderStatic();
+  applyAdaptiveSliderBounds();
+  recalc();
+})();
+
+</script>
+</body>
+</html>
