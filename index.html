@@ -94,9 +94,13 @@
   .nav-link{font-size:14px;font-weight:500;color:var(--text-2);text-decoration:none;padding:8px 12px;border-radius:8px;white-space:nowrap;transition:color .2s,background .2s}
   .nav-link:hover{color:#fff;background:hsla(0,0%,100%,.05)}
   .header-right{display:flex;align-items:center;gap:10px}
-  .lang{display:inline-flex;border:1px solid var(--line-2);border-radius:999px;padding:3px}
-  .lang button{font:600 12px/1 Inter,sans-serif;color:var(--text-3);background:none;border:none;border-radius:999px;padding:7px 10px;cursor:pointer;letter-spacing:.04em}
-  .lang button[aria-pressed="true"]{background:hsla(0,0%,100%,.1);color:#fff}
+  .switch{display:inline-flex;gap:6px;align-items:center}
+  .switch select{appearance:none;-webkit-appearance:none;cursor:pointer;height:34px;padding:0 28px 0 12px;border-radius:999px;border:1px solid var(--line-2);background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239aa3b2' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 11px center;font:600 13px/1 Inter,"Noto Sans Arabic","Noto Sans Thai",sans-serif;color:#fff}
+  .switch select:hover{border-color:var(--green,#3fdd84)}
+  .switch select:focus-visible{outline:2px solid var(--green,#3fdd84);outline-offset:1px}
+  .switch option{background:#14161c;color:#fff}
+  html[dir="rtl"] .switch select{padding:0 12px 0 28px;background-position:left 11px center}
+  @media(max-width:640px){.header-inner{flex-wrap:wrap;row-gap:10px}.switch{order:3;width:100%;justify-content:flex-end}.switch select{height:32px;font-size:12px}}
   @media(max-width:1024px){.nav{display:none}}
   @media(max-width:520px){.header-right .signin{display:none}.btn-sm{padding:9px 14px;font-size:13px}}
 
@@ -269,9 +273,6 @@
   .modal-actions{display:flex;flex-direction:column;gap:10px}
 
   /* ===== ВЫБОР РЕГИОНА ===== */
-  .regionbar{background:var(--bg-2);border-bottom:1px solid var(--line);font-size:13px}
-  .regionbar-inner{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding-block:6px;flex-wrap:wrap}
-  .regionbar-label{color:var(--text-3)}
   .region{display:inline-flex;gap:2px}
   .region button{font:600 12px/1 Inter,sans-serif;color:var(--text-3);background:none;border:1px solid transparent;border-radius:999px;padding:7px 12px;cursor:pointer}
   .region button:hover{color:#fff}
@@ -340,19 +341,6 @@
 </head>
 <body>
 
-<!-- ===================== ВЫБОР РЕГИОНА ===================== -->
-<div class="regionbar">
-  <div class="wrap regionbar-inner">
-    <span class="regionbar-label"><span data-lang="en">Region</span><span data-lang="ru">Регион</span><span data-lang="ar">المنطقة</span><span data-lang="th">ภูมิภาค</span></span>
-    <div class="region" role="group" aria-label="Region">
-      <button type="button" data-set-region="global" aria-pressed="false"><span data-lang="en">World</span><span data-lang="ru">Мир</span><span data-lang="ar">العالم</span><span data-lang="th">ทั่วโลก</span></button>
-      <button type="button" data-set-region="uae" aria-pressed="false"><span data-lang="en">UAE</span><span data-lang="ru">ОАЭ</span><span data-lang="ar">الإمارات</span><span data-lang="th">ยูเออี</span></button>
-      <button type="button" data-set-region="th" aria-pressed="false"><span data-lang="en">Thailand</span><span data-lang="ru">Таиланд</span><span data-lang="ar">تايلاند</span><span data-lang="th">ประเทศไทย</span></button>
-      <button type="button" data-set-region="ru" aria-pressed="false"><span data-lang="en">Russia</span><span data-lang="ru">Россия</span><span data-lang="ar">روسيا</span><span data-lang="th">รัสเซีย</span></button>
-    </div>
-  </div>
-</div>
-
 <!-- ===================== ШАПКА ===================== -->
 <header class="header">
   <div class="wrap header-inner">
@@ -365,11 +353,19 @@
       <a class="nav-link" href="#faq"><span data-lang="en">FAQ</span><span data-lang="ru">Вопросы</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span></a>
     </nav>
     <div class="header-right">
-      <div class="lang" role="group" aria-label="Language">
-        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
-        <button type="button" data-set-lang="ru" aria-pressed="false">RU</button>
-        <button type="button" data-set-lang="ar" aria-pressed="false" lang="ar">عربي</button>
-        <button type="button" data-set-lang="th" aria-pressed="false" lang="th">ไทย</button>
+      <div class="switch">
+        <select class="sw-lang" data-switch="lang" aria-label="Language">
+          <option value="en">EN</option>
+          <option value="ar" lang="ar">عربي</option>
+          <option value="th" lang="th">ไทย</option>
+          <option value="ru">RU</option>
+        </select>
+        <select class="sw-region" data-switch="region" aria-label="Region">
+          <option value="global">World · USD</option>
+          <option value="uae">UAE · AED</option>
+          <option value="th">Thailand · THB</option>
+          <option value="ru">Russia · RUB</option>
+        </select>
       </div>
       <a class="nav-link signin" href="https://platform.dprice.ru/en/account/login?returnUrl=%2Fen" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ru">Войти</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span></a>
       <a class="btn btn-green btn-sm" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span></a>
@@ -827,6 +823,14 @@
   /* ===================================================== */
 
   const LANGS = ['en', 'ru', 'ar', 'th'];
+  const REGION_NAMES = {
+    global: { en: 'World', ru: 'Мир', ar: 'العالم', th: 'ทั่วโลก' },
+    uae: { en: 'UAE', ru: 'ОАЭ', ar: 'الإمارات', th: 'ยูเออี' },
+    th: { en: 'Thailand', ru: 'Таиланд', ar: 'تايلاند', th: 'ประเทศไทย' },
+    ru: { en: 'Russia', ru: 'Россия', ar: 'روسيا', th: 'รัสเซีย' }
+  };
+  const REGION_CUR = { global: 'USD', uae: 'AED', th: 'THB', ru: 'RUB' };
+  const SW_LABELS = { en: { lang: 'Language', region: 'Region' }, ru: { lang: 'Язык', region: 'Регион' }, ar: { lang: 'اللغة', region: 'المنطقة' }, th: { lang: 'ภาษา', region: 'ภูมิภาค' } };
   const root = document.documentElement;
   const pick = (v, lang) => (v && typeof v === 'object') ? (v[lang] || v.en) : v;
   let region, lang;
@@ -844,8 +848,10 @@
       else { a.removeAttribute('target'); }
     });
     document.querySelectorAll('[data-ph-' + lang + ']').forEach(i => i.placeholder = i.getAttribute('data-ph-' + lang));
-    document.querySelectorAll('[data-set-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.setLang === lang));
-    document.querySelectorAll('[data-set-region]').forEach(b => b.setAttribute('aria-pressed', b.dataset.setRegion === region));
+    const sl = document.querySelector('[data-switch="lang"]'), sr = document.querySelector('[data-switch="region"]');
+    sl.value = lang; sr.value = region;
+    sl.setAttribute('aria-label', SW_LABELS[lang].lang); sr.setAttribute('aria-label', SW_LABELS[lang].region);
+    [...sr.options].forEach(o => { o.textContent = REGION_NAMES[o.value][lang] + ' · ' + REGION_CUR[o.value]; });
     document.title = TITLES[lang];
     try { localStorage.setItem('dprice-lang', lang); localStorage.setItem('dprice-region', region); } catch(e) {}
   }
@@ -857,13 +863,15 @@
   lang = [q.get('lang'), saved.lang, REGIONS[region].lang].find(x => LANGS.includes(x));
   apply();
 
-  document.querySelectorAll('[data-set-lang]').forEach(b => b.addEventListener('click', () => { lang = b.dataset.setLang; apply(); }));
+  const swLang = document.querySelector('[data-switch="lang"]');
+  const swRegion = document.querySelector('[data-switch="region"]');
+  swLang.addEventListener('change', () => { lang = swLang.value; apply(); });
   // При смене региона язык переключается на основной язык региона; арабский сохраняется.
-  document.querySelectorAll('[data-set-region]').forEach(b => b.addEventListener('click', () => {
-    region = b.dataset.setRegion;
+  swRegion.addEventListener('change', () => {
+    region = swRegion.value;
     if (lang !== 'ar') lang = REGIONS[region].lang;
     apply();
-  }));
+  });
 
   // Окно «Демо»
   const demo = document.getElementById('demo');
