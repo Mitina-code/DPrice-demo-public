@@ -340,7 +340,6 @@
 </style>
 </head>
 <body>
-<a href="../interfaces/" style="position:fixed;bottom:16px;right:16px;z-index:50;padding:10px 14px;background:#163725;color:#b9f3ce;border:1px solid #3fdd84;border-radius:8px">Интерфейсы / Interfaces</a>
 
 <!-- ===================== ШАПКА ===================== -->
 <header class="header">
@@ -408,24 +407,20 @@
     </div>
 
     <!-- ===== ВХОД ДЛЯ КЛИЕНТОВ =====
-         Поля для вида; «Войти» открывает рабочую страницу входа платформы. -->
+         Кнопка открывает рабочую страницу входа платформы platform.dprice.ru:
+         вход с чужого сайта платформа не принимает, поэтому полей здесь нет. -->
     <div class="login" id="signin">
       <div class="login-glow" aria-hidden="true"></div>
       <div class="login-body">
         <h2><span data-lang="en">Client sign-in</span><span data-lang="ru">Вход для клиентов</span><span data-lang="ar">دخول العملاء</span><span data-lang="th">เข้าสู่ระบบสำหรับลูกค้า</span></h2>
         <p class="login-sub"><span data-lang="en">Manage the prices of your project</span><span data-lang="ru">Управляйте ценами вашего проекта</span><span data-lang="ar">أدِر أسعار مشروعك</span><span data-lang="th">จัดการราคาของโครงการคุณ</span></p>
-        <form class="form" action="https://platform.dprice.ru/en/account/login" method="get" target="_blank">
-          <input type="hidden" name="returnUrl" value="/en">
-          <label class="sr-only" for="email">Login or e-mail</label>
-          <input id="email" class="input" type="text" data-ph-en="Login or e-mail" data-ph-ru="Логин или e-mail" data-ph-ar="اسم المستخدم أو البريد الإلكتروني" data-ph-th="ชื่อผู้ใช้หรืออีเมล" placeholder="Login or e-mail" autocomplete="username">
-          <label class="sr-only" for="password">Password</label>
-          <input id="password" class="input" type="password" data-ph-en="Password" data-ph-ru="Пароль" data-ph-ar="كلمة المرور" data-ph-th="รหัสผ่าน" placeholder="Password" autocomplete="current-password">
+        <div class="form">
+          <p class="login-sub"><span data-lang="en">Your login and password are entered on the secure DPrice platform page.</span><span data-lang="ru">Логин и пароль вводятся на защищённой странице платформы DPrice.</span><span data-lang="ar">يتم إدخال اسم المستخدم وكلمة المرور في صفحة منصة DPrice الآمنة.</span><span data-lang="th">กรอกชื่อผู้ใช้และรหัสผ่านในหน้าที่ปลอดภัยของแพลตฟอร์ม DPrice</span></p>
+          <a class="btn btn-green btn-block" href="https://platform.dprice.ru/en/account/login?returnUrl=%2Fen" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in to DPrice</span><span data-lang="ru">Войти в DPrice</span><span data-lang="ar">الدخول إلى DPrice</span><span data-lang="th">เข้าสู่ DPrice</span></a>
           <div class="options">
-            <label class="check"><input type="checkbox"><span data-lang="en">Remember me</span><span data-lang="ru">Запомнить меня</span><span data-lang="ar">تذكّرني</span><span data-lang="th">จดจำฉัน</span></label>
-            <a class="forgot" href="https://platform.dprice.ru/account/forgot-password"><span data-lang="en">Forgot password?</span><span data-lang="ru">Забыли пароль?</span><span data-lang="ar">نسيت كلمة المرور؟</span><span data-lang="th">ลืมรหัสผ่าน?</span></a>
+            <a class="forgot" href="https://platform.dprice.ru/account/forgot-password" target="_blank" rel="noopener noreferrer"><span data-lang="en">Forgot password?</span><span data-lang="ru">Забыли пароль?</span><span data-lang="ar">نسيت كلمة المرور؟</span><span data-lang="th">ลืมรหัสผ่าน?</span></a>
           </div>
-          <button type="submit" class="btn btn-green btn-block"><span data-lang="en">Sign in</span><span data-lang="ru">Войти</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span></button>
-        </form>
+        </div>
         <p class="login-alt"><span data-lang="en">No account yet?</span><span data-lang="ru">Нет аккаунта?</span><span data-lang="ar">ليس لديك حساب بعد؟</span><span data-lang="th">ยังไม่มีบัญชี?</span>
           <button type="button" data-open-demo><span data-lang="en">Try the demo</span><span data-lang="ru">Оценить демо</span><span data-lang="ar">جرّب النسخة التجريبية</span><span data-lang="th">ทดลองเดโม</span></button></p>
       </div>
