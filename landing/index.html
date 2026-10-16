@@ -110,7 +110,7 @@
   .hero-grid{position:absolute;z-index:0;pointer-events:none;inset:0;background-image:linear-gradient(hsla(0,0%,100%,.03) 1px,transparent 0),linear-gradient(90deg,hsla(0,0%,100%,.03) 1px,transparent 0);background-size:64px 64px;
     mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 70%)}
   .hero-buildings{position:absolute;inset-inline-end:-5%;bottom:-10%;width:380px;height:auto;opacity:.06;pointer-events:none;user-select:none;z-index:0}
-  .hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1fr 420px;gap:64px;align-items:center}
+  .hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1fr minmax(380px,520px);gap:64px;align-items:center}
   .hero-content{display:flex;flex-direction:column;gap:24px}
   .tag{display:inline-flex;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-light);padding:7px 16px;border-radius:999px;background:rgba(63,221,132,.1);border:1px solid rgba(63,221,132,.25);width:fit-content}
   h1{font-size:clamp(34px,4.6vw,56px);font-weight:700;line-height:1.06;letter-spacing:-.03em;margin:0}
@@ -124,6 +124,21 @@
   @media(max-width:640px){.kpis{grid-template-columns:1fr;gap:8px}}
 
   /* ===== КАРТОЧКА ВХОДА ===== */
+  .hero-shot{display:block;position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line-2);box-shadow:0 30px 80px rgba(0,0,0,.45);background:#fff;transform:perspective(1400px) rotateY(-6deg);transition:transform .3s}
+  .hero-shot:hover{transform:none}
+  .hero-shot img{display:block;width:100%;height:auto}
+  .hero-shot .shot-note{position:absolute;left:12px;bottom:12px;font-size:12px;font-weight:600;color:#0b0c10;background:rgba(255,255,255,.92);border-radius:999px;padding:5px 10px}
+  html[dir="rtl"] .hero-shot{transform:perspective(1400px) rotateY(6deg)}
+  html[dir="rtl"] .hero-shot .shot-note{left:auto;right:12px}
+  .shots{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:8px}
+  .shot{margin:0;background:hsla(0,0%,100%,.03);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+  .shot a{display:block;background:#fff;border-bottom:1px solid var(--line)}
+  .shot img{display:block;width:100%;height:auto}
+  .shot figcaption{padding:18px 22px 20px}
+  .shot h3{margin:0 0 6px;font-size:18px;font-weight:700;letter-spacing:-.01em}
+  .shot p{margin:0;font-size:14px;line-height:1.55;color:var(--text-3)}
+  @media(max-width:1024px){.hero-shot{transform:none;max-width:560px}}
+  @media(max-width:760px){.shots{grid-template-columns:1fr;gap:16px}}
   .login{position:relative;overflow:hidden;background:hsla(0,0%,100%,.04);border:1px solid var(--line-2);border-radius:24px;padding:36px 32px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 24px 80px rgba(11,12,16,.45)}
   .login-glow{position:absolute;top:-60%;left:50%;width:300px;height:300px;transform:translateX(-50%);background:radial-gradient(circle,rgba(63,221,132,.15) 0,transparent 70%);pointer-events:none}
   .login-body{position:relative;z-index:1}
@@ -393,35 +408,24 @@
         <span class="chip up">▲ <span data-lang="en">Revenue and profit</span><span data-lang="ru">Выручка и прибыль</span><span data-lang="ar">الإيرادات والأرباح</span><span data-lang="th">รายได้และกำไร</span></span>
         <span class="chip down">▼ <span data-lang="en">Project financing costs</span><span data-lang="ru">Стоимость проектного финансирования</span><span data-lang="ar">تكاليف تمويل المشروع</span><span data-lang="th">ต้นทุนเงินทุนโครงการ</span></span>
       </div>
-      <p class="hero-sub"><span data-lang="en">DPrice generates the optimal sales curve to maximize profit, reflecting the value of money and real estate price growth as the construction project advances.</span><span data-lang="ru">DPrice строит оптимальную кривую продаж, которая максимизирует прибыль с учётом стоимости денег и роста цены недвижимости по мере строительства.</span><span data-lang="ar">يُنشئ DPrice منحنى المبيعات الأمثل لتحقيق أقصى ربح، مع مراعاة القيمة الزمنية للمال وارتفاع أسعار العقار مع تقدّم أعمال البناء.</span><span data-lang="th">DPrice สร้างเส้นโค้งการขายที่เหมาะสมที่สุดเพื่อเพิ่มกำไรสูงสุด โดยคำนึงถึงมูลค่าของเงินตามเวลาและราคาอสังหาฯ ที่สูงขึ้นตามความคืบหน้าของการก่อสร้าง</span></p>
+      <p class="hero-sub"><span data-lang="en">DPrice is a web service for a developer’s sales team. It regularly recommends a price for every unit, so the whole building sells out by handover with maximum revenue — taking payment plans and the cost of construction finance into account.</span><span data-lang="ru">DPrice — веб-сервис для отдела продаж застройщика. Он регулярно рекомендует цену каждой квартиры, чтобы весь дом был продан к сдаче с максимальной выручкой — с учётом рассрочек и стоимости проектного финансирования.</span><span data-lang="ar">DPrice خدمة ويب لفريق مبيعات المطوّر. توصي بانتظام بسعر لكل وحدة كي يُباع المبنى بالكامل بحلول التسليم بأعلى إيرادات — مع مراعاة خطط الدفع وتكلفة تمويل المشروع.</span><span data-lang="th">DPrice คือบริการเว็บสำหรับทีมขายของผู้พัฒนาโครงการ แนะนำราคาของทุกยูนิตอย่างสม่ำเสมอ เพื่อให้ขายหมดทั้งอาคารภายในวันส่งมอบด้วยรายได้สูงสุด โดยคำนึงถึงแผนผ่อนชำระและต้นทุนเงินทุนโครงการ</span></p>
       <div class="hero-ctas">
         <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span>
           <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></a>
-        <a class="btn btn-ghost" data-link="game" href="../game/en/game/?region=global"><span data-lang="en">Play with DPrice</span><span data-lang="ru">Сыграть с DPrice</span><span data-lang="ar">العب مع DPrice</span><span data-lang="th">เล่นกับ DPrice</span></a>
+        <a class="btn btn-ghost" href="#product"><span data-lang="en">See the product</span><span data-lang="ru">Посмотреть продукт</span><span data-lang="ar">شاهد المنتج</span><span data-lang="th">ดูตัวผลิตภัณฑ์</span></a>
       </div>
       <div class="kpis">
-        <div class="kpi"><span class="kpi-value"><span data-lang="en">Your data only</span><span data-lang="ru">Только ваши данные</span><span data-lang="ar">بياناتك فقط</span><span data-lang="th">ใช้เฉพาะข้อมูลของคุณ</span></span><span class="kpi-label"><span data-lang="en">built on your sales history, no external feeds</span><span data-lang="ru">модель строится на истории ваших продаж</span><span data-lang="ar">مبني على سجل مبيعاتك، دون مصادر خارجية</span><span data-lang="th">สร้างจากประวัติการขายของคุณ ไม่ใช้ข้อมูลภายนอก</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">From the first sales</span><span data-lang="ru">С первых продаж</span><span data-lang="ar">من أولى المبيعات</span><span data-lang="th">ตั้งแต่ยอดขายแรก</span></span><span class="kpi-label"><span data-lang="en">works even when a unit type has only a few deals</span><span data-lang="ru">считает, даже когда сделок по типу квартир ещё мало</span><span data-lang="ar">يعمل حتى عندما تكون صفقات نوع الوحدة قليلة</span><span data-lang="th">คำนวณได้แม้ยอดขายของยูนิตแต่ละประเภทยังมีน้อย</span></span></div>
         <div class="kpi"><span class="kpi-value"><span data-lang="en">Every unit</span><span data-lang="ru">Каждая квартира</span><span data-lang="ar">كل وحدة</span><span data-lang="th">ทุกยูนิต</span></span><span class="kpi-label"><span data-lang="en">a price recommendation per apartment, not per building</span><span data-lang="ru">рекомендация по каждому лоту, а не по корпусу</span><span data-lang="ar">توصية سعرية لكل شقة، لا لكل مبنى</span><span data-lang="th">คำแนะนำราคารายห้อง ไม่ใช่รายอาคาร</span></span></div>
-        <div class="kpi"><span class="kpi-value"><span data-lang="en">7 days</span><span data-lang="ru">7 дней</span><span data-lang="ar">7 أيام</span><span data-lang="th">7 วัน</span></span><span class="kpi-label"><span data-lang="en">to connect, without stopping sales</span><span data-lang="ru">на подключение без остановки продаж</span><span data-lang="ar">للربط، دون إيقاف المبيعات</span><span data-lang="th">เชื่อมต่อระบบได้โดยไม่ต้องหยุดขาย</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">3 months free</span><span data-lang="ru">3 месяца бесплатно</span><span data-lang="ar">3 أشهر مجانًا</span><span data-lang="th">ฟรี 3 เดือน</span></span><span class="kpi-label"><span data-lang="en">a one-year contract with a quick, low-cost exit</span><span data-lang="ru">договор на год с быстрым и недорогим выходом</span><span data-lang="ar">عقد لمدة عام مع خروج سريع ومنخفض التكلفة</span><span data-lang="th">สัญญา 1 ปี ยกเลิกได้รวดเร็วและค่าใช้จ่ายต่ำ</span></span></div>
       </div>
     </div>
 
-    <!-- ===== ВХОД ДЛЯ КЛИЕНТОВ =====
-         Кнопка открывает рабочую страницу входа платформы platform.dprice.ru:
-         вход с чужого сайта платформа не принимает, поэтому полей здесь нет. -->
-    <div class="login" id="signin">
-      <div class="login-glow" aria-hidden="true"></div>
-      <div class="login-body">
-        <h2><span data-lang="en">Client sign-in</span><span data-lang="ru">Вход для клиентов</span><span data-lang="ar">دخول العملاء</span><span data-lang="th">เข้าสู่ระบบสำหรับลูกค้า</span></h2>
-        <p class="login-sub"><span data-lang="en">Manage the prices of your project</span><span data-lang="ru">Управляйте ценами вашего проекта</span><span data-lang="ar">أدِر أسعار مشروعك</span><span data-lang="th">จัดการราคาของโครงการคุณ</span></p>
-        <div class="form">
-          <p class="login-sub"><span data-lang="en">Your login and password are entered on the secure DPrice platform page.</span><span data-lang="ru">Логин и пароль вводятся на защищённой странице платформы DPrice.</span><span data-lang="ar">يتم إدخال اسم المستخدم وكلمة المرور في صفحة منصة DPrice الآمنة.</span><span data-lang="th">กรอกชื่อผู้ใช้และรหัสผ่านในหน้าที่ปลอดภัยของแพลตฟอร์ม DPrice</span></p>
-          <a class="btn btn-green btn-block" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in to DPrice</span><span data-lang="ru">Войти в DPrice</span><span data-lang="ar">الدخول إلى DPrice</span><span data-lang="th">เข้าสู่ DPrice</span></a>
-        </div>
-        <p class="login-alt"><span data-lang="en">No account yet?</span><span data-lang="ru">Нет аккаунта?</span><span data-lang="ar">ليس لديك حساب بعد؟</span><span data-lang="th">ยังไม่มีบัญชี?</span>
-          <button type="button" data-open-demo><span data-lang="en">Try the demo</span><span data-lang="ru">Оценить демо</span><span data-lang="ar">جرّب النسخة التجريبية</span><span data-lang="th">ทดลองเดโม</span></button></p>
-      </div>
-    </div>
+    <!-- ===== ЭКРАН ПРОДУКТА (демо-проект, синтетические данные). Вход для клиентов — «Sign in» в шапке. ===== -->
+    <a class="hero-shot" href="#product">
+      <img data-shot="today" src="assets/screens/today-en.jpg" alt="DPrice: what to do today" width="1172" height="760">
+      <span class="shot-note"><span data-lang="en">Demo project in Dubai · synthetic data</span><span data-lang="ru">Демо-проект в Дубае · данные синтетические</span><span data-lang="ar">مشروع تجريبي في دبي · بيانات اصطناعية</span><span data-lang="th">โครงการสาธิตในดูไบ · ข้อมูลจำลอง</span></span>
+    </a>
   </div>
 </section>
 
@@ -462,6 +466,35 @@
         <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span></a>
         <a class="btn btn-ghost" href="#how"><span data-lang="en">See how it works</span><span data-lang="ru">Как это работает</span><span data-lang="ar">شاهد كيف يعمل</span><span data-lang="th">ดูวิธีการทำงาน</span> ↓</a>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== КАК ВЫГЛЯДИТ ПРОДУКТ: настоящие экраны демо-версии =====================
+     Снимки — assets/screens/<экран>-ru.jpg и -en.jpg (демо-проект в Дубае, синтетические данные).
+     Русская версия лендинга показывает русские снимки, остальные языки — английские. -->
+<section class="section product" id="product">
+  <div class="wrap">
+    <span class="section-tag"><span data-lang="en">Inside DPrice</span><span data-lang="ru">Продукт</span><span data-lang="ar">داخل DPrice</span><span data-lang="th">ภายใน DPrice</span></span>
+    <h2 class="section-title"><span data-lang="en">What your commercial team sees</span><span data-lang="ru">Что видит ваша коммерческая команда</span><span data-lang="ar">ما يراه فريقك التجاري</span><span data-lang="th">สิ่งที่ทีมขายของคุณจะเห็น</span></h2>
+    <p class="section-sub"><span data-lang="en">Real screens of the DPrice demo: a project in Dubai with synthetic data. Click a screen to open it full size.</span><span data-lang="ru">Настоящие экраны демо-версии DPrice: проект в Дубае с синтетическими данными. Нажмите на экран, чтобы открыть его целиком.</span><span data-lang="ar">شاشات حقيقية من النسخة التجريبية لـ DPrice: مشروع في دبي ببيانات اصطناعية. انقر على الشاشة لفتحها بالحجم الكامل.</span><span data-lang="th">หน้าจอจริงจากเดโมของ DPrice: โครงการในดูไบที่ใช้ข้อมูลจำลอง คลิกที่หน้าจอเพื่อเปิดขนาดเต็ม</span></p>
+    <div class="shots">
+      <figure class="shot">
+        <a href="assets/screens/today-en.jpg" data-shot-link="today" target="_blank" rel="noopener"><img data-shot="today" src="assets/screens/today-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
+        <figcaption><h3><span data-lang="en">What to do today</span><span data-lang="ru">Что сделать сегодня</span><span data-lang="ar">ما يجب فعله اليوم</span><span data-lang="th">สิ่งที่ต้องทำวันนี้</span></h3><p><span data-lang="en">The gap to the price list, the remaining stock and the decisions that cannot wait — on one screen.</span><span data-lang="ru">Разрыв с прайсом, остаток и решения, которые нельзя откладывать, — на одном экране.</span><span data-lang="ar">الفجوة عن قائمة الأسعار والمخزون المتبقي والقرارات التي لا تحتمل التأجيل — في شاشة واحدة.</span><span data-lang="th">ส่วนต่างจากราคาตั้ง สต็อกคงเหลือ และการตัดสินใจที่รอไม่ได้ — ในหน้าจอเดียว</span></p></figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="assets/screens/repricing-en.jpg" data-shot-link="repricing" target="_blank" rel="noopener"><img data-shot="repricing" src="assets/screens/repricing-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
+        <figcaption><h3><span data-lang="en">Repricing and approval</span><span data-lang="ru">Переоценка и согласование</span><span data-lang="ar">إعادة التسعير والاعتماد</span><span data-lang="th">การปรับราคาและการอนุมัติ</span></h3><p><span data-lang="en">Recommendations by price group with the reasoning behind them. Your team approves, edits or rejects.</span><span data-lang="ru">Рекомендации по ценовым группам с обоснованием. Команда согласует, правит или отклоняет.</span><span data-lang="ar">توصيات حسب فئات الأسعار مع أسبابها. فريقك يعتمدها أو يعدّلها أو يرفضها.</span><span data-lang="th">คำแนะนำตามกลุ่มราคาพร้อมเหตุผล ทีมของคุณอนุมัติ แก้ไข หรือปฏิเสธได้</span></p></figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="assets/screens/forecast-en.jpg" data-shot-link="forecast" target="_blank" rel="noopener"><img data-shot="forecast" src="assets/screens/forecast-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
+        <figcaption><h3><span data-lang="en">Price path to completion</span><span data-lang="ru">Траектория цены до сдачи</span><span data-lang="ar">مسار السعر حتى التسليم</span><span data-lang="th">เส้นทางราคาจนถึงวันส่งมอบ</span></h3><p><span data-lang="en">Actual prices and the forecast up to handover for each unit type.</span><span data-lang="ru">Факт и прогноз цены по каждому типу квартир до ввода дома.</span><span data-lang="ar">الأسعار الفعلية والتوقعات حتى التسليم لكل نوع وحدة.</span><span data-lang="th">ราคาจริงและการคาดการณ์จนถึงวันส่งมอบของยูนิตแต่ละประเภท</span></p></figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="assets/screens/payment-en.jpg" data-shot-link="payment" target="_blank" rel="noopener"><img data-shot="payment" src="assets/screens/payment-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
+        <figcaption><h3><span data-lang="en">Payment plans</span><span data-lang="ru">Формы оплаты</span><span data-lang="ar">خطط الدفع</span><span data-lang="th">แผนการชำระเงิน</span></h3><p><span data-lang="en">Which payment plan really brings the project more money, including post-handover plans.</span><span data-lang="ru">Какая форма оплаты на деле приносит проекту больше денег, включая рассрочку после сдачи.</span><span data-lang="ar">أي خطة دفع تجلب للمشروع أموالًا أكثر فعلًا، بما في ذلك خطط ما بعد التسليم.</span><span data-lang="th">แผนการชำระเงินแบบไหนสร้างรายได้ให้โครงการมากกว่าจริง รวมถึงแผนผ่อนหลังส่งมอบ</span></p></figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -552,7 +585,7 @@
   <div class="wrap">
     <span class="section-tag"><span data-lang="en">Features</span><span data-lang="ru">Возможности</span><span data-lang="ar">المزايا</span><span data-lang="th">ความสามารถ</span></span>
     <h2 class="section-title"><span data-lang="en">Transparent, field-proven mathematics</span><span data-lang="ru">Прозрачная, проверенная практикой математика</span><span data-lang="ar">رياضيات شفافة ومُثبتة عمليًا</span><span data-lang="th">คณิตศาสตร์ที่โปร่งใสและพิสูจน์แล้วในการใช้งานจริง</span></h2>
-    <p class="section-sub"><span data-lang="en">Our international team of applied mathematicians has tailored best practices from leading industries to real estate development. DPrice is the first solution to bring dynamic pricing mathematics to real estate.</span><span data-lang="ru">Международная команда прикладных математиков адаптировала лучшие практики ведущих отраслей к задачам девелопмента. DPrice — первое решение, которое принесло математику динамического ценообразования в недвижимость.</span><span data-lang="ar">قام فريقنا الدولي من علماء الرياضيات التطبيقية بتكييف أفضل الممارسات من القطاعات الرائدة لتناسب التطوير العقاري. DPrice هو أول حل ينقل رياضيات التسعير الديناميكي إلى قطاع العقارات.</span><span data-lang="th">ทีมนักคณิตศาสตร์ประยุกต์นานาชาติของเราได้ปรับแนวปฏิบัติที่ดีที่สุดจากอุตสาหกรรมชั้นนำมาใช้กับการพัฒนาอสังหาฯ DPrice คือโซลูชันแรกที่นำคณิตศาสตร์การกำหนดราคาแบบไดนามิกมาสู่วงการอสังหาริมทรัพย์</span></p>
+    <p class="section-sub"><span data-lang="en">Our international team of applied mathematicians has tailored best practices from leading industries to real estate development.</span><span data-lang="ru">Международная команда прикладных математиков адаптировала лучшие практики ведущих отраслей к задачам девелопмента.</span><span data-lang="ar">قام فريقنا الدولي من علماء الرياضيات التطبيقية بتكييف أفضل الممارسات من القطاعات الرائدة لتناسب التطوير العقاري.</span><span data-lang="th">ทีมนักคณิตศาสตร์ประยุกต์นานาชาติของเราได้ปรับแนวปฏิบัติที่ดีที่สุดจากอุตสาหกรรมชั้นนำมาใช้กับการพัฒนาอสังหาฯ</span></p>
     <div class="grid3">
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20 8v2h6.6L18 18.6l-4.3-4.3-1.4 0L2 24.6 3.4 26 13 16.4l4.3 4.3 1.4 0L28 11.4V18h2V8z"/></svg></div>
@@ -607,11 +640,11 @@
 <section class="section trust">
   <div class="wrap">
     <span class="section-tag"><span data-lang="en">About us</span><span data-lang="ru">О нас</span><span data-lang="ar">من نحن</span><span data-lang="th">เกี่ยวกับเรา</span></span>
-    <h2 class="section-title"><span data-lang="en">DPrice is a PropTech startup by <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="ru">DPrice — PropTech-стартап компании <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="ar">DPrice شركة ناشئة في التكنولوجيا العقارية من <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span><span data-lang="th">DPrice คือสตาร์ทอัพพร็อพเทคของ <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span></h2>
+    <h2 class="section-title"><span data-lang="en">DPrice is a PropTech startup by Advantix</span><span data-lang="ru">DPrice — PropTech-стартап компании Advantix</span><span data-lang="ar">DPrice شركة ناشئة في التكنولوجيا العقارية من Advantix</span><span data-lang="th">DPrice คือสตาร์ทอัพพร็อพเทคของ Advantix</span></h2>
     <div class="trust-grid">
       <div class="trust-item"><div class="trust-num">32</div>
         <h3><span data-lang="en">years in the IT business</span><span data-lang="ru">года в ИТ-бизнесе</span><span data-lang="ar">عامًا في قطاع تقنية المعلومات</span><span data-lang="th">ปีในธุรกิจไอที</span></h3>
-        <p><span data-lang="en">Our clients trust DPrice thanks to the impeccable reputation of <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ru">Клиенты доверяют DPrice благодаря безупречной репутации <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ar">يثق عملاؤنا بـ DPrice بفضل السمعة الممتازة لشركة <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="th">ลูกค้าไว้วางใจ DPrice ด้วยชื่อเสียงอันยอดเยี่ยมของ <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span></p></div>
+        <p><span data-lang="en">Our clients trust DPrice thanks to the impeccable reputation of Advantix.</span><span data-lang="ru">Клиенты доверяют DPrice благодаря безупречной репутации Advantix.</span><span data-lang="ar">يثق عملاؤنا بـ DPrice بفضل السمعة الممتازة لشركة Advantix.</span><span data-lang="th">ลูกค้าไว้วางใจ DPrice ด้วยชื่อเสียงอันยอดเยี่ยมของ Advantix</span></p></div>
       <div class="trust-item"><div class="trust-num">7</div>
         <h3><span data-lang="en">years of experience</span><span data-lang="ru">лет опыта</span><span data-lang="ar">سنوات من الخبرة</span><span data-lang="th">ปีของประสบการณ์</span></h3>
         <p><span data-lang="en">With successful projects for industry leaders.</span><span data-lang="ru">Успешные проекты для лидеров отрасли.</span><span data-lang="ar">مشاريع ناجحة لروّاد القطاع.</span><span data-lang="th">พร้อมโครงการที่ประสบความสำเร็จให้กับผู้นำในอุตสาหกรรม</span></p></div>
@@ -673,9 +706,9 @@
       <div class="tl"><div class="tl-when"><span data-lang="en">Step 2</span><span data-lang="ru">Шаг 2</span><span data-lang="ar">الخطوة 2</span><span data-lang="th">ขั้นที่ 2</span></div>
         <h3><span data-lang="en">Data and goal</span><span data-lang="ru">Данные и цель</span><span data-lang="ar">البيانات والهدف</span><span data-lang="th">ข้อมูลและเป้าหมาย</span></h3>
         <p><span data-lang="en">You share a sales export; we agree the goal and how success is measured.</span><span data-lang="ru">Вы передаёте выгрузку продаж, мы фиксируем цель и способ оценки результата.</span><span data-lang="ar">تشاركنا بيانات المبيعات، ونتفق على الهدف وطريقة قياس النجاح.</span><span data-lang="th">คุณส่งข้อมูลการขาย เราตกลงเป้าหมายและวิธีวัดความสำเร็จร่วมกัน</span></p></div>
-      <div class="tl"><div class="tl-when"><span data-lang="en">Within 7 days</span><span data-lang="ru">За 7 дней</span><span data-lang="ar">خلال 7 أيام</span><span data-lang="th">ภายใน 7 วัน</span></div>
-        <h3><span data-lang="en">Connection</span><span data-lang="ru">Подключение</span><span data-lang="ar">الربط</span><span data-lang="th">การเชื่อมต่อ</span></h3>
-        <p><span data-lang="en">DPrice is set up on your project; the team gets access.</span><span data-lang="ru">DPrice настроен на ваш проект, команда получает доступ.</span><span data-lang="ar">يُهيَّأ DPrice لمشروعك ويحصل الفريق على صلاحية الوصول.</span><span data-lang="th">ตั้งค่า DPrice สำหรับโครงการของคุณ และทีมได้รับสิทธิ์เข้าใช้งาน</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">First 3 months</span><span data-lang="ru">Первые 3 месяца</span><span data-lang="ar">أول 3 أشهر</span><span data-lang="th">3 เดือนแรก</span></div>
+        <h3><span data-lang="en">Free period</span><span data-lang="ru">Бесплатный период</span><span data-lang="ar">فترة مجانية</span><span data-lang="th">ช่วงทดลองฟรี</span></h3>
+        <p><span data-lang="en">DPrice is set up on your project and your team works with it — the first three months of the one-year contract are free.</span><span data-lang="ru">DPrice настроен на ваш проект, команда работает с ним. Первые три месяца годового договора — бесплатно.</span><span data-lang="ar">يُهيَّأ DPrice لمشروعك ويعمل به فريقك — أول ثلاثة أشهر من العقد السنوي مجانية.</span><span data-lang="th">ตั้งค่า DPrice สำหรับโครงการของคุณและทีมเริ่มใช้งาน — 3 เดือนแรกของสัญญา 1 ปีไม่มีค่าใช้จ่าย</span></p></div>
       <div class="tl"><div class="tl-when"><span data-lang="en">Ongoing</span><span data-lang="ru">Дальше</span><span data-lang="ar">باستمرار</span><span data-lang="th">ต่อเนื่อง</span></div>
         <h3><span data-lang="en">Recommendations</span><span data-lang="ru">Рекомендации</span><span data-lang="ar">التوصيات</span><span data-lang="th">คำแนะนำ</span></h3>
         <p><span data-lang="en">Regular unit-level advice and reviews of the results with our team.</span><span data-lang="ru">Регулярные рекомендации по лотам и разбор результатов с нашей командой.</span><span data-lang="ar">توصيات منتظمة لكل وحدة ومراجعة النتائج مع فريقنا.</span><span data-lang="th">คำแนะนำรายยูนิตอย่างสม่ำเสมอ และทบทวนผลลัพธ์ร่วมกับทีมของเรา</span></p></div>
@@ -690,7 +723,7 @@
     <h2 class="section-title"><span data-lang="en">Frequently asked questions</span><span data-lang="ru">Частые вопросы</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span></h2>
     <div class="faq-list">
       <details><summary><span data-lang="en">What data does DPrice need?</span><span data-lang="ru">Какие данные нужны DPrice?</span><span data-lang="ar">ما البيانات التي يحتاجها DPrice؟</span><span data-lang="th">DPrice ต้องใช้ข้อมูลอะไรบ้าง?</span></summary>
-        <p><span data-lang="en">Your own sales data: the list of units with their characteristics, price history, bookings and deals. DPrice does not rely on external or public market feeds — the model is built on how your project actually sells.</span><span data-lang="ru">Только ваши данные о продажах: список лотов с характеристиками, история цен, брони и сделки. Внешние и открытые рыночные данные DPrice не использует — модель строится на том, как продаётся именно ваш проект.</span><span data-lang="ar">بيانات مبيعاتك فقط: قائمة الوحدات وخصائصها، وسجل الأسعار، والحجوزات والصفقات. لا يعتمد DPrice على مصادر سوق خارجية أو عامة — يُبنى النموذج على أداء مبيعات مشروعك الفعلي.</span><span data-lang="th">ข้อมูลการขายของคุณเอง: รายการยูนิตพร้อมคุณสมบัติ ประวัติราคา การจอง และการซื้อขาย DPrice ไม่พึ่งข้อมูลตลาดภายนอกหรือข้อมูลสาธารณะ — โมเดลสร้างจากผลการขายจริงของโครงการคุณ</span></p></details>
+        <p><span data-lang="en">Your sales data: the list of units with their characteristics, price history, bookings and deals — from your CRM or a spreadsheet export. Recommendations are built on how your project actually sells; market information, such as nearby launches, is shown as context. Your data is never shared with other developers.</span><span data-lang="ru">Ваши данные о продажах: список лотов с характеристиками, история цен, брони и сделки — из CRM или выгрузки в таблице. Рекомендации строятся на том, как продаётся именно ваш проект; рыночная информация, например новые запуски рядом, показывается как фон. Ваши данные никогда не передаются другим застройщикам.</span><span data-lang="ar">بيانات مبيعاتك: قائمة الوحدات بخصائصها وسجل الأسعار والحجوزات والصفقات — من نظام CRM أو ملف جدول بيانات. تُبنى التوصيات على طريقة بيع مشروعك فعلًا، وتُعرض معلومات السوق، مثل المشاريع الجديدة القريبة، كخلفية. ولا تُشارك بياناتك أبدًا مع مطوّرين آخرين.</span><span data-lang="th">ข้อมูลการขายของคุณ: รายการยูนิตพร้อมคุณสมบัติ ประวัติราคา การจอง และการซื้อขาย — จาก CRM หรือไฟล์สเปรดชีต คำแนะนำสร้างจากการขายจริงของโครงการคุณ ส่วนข้อมูลตลาด เช่น โครงการใหม่ใกล้เคียง จะแสดงเป็นข้อมูลประกอบ ข้อมูลของคุณจะไม่ถูกแชร์กับผู้พัฒนารายอื่น</span></p></details>
       <details><summary><span data-lang="en">Does DPrice change prices automatically?</span><span data-lang="ru">DPrice сам меняет цены?</span><span data-lang="ar">هل يغيّر DPrice الأسعار تلقائيًا؟</span><span data-lang="th">DPrice เปลี่ยนราคาอัตโนมัติหรือไม่?</span></summary>
         <p><span data-lang="en">No. DPrice recommends; your team decides. Every recommendation can be accepted, adjusted or rejected.</span><span data-lang="ru">Нет. DPrice рекомендует, решение принимает ваша команда. Каждую рекомендацию можно принять, поправить или отклонить.</span><span data-lang="ar">لا. DPrice يوصي، وفريقك يقرر. ويمكن قبول كل توصية أو تعديلها أو رفضها.</span><span data-lang="th">ไม่ DPrice เป็นผู้แนะนำ ทีมของคุณเป็นผู้ตัดสินใจ ทุกคำแนะนำสามารถยอมรับ ปรับแก้ หรือปฏิเสธได้</span></p></details>
       <details><summary><span data-lang="en">When will we see the effect?</span><span data-lang="ru">Когда будет виден эффект?</span><span data-lang="ar">متى سنرى النتيجة؟</span><span data-lang="th">จะเห็นผลเมื่อไร?</span></summary>
@@ -698,7 +731,7 @@
       <details><summary><span data-lang="en">Will DPrice explain why demand changed?</span><span data-lang="ru">DPrice объясняет, почему изменился спрос?</span><span data-lang="ar">هل يشرح DPrice سبب تغيّر الطلب؟</span><span data-lang="th">DPrice อธิบายได้หรือไม่ว่าทำไมดีมานด์เปลี่ยน?</span></summary>
         <p><span data-lang="en">DPrice detects the change in demand early and shows it in the data. The reasons — a competitor’s launch, a mortgage rate move, a marketing campaign — are for your team to interpret.</span><span data-lang="ru">DPrice рано замечает изменение спроса и показывает его в данных. Причины — запуск конкурента, изменение ставок, рекламная кампания — оценивает ваша команда.</span><span data-lang="ar">يرصد DPrice تغيّر الطلب مبكرًا ويُظهره في البيانات. أما الأسباب — إطلاق مشروع منافس، أو تغيّر فائدة الرهن العقاري، أو حملة تسويقية — فيقيّمها فريقك.</span><span data-lang="th">DPrice ตรวจพบการเปลี่ยนแปลงของดีมานด์ได้เร็วและแสดงในข้อมูล ส่วนสาเหตุ — การเปิดตัวของคู่แข่ง อัตราดอกเบี้ยสินเชื่อบ้านที่เปลี่ยน หรือแคมเปญการตลาด — ทีมของคุณเป็นผู้ประเมิน</span></p></details>
       <details><summary><span data-lang="en">How is DPrice priced?</span><span data-lang="ru">Сколько стоит DPrice?</span><span data-lang="ar">كم تبلغ تكلفة DPrice؟</span><span data-lang="th">DPrice มีค่าใช้จ่ายอย่างไร?</span></summary>
-        <p><span data-lang="en">Pricing depends on the size of the project. We offer a fixed fee per project or a fixed fee plus a share of sales made through DPrice — you choose the model. Contact us for a proposal.</span><span data-lang="ru">Стоимость зависит от размера проекта. Есть два варианта: фиксированная плата за проект или фиксированная часть плюс процент от продаж через DPrice — модель выбираете вы. Напишите нам, и мы подготовим предложение.</span><span data-lang="ar">تعتمد التكلفة على حجم المشروع. نقدّم رسومًا ثابتة لكل مشروع، أو رسومًا ثابتة مع نسبة من المبيعات المحققة عبر DPrice — والخيار لك. تواصل معنا لنعدّ لك عرضًا.</span><span data-lang="th">ค่าใช้จ่ายขึ้นอยู่กับขนาดโครงการ มีทั้งค่าบริการคงที่ต่อโครงการ หรือค่าบริการคงที่บวกส่วนแบ่งจากยอดขายผ่าน DPrice — คุณเลือกได้ ติดต่อเราเพื่อรับข้อเสนอ</span></p></details>
+        <p><span data-lang="en">We sign a one-year contract, and the first three months are free. If DPrice does not suit you, you can leave the contract quickly and at low cost. The fee depends on the size of the project — contact us for a proposal.</span><span data-lang="ru">Договор заключается на год, первые три месяца — бесплатно. Если DPrice вам не подойдёт, из договора можно выйти быстро и недорого. Стоимость зависит от размера проекта — напишите нам, и мы подготовим предложение.</span><span data-lang="ar">نوقّع عقدًا لمدة عام، وأول ثلاثة أشهر مجانية. وإذا لم يناسبك DPrice يمكنك إنهاء العقد بسرعة وبتكلفة منخفضة. تعتمد الرسوم على حجم المشروع — تواصل معنا لنعدّ لك عرضًا.</span><span data-lang="th">เราทำสัญญา 1 ปี โดย 3 เดือนแรกไม่มีค่าใช้จ่าย หาก DPrice ไม่เหมาะกับคุณ สามารถยกเลิกสัญญาได้รวดเร็วและค่าใช้จ่ายต่ำ ค่าบริการขึ้นอยู่กับขนาดโครงการ — ติดต่อเราเพื่อรับข้อเสนอ</span></p></details>
       <details><summary><span data-lang="en">Is our data safe?</span><span data-lang="ru">Насколько защищены наши данные?</span><span data-lang="ar">هل بياناتنا آمنة؟</span><span data-lang="th">ข้อมูลของเราปลอดภัยหรือไม่?</span></summary>
         <p><span data-lang="en">Your data is used only to build recommendations for your project and is not shared with third parties. Data handling terms are fixed in the contract.</span><span data-lang="ru">Данные используются только для расчёта рекомендаций по вашему проекту и не передаются третьим лицам. Условия обработки данных фиксируются в договоре.</span><span data-lang="ar">تُستخدم بياناتك فقط لإعداد التوصيات لمشروعك ولا تُشارك مع أطراف ثالثة. وتُحدَّد شروط معالجة البيانات في العقد.</span><span data-lang="th">ข้อมูลของคุณใช้เพื่อสร้างคำแนะนำสำหรับโครงการของคุณเท่านั้น และไม่เปิดเผยต่อบุคคลที่สาม เงื่อนไขการจัดการข้อมูลระบุไว้ในสัญญา</span></p></details>
     </div>
@@ -741,8 +774,8 @@
 <footer class="footer">
   <div class="wrap footer-inner">
     <div>
-      <!-- Компания по регионам: мир, ОАЭ и Таиланд — Scientetiq (как в презентации), Россия — Advantix -->
-      <p>© 2026 <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>. <span data-lang="en">DPrice is a product of <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ru">DPrice — продукт компании <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="ar">DPrice منتج من شركة <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span>.</span><span data-lang="th">DPrice เป็นผลิตภัณฑ์ของ <span data-region="global uae th">Scientetiq</span><span data-region="ru">Advantix</span></span></p>
+      <!-- Компания — Advantix во всех регионах (решение владельца 16.10.2026) -->
+      <p>© 2026 Advantix. <span data-lang="en">DPrice is a product of Advantix.</span><span data-lang="ru">DPrice — продукт компании Advantix.</span><span data-lang="ar">DPrice منتج من شركة Advantix.</span><span data-lang="th">DPrice เป็นผลิตภัณฑ์ของ Advantix</span></p>
       <p class="tagline">The Science of Pricing</p>
     </div>
     <div class="footer-links">
@@ -847,6 +880,8 @@
     sl.value = lang; sr.value = region;
     sl.setAttribute('aria-label', SW_LABELS[lang].lang); sr.setAttribute('aria-label', SW_LABELS[lang].region);
     [...sr.options].forEach(o => { o.textContent = REGION_NAMES[o.value][lang] + ' · ' + REGION_CUR[o.value]; });
+    document.querySelectorAll('img[data-shot]').forEach(i => { i.src = 'assets/screens/' + i.dataset.shot + '-' + (lang === 'ru' ? 'ru' : 'en') + '.jpg'; });
+    document.querySelectorAll('a[data-shot-link]').forEach(a => { a.href = 'assets/screens/' + a.dataset.shotLink + '-' + (lang === 'ru' ? 'ru' : 'en') + '.jpg'; });
     document.title = TITLES[lang];
     try { localStorage.setItem('dprice-lang', lang); localStorage.setItem('dprice-region', region); } catch(e) {}
   }
