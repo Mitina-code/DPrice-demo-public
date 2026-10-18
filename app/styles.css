@@ -3967,3 +3967,51 @@ ul.tight li {
 .offline-loading {
   padding: 32px;
 }
+
+.offline-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--rail);
+}
+
+.offline-login-card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 24px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.offline-login-card h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.offline-login-card label {
+  font-size: 13px;
+  color: #5b6770;
+}
+
+.offline-login-card .input {
+  padding: 11px 12px;
+  border: 1px solid #cfd8d3;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.offline-login-card .btn-primary {
+  margin-top: 6px;
+}
+
+.offline-login-back {
+  font-size: 13px;
+  color: #5b6770;
+  text-align: center;
+}

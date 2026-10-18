@@ -335,7 +335,7 @@
           
         </select>
       </div>
-      <a class="nav-link signin" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span><span data-lang="hi">साइन इन</span></a>
+      <a class="nav-link signin" href="../app/"><span data-lang="en">Sign in</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span><span data-lang="hi">साइन इन</span></a>
       <a class="btn btn-green btn-sm" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span><span data-lang="hi">डेमो का अनुरोध करें</span></a>
     </div>
   </div>
@@ -721,7 +721,7 @@
       <a href="#how"><span data-lang="en">How it works</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span><span data-lang="hi">यह कैसे काम करता है</span></a>
       
       
-      <a href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span><span data-lang="hi">साइन इन</span></a>
+      <a href="../app/"><span data-lang="en">Sign in</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span><span data-lang="hi">साइन इन</span></a>
       <a href="#contact"><span data-lang="en">Contact</span><span data-lang="ar">تواصل معنا</span><span data-lang="th">ติดต่อ</span><span data-lang="hi">संपर्क</span></a>
     </div>
   </div>
@@ -734,7 +734,7 @@
     <h2 id="demo-title"><span data-lang="en">Access the <span class="accent">DPrice</span> demo</span><span data-lang="ar">الوصول إلى النسخة التجريبية من <span class="accent">DPrice</span></span><span data-lang="th">เข้าใช้เดโม <span class="accent">DPrice</span></span><span data-lang="hi"><span class="accent">DPrice</span> डेमो तक पहुँचें</span></h2>
     <p class="modal-sub"><span data-lang="en">Create an account on the platform to explore a demo project, or ask us for a guided tour.</span><span data-lang="ar">أنشئ حسابًا على المنصة لاستكشاف مشروع تجريبي، أو اطلب منا عرضًا مصحوبًا بشرح.</span><span data-lang="th">สร้างบัญชีบนแพลตฟอร์มเพื่อสำรวจโครงการเดโม หรือขอให้เราพาชม</span><span data-lang="hi">डेमो प्रोजेक्ट देखने के लिए प्लेटफ़ॉर्म पर अकाउंट बनाएँ, या हमसे गाइडेड टूर का अनुरोध करें।</span></p>
     <div class="modal-actions">
-      <a class="btn btn-green btn-block" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Open the platform</span><span data-lang="ar">افتح المنصة</span><span data-lang="th">เปิดแพลตฟอร์ม</span><span data-lang="hi">प्लेटफ़ॉर्म खोलें</span>
+      <a class="btn btn-green btn-block" href="../app/"><span data-lang="en">Open the platform</span><span data-lang="ar">افتح المنصة</span><span data-lang="th">เปิดแพลตฟอร์ม</span><span data-lang="hi">प्लेटफ़ॉर्म खोलें</span>
         <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></a>
       <a class="btn btn-ghost btn-block" href="#contact" data-close-demo><span data-lang="en">Request a guided demo</span><span data-lang="ar">اطلب عرضًا مع شرح</span><span data-lang="th">ขอการสาธิตพร้อมคำอธิบาย</span><span data-lang="hi">गाइडेड डेमो का अनुरोध करें</span></a>
     </div>
@@ -908,6 +908,8 @@
       console.warn('DPrice registration e-mail was not sent:', error);
       try { localStorage.setItem('dprice-registration-error', now.toISOString() + ' ' + error); } catch (_) {}
     }
+
+    try { localStorage.setItem('dprice-demo:session', JSON.stringify({ login: 'registered:' + f.get('email'), at: now.toISOString() })); } catch (_) {}
     const appLang = lang === 'ru' ? 'ru' : 'en';
     location.href = '../app/?region=' + encodeURIComponent(region) + '&lang=' + appLang;
   });

@@ -234,14 +234,52 @@ function paginate(source = { items: [] }, options = {}) {
 export function onSessionExpired() {}
 export function supersedeInflightViews() {}
 
+// --- demo sign-in -----------------------------------------------------------
+// Only accounts issued in ./users.json open the demo (MVP gate: the list holds
+// SHA-256 fingerprints of «login:password», never the passwords). A visitor who
+// registers on the landing is let in without a password.
+let users = null;
+async function issuedUsers() {
+  if (!users) {
+    users = fetch(new URL('./users.json', import.meta.url))
+      .then((response) => (response.ok ? response.json() : { users: [] }))
+      .catch(() => ({ users: [] }));
+  }
+  return (await users).users || [];
+}
+async function fingerprint(loginName, password) {
+  const bytes = new TextEncoder().encode(`${loginName.trim().toLowerCase()}:${password}`);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function signedIn() {
+  const current = recall('session', null);
+  if (!current?.login) return false;
+  if (current.login.startsWith('registered:')) return true;
+  return (await issuedUsers()).some((user) => user.login === current.login);
+}
+
+export function landingUrl(lang) {
+  return `${CONFIG.landing}?lang=${lang === 'ru' ? 'ru' : 'en'}`;
+}
+
 export async function session() {
+  if (!(await signedIn())) throw new ApiError('x_session_expired', {}, 401);
   const data = await regionData();
   return clone(data.session);
 }
-export async function login() {
-  return session();
+export async function login(loginName, password) {
+  const name = String(loginName || '').trim().toLowerCase();
+  const hash = await fingerprint(name, String(password || ''));
+  if (!(await issuedUsers()).some((user) => user.login === name && user.hash === hash)) {
+    throw new ApiError('x_invalid_credentials', {}, 401);
+  }
+  remember('session', { login: name, at: new Date().toISOString() });
+  const data = await regionData();
+  return clone(data.session);
 }
 export async function logout() {
+  remember('session', null);
   window.location.href = CONFIG.landing;
   return {};
 }

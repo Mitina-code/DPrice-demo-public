@@ -3975,6 +3975,36 @@ function buildRegionPicker(state, handlers) {
   ]);
 }
 
+function buildOfflineLogin(state, handlers) {
+  const { lang } = state;
+  const email = el('input', {
+    id: 'offline-login-email', class: 'input', type: 'text', autocomplete: 'username',
+    placeholder: t('login_email_placeholder', lang), required: 'required',
+  });
+  const password = el('input', {
+    id: 'offline-login-password', class: 'input', type: 'password', autocomplete: 'current-password',
+    placeholder: t('login_password_placeholder', lang), required: 'required',
+  });
+  const form = el('form', { class: 'offline-login-card', novalidate: 'novalidate' }, [
+    el('h1', null, [t('login_title', lang)]),
+    el('label', { for: 'offline-login-email' }, [t('login_email', lang)]),
+    email,
+    el('label', { for: 'offline-login-password' }, [t('login_password', lang)]),
+    password,
+    el('div', { class: 'error-slot', role: 'alert', 'aria-live': 'polite' },
+      state.error ? [buildErrorNote(state.error, lang)] : []),
+    el('button', {
+      type: 'submit', class: 'btn-primary', disabled: state.sessionBusy ? 'disabled' : null,
+    }, [t('login_submit', lang)]),
+    api.landingUrl ? el('a', { class: 'offline-login-back', href: api.landingUrl(lang) }, ['← DPrice']) : null,
+  ]);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!state.sessionBusy) handlers.onSubmit(email.value.trim(), password.value);
+  });
+  return el('div', { class: 'offline-login' }, [form]);
+}
+
 function buildDemoToggle(state, handlers) {
   if (!OFFLINE || !api.demoEnabled) return null;
   const enabled = api.demoEnabled();
@@ -9696,7 +9726,7 @@ export function mountApp(root, options) {
       );
     } else {
 
-      if (OFFLINE) root.replaceChildren(el('p', { class: 'offline-loading', role: 'status' }, [t('x_loading', state.lang)]));
+      if (OFFLINE) root.replaceChildren(buildOfflineLogin(state, handlers));
       else if (root.firstElementChild !== landingEntry()) root.replaceChildren(landingEntry());
       document.title = 'DPrice';
     }
