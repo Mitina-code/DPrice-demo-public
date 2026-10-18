@@ -1,9 +1,7 @@
-# DPrice — лендинг — публичная витрина
+# DPrice — public edition
 
-Лендинг DPrice для застройщиков: управление выручкой, рекомендации цены по каждой квартире. Английский и русский.
+Landing page and serverless demo product of DPrice (dynamic pricing for new-build real estate).
+All demo projects, companies and figures are synthetic.
 
-Страница: https://mitina-code.github.io/DPrice-demo-public/
-
-Сюда автоматически копируется только то, что явно разрешено к публикации в
-закрытом репозитории продукта. Содержимое обновляется само, править файлы здесь
-руками не нужно — они будут перезаписаны при следующем обновлении.
+**This repository is overwritten automatically** from the private source repository on every change.
+Do not edit files here: changes would be lost on the next publication.

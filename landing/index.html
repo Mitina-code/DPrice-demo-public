@@ -5,36 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DPrice — revenue management for real estate developers</title>
 <meta name="description" content="DPrice by Advantix: unit-level pricing recommendations for real estate developers, built on your own sales data.">
-<!--
-  ЛЕНДИНГ DPrice. Четыре языка (английский, русский, арабский, тайский) и четыре региона
-  (мир, ОАЭ, Таиланд, Россия) в одном файле.
 
-  КАК ПРАВИТЬ ТЕКСТ
-    Каждая фраза записана дважды, рядом:
-      <span data-lang="en">English text</span><span data-lang="ru">Русский текст</span><span data-lang="ar">النص العربي</span><span data-lang="th">ข้อความภาษาไทย</span>
-    Меняйте текст внутри нужного span — другие языки не трогаются.
-    Арабский пишется справа налево — страница переворачивается сама.
-
-  КАК ПРАВИТЬ РЕГИОНЫ
-    Текст только для одного региона обёрнут в data-region="global" (мир) / "uae" / "th" / "ru"
-    (можно несколько через пробел: data-region="global uae th").
-    Ссылки на игру и калькулятор по регионам — в блоке «НАСТРОЙКИ» внизу (REGIONS).
-
-  КАК ПРАВИТЬ ССЫЛКИ
-    Ссылки, разные для языков, задаются атрибутами data-href-en / data-href-ru.
-    Общие ссылки — обычный href.
-
-  ПОЧТА ДЛЯ ЗАЯВОК — см. блок «НАСТРОЙКИ» в самом низу файла (CONTACT_EMAIL).
-
-  ЦВЕТА — блок :root в начале стилей.
-  Язык и регион можно открыть сразу по ссылке: ...?region=uae&lang=ar
-  (region: global, uae, th, ru; lang: en, ru, ar, th)
--->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ===== ЦВЕТА ===== */
+
   :root{
     color-scheme:dark;
     --bg:#0b0c10; --bg-2:#14161c; --bg-3:#1a1d24;
@@ -42,17 +18,20 @@
     --text:#fff; --text-2:hsla(0,0%,100%,.72); --text-3:hsla(0,0%,100%,.5);
     --line:hsla(0,0%,100%,.08); --line-2:hsla(0,0%,100%,.16);
   }
-  /* Показ нужного языка */
-  html:not([lang="en"]) [data-lang="en"], html:not([lang="ru"]) [data-lang="ru"], html:not([lang="ar"]) [data-lang="ar"], html:not([lang="th"]) [data-lang="th"]{display:none!important}
-  /* Показ нужного региона */
+
+  html:not([lang="en"]) [data-lang="en"], html:not([lang="ru"]) [data-lang="ru"], html:not([lang="ar"]) [data-lang="ar"], html:not([lang="th"]) [data-lang="th"], html:not([lang="hi"]) [data-lang="hi"]{display:none!important}
+
   html[data-region="uae"] [data-region]:not([data-region~="uae"]),
   html[data-region="ru"] [data-region]:not([data-region~="ru"]),
-  html[data-region="global"] [data-region]:not([data-region~="global"]),
-  html[data-region="th"] [data-region]:not([data-region~="th"]){display:none!important}
-  /* Арабский: свой шрифт, без разрядки (иначе рвутся связки букв) */
+  html[data-region="global sa in"] [data-region]:not([data-region~="global"]),
+  html[data-region="th"] [data-region]:not([data-region~="th"]),
+  html[data-region="sa"] [data-region]:not([data-region~="sa"]),
+  html[data-region="in"] [data-region]:not([data-region~="in"]){display:none!important}
+
   html[lang="ar"] *{font-family:"Noto Sans Arabic",Inter,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important}
-  /* Тайский: свой шрифт */
+
   html[lang="th"] *{font-family:"Noto Sans Thai",Inter,-apple-system,"Segoe UI",sans-serif!important}
+  html[lang="hi"] *{font-family:"Noto Sans Devanagari",Inter,-apple-system,"Segoe UI",sans-serif!important}
   html[dir="rtl"] .btn svg, html[dir="rtl"] .cta-link svg{transform:scaleX(-1)}
 
   *{box-sizing:border-box}
@@ -77,7 +56,6 @@
   .grid4>*,.grid3>*,.how-grid>*,.contact-box>*,.trust-grid>*{min-width:0}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
-  /* ===== КНОПКИ ===== */
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;font:600 15px/1 Inter,sans-serif;border-radius:999px;border:none;cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .18s,box-shadow .18s,background .18s,border-color .18s}
   .btn-green{background:var(--green);color:var(--bg)}
   .btn-green:hover{background:var(--green-light);transform:translateY(-1px);box-shadow:0 12px 28px rgba(63,221,132,.35)}
@@ -85,7 +63,6 @@
   .btn-ghost:hover{border-color:rgba(63,221,132,.5);transform:translateY(-1px)}
   .btn-sm{padding:10px 18px;font-size:14px}
 
-  /* ===== ШАПКА ===== */
   .header{position:sticky;top:env(safe-area-inset-top,0px);z-index:100;background:rgba(11,12,16,.85);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);border-bottom:1px solid var(--line)}
   .header-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:14px}
   .logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none}
@@ -104,7 +81,6 @@
   @media(max-width:1024px){.nav{display:none}}
   @media(max-width:520px){.header-right .signin{display:none}.btn-sm{padding:9px 14px;font-size:13px}}
 
-  /* ===== ПЕРВЫЙ ЭКРАН ===== */
   .hero{padding:80px 0 96px;overflow:hidden;isolation:isolate}
   .hero-glow{position:absolute;z-index:0;pointer-events:none;top:20%;left:30%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(63,221,132,.2) 0,transparent 70%);filter:blur(100px)}
   .hero-grid{position:absolute;z-index:0;pointer-events:none;inset:0;background-image:linear-gradient(hsla(0,0%,100%,.03) 1px,transparent 0),linear-gradient(90deg,hsla(0,0%,100%,.03) 1px,transparent 0);background-size:64px 64px;
@@ -123,7 +99,6 @@
   @media(max-width:1024px){.hero{padding:48px 0 64px}.hero-inner{grid-template-columns:1fr;gap:40px}.hero-buildings{display:none}}
   @media(max-width:640px){.kpis{grid-template-columns:1fr;gap:8px}}
 
-  /* ===== КАРТОЧКА ВХОДА ===== */
   .hero-shot{display:block;position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line-2);box-shadow:0 30px 80px rgba(0,0,0,.45);background:#fff;transform:perspective(1400px) rotateY(-6deg);transition:transform .3s}
   .hero-shot:hover{transform:none}
   .hero-shot img{display:block;width:100%;height:auto}
@@ -159,7 +134,6 @@
   @media(max-width:1024px){.login{max-width:440px;width:100%}}
   @media(max-width:768px){.login{padding:28px 20px;border-radius:20px}}
 
-  /* ===== БОЛИ ===== */
   .pains{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
   .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
   .pain{padding:24px;border-radius:18px;border:1px solid var(--line);background:hsla(0,0%,100%,.02)}
@@ -169,7 +143,6 @@
   @media(max-width:1024px){.grid4{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:600px){.grid4{grid-template-columns:1fr}}
 
-  /* ===== КАК РАБОТАЕТ ===== */
   .how{background:var(--bg-2)}
   .how-grid{display:grid;grid-template-columns:1fr 460px;gap:56px;align-items:start}
   .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
@@ -177,7 +150,7 @@
   .step-n{width:44px;height:44px;border-radius:12px;background:rgba(63,221,132,.12);color:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:700}
   .step h3{font-size:16px;font-weight:600;margin:2px 0 6px}
   .step p{font-size:14px;color:var(--text-3);margin:0;line-height:1.55}
-  /* Иллюстрация рекомендации */
+
   .mock{position:sticky;top:96px;border-radius:20px;border:1px solid var(--line-2);background:var(--bg-3);padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.4)}
   .mock-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:13px;color:var(--text-3)}
   .mock-goal{font-size:12px;font-weight:600;color:var(--green-light);background:rgba(63,221,132,.1);border:1px solid rgba(63,221,132,.25);padding:5px 10px;border-radius:999px}
@@ -193,7 +166,6 @@
   .mock-actions span:first-child{background:var(--green);color:var(--bg);border-color:var(--green)}
   @media(max-width:1024px){.how-grid{grid-template-columns:1fr}.mock{position:static;max-width:520px}}
 
-  /* ===== ЦЕЛИ ===== */
   .goals{background:var(--bg)}
   .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
   .goal{padding:28px 24px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(63,221,132,.06),transparent 60%)}
@@ -203,7 +175,6 @@
   .goal .when{display:block;margin-top:14px;font-size:13px;color:var(--text-2)}
   @media(max-width:1024px){.grid3{grid-template-columns:1fr}}
 
-  /* ===== ВОЗМОЖНОСТИ ===== */
   .features{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
   .features .grid3{grid-template-columns:repeat(3,1fr)}
   .card{display:flex;flex-direction:column;gap:12px;padding:26px 24px;background:hsla(0,0%,100%,.03);border:1px solid var(--line);border-radius:20px;transition:border-color .25s,transform .25s}
@@ -213,13 +184,11 @@
   @media(max-width:1024px){.features .grid3{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:640px){.features .grid3{grid-template-columns:1fr}}
 
-  /* ===== ДЛЯ КОГО ===== */
   .roles{background:var(--bg-2)}
   .role{padding:22px;border-radius:16px;border:1px solid var(--line);background:hsla(0,0%,100%,.02)}
   .role h3{font-size:15px;font-weight:700;margin:0 0 8px;color:var(--green-light)}
   .role p{font-size:14px;color:var(--text-2);margin:0;line-height:1.55}
 
-  /* ===== ПОПРОБУЙТЕ САМИ ===== */
   .tools{background:var(--bg-2);padding-top:0}
   .cta-card{position:relative;display:flex;flex-direction:column;gap:16px;padding:32px 28px;border-radius:24px;border:1px solid var(--line);text-decoration:none;color:inherit;transition:border-color .25s,transform .25s;cursor:pointer;text-align:left;font:inherit}
   .cta-card:hover{border-color:rgba(63,221,132,.35);transform:translateY(-3px)}
@@ -237,7 +206,6 @@
   .cta-card:hover .cta-link{gap:10px}
   .green .cta-link{color:var(--green-light)} .blue .cta-link{color:var(--blue)} .gold .cta-link{color:var(--gold)}
 
-  /* ===== КАК НАЧАТЬ ===== */
   .start{background:var(--bg)}
   .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
   .tl{padding:24px;border-radius:18px;border:1px solid var(--line);background:hsla(0,0%,100%,.02);position:relative}
@@ -247,7 +215,6 @@
   @media(max-width:1024px){.timeline{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:600px){.timeline{grid-template-columns:1fr}}
 
-  /* ===== ВОПРОСЫ ===== */
   .faq{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
   .faq-list{max-width:880px;display:flex;flex-direction:column;gap:10px}
   details{border:1px solid var(--line);border-radius:14px;background:hsla(0,0%,100%,.02);padding:0 20px}
@@ -258,7 +225,6 @@
   details[open] summary::after{content:"−"}
   details p{margin:0 0 18px;color:var(--text-2);font-size:15px;line-height:1.6}
 
-  /* ===== ЗАЯВКА ===== */
   .contact{background:var(--bg-2)}
   .contact-box{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:48px;border-radius:28px;border:1px solid var(--line-2);background:radial-gradient(ellipse at 0% 0%,rgba(63,221,132,.14),transparent 55%),var(--bg-3)}
   .contact-box .section-sub{margin-bottom:24px}
@@ -269,7 +235,6 @@
   .form-note{font-size:12px;color:var(--text-3);margin:4px 0 0;line-height:1.5}
   @media(max-width:900px){.contact-box{grid-template-columns:1fr;padding:28px 20px;gap:28px}.form-row{grid-template-columns:1fr}}
 
-  /* ===== ПОДВАЛ ===== */
   .footer{padding:36px 0;border-top:1px solid var(--line);background:var(--bg)}
   .footer-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}
   .footer p{font-size:13px;color:var(--text-3);margin:0 0 4px}
@@ -277,7 +242,6 @@
   .footer-links a{font-size:13px;color:var(--text-3);text-decoration:none}
   .footer-links a:hover{color:var(--green-light)}
 
-  /* ===== ОКНО «ДЕМО» ===== */
   .modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
   .modal.open{display:flex}
   .modal-panel{position:relative;width:100%;max-width:480px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:24px;padding:40px 32px}
@@ -287,25 +251,21 @@
   .modal-sub{font-size:14px;color:var(--text-3);margin:0 0 22px}
   .modal-actions{display:flex;flex-direction:column;gap:10px}
 
-  /* ===== ВЫБОР РЕГИОНА ===== */
   .region{display:inline-flex;gap:2px}
   .region button{font:600 12px/1 Inter,sans-serif;color:var(--text-3);background:none;border:1px solid transparent;border-radius:999px;padding:7px 12px;cursor:pointer}
   .region button:hover{color:#fff}
   .region button[aria-pressed="true"]{color:var(--green-light);border-color:rgba(63,221,132,.35);background:rgba(63,221,132,.08)}
 
-  /* ===== ПЛАШКИ НА ПЕРВОМ ЭКРАНЕ ===== */
   .chips{display:flex;gap:10px;flex-wrap:wrap}
   .chip{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px}
   .chip.up{background:rgba(63,221,132,.14);color:var(--green-light);border:1px solid rgba(63,221,132,.3)}
   .chip.down{background:hsla(0,0%,100%,.06);color:#fff;border:1px solid var(--line-2)}
 
-  /* ===== ЧТО УЧИТЫВАЕТ МОДЕЛЬ ===== */
   .inputs{margin-top:40px}
   .inputs h3{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin:0 0 14px}
   .inputs ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
   .inputs li{padding:9px 14px;border:1px solid var(--line-2);border-radius:999px;font-size:14px;color:var(--text-2)}
 
-  /* ===== О КОМПАНИИ ===== */
   .trust{background:var(--bg)}
   .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
   .trust-item{padding:26px 24px;border-radius:20px;border:1px solid var(--line);background:hsla(0,0%,100%,.02)}
@@ -314,7 +274,6 @@
   .trust-item p{font-size:14px;color:var(--text-3);margin:0;line-height:1.55}
   @media(max-width:900px){.trust-grid{grid-template-columns:1fr}}
 
-  /* ===== ФИНАЛЬНЫЙ ПРИЗЫВ ===== */
   .closing{background:var(--bg-2)}
   .closing-box{padding:56px 48px;border-radius:28px;border:1px solid var(--line-2);
     background:radial-gradient(circle at 88% 30%,rgba(63,221,132,.38),transparent 55%),linear-gradient(135deg,#1c3526,#111316)}
@@ -326,9 +285,6 @@
 
   .tagline{font-size:13px;color:var(--text-3);margin-top:4px}
 
-  /* ===== РАЗДЕЛИТЕЛИ МЕЖДУ РАЗДЕЛАМИ ===== */
-  /* Тонкая зелёная линия, гаснущая к краям, и мягкое свечение над ней.
-     Призыв после «Проблемы» продолжает её, поэтому у него разделителя нет. */
   .section::before{content:"";position:absolute;z-index:-1;top:0;left:50%;transform:translateX(-50%);
     width:min(1200px,calc(100% - 32px));height:1px;pointer-events:none;
     background:linear-gradient(90deg,transparent,rgba(63,221,132,.22) 25%,rgba(97,231,155,.55) 50%,rgba(63,221,132,.22) 75%,transparent)}
@@ -338,15 +294,9 @@
   .closing{padding-top:0}
   .closing::before,.closing::after{display:none}
 
-  /* ===== ФОН: контурные планировки вместо клетки ===== */
-  /* Рисунок — SVG в строке ниже, плитка 1000×800 (сетка 5×4): 5 планировок квартир
-     (студия, 1-, 2-комнатная, Г-образная, 3-комнатная с балконом) и 10 элементов чертежа
-     (дверь, окно, лестница, оси, размер, «север», разрез, лифт, сантехника, плита).
-     Собирается скриптом; линии зелёные (#3fdd84), прозрачность .09. */
   body{background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221000%22%20height%3D%22800%22%20viewBox%3D%220%200%201000%20800%22%20fill%3D%22none%22%20stroke%3D%22%233fdd84%22%20stroke-opacity%3D%22.09%22%20stroke-width%3D%221%22%3E%3Cg%20transform%3D%22translate(25%2045)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22150%22%20height%3D%22110%22%2F%3E%3Cpath%20d%3D%22M55%200V50H50M20%2050H0%22%2F%3E%3Cpath%20d%3D%22M20%2050v28%22%2F%3E%3Cpath%20d%3D%22M20%2078A28%2028%200%200%200%2048%2050%22%2F%3E%3Cellipse%20cx%3D%2214%22%20cy%3D%2216%22%20rx%3D%226%22%20ry%3D%228%22%2F%3E%3Crect%20x%3D%2290%22%20y%3D%2214%22%20width%3D%2245%22%20height%3D%2258%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M90%2026h45%22%2F%3E%3Cpath%20d%3D%22M60%20110v-16h52v16%22%2F%3E%3Crect%20x%3D%22146%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2234%22%2F%3E%3Crect%20x%3D%2270%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(88%20308)%22%3E%3Cpath%20d%3D%22M-35%200h20M15%200h20%22%2F%3E%3Cpath%20d%3D%22M-15%200v-30%22%2F%3E%3Cpath%20d%3D%22M-15%20-30A30%2030%200%200%201%2015%200%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(110%20690)%22%3E%3Cpath%20d%3D%22M-45%20-4h90M-45%204h90%22%2F%3E%3Cpath%20d%3D%22M-20%20-4v8M20%20-4v8M-20%200h40%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(205%20440)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22190%22%20height%3D%22120%22%2F%3E%3Cpath%20d%3D%22M100%200v45M100%2085v35%22%2F%3E%3Cpath%20d%3D%22M100%2045h40%22%2F%3E%3Cpath%20d%3D%22M140%2045A40%2040%200%200%201%20100%2085%22%2F%3E%3Crect%20x%3D%22130%22%20y%3D%2210%22%20width%3D%2250%22%20height%3D%2262%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M130%2022h50%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2280%22%20width%3D%2255%22%20height%3D%2228%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M10%2088h55%22%2F%3E%3Ccircle%20cx%3D%2255%22%20cy%3D%2235%22%20r%3D%2212%22%2F%3E%3Crect%20x%3D%2230%22%20y%3D%22-4%22%20width%3D%2245%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22135%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22186%22%20y%3D%2275%22%20width%3D%228%22%20height%3D%2232%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(294%20314)%22%3E%3Crect%20x%3D%22-30%22%20y%3D%22-40%22%20width%3D%2260%22%20height%3D%2280%22%2F%3E%3Cpath%20d%3D%22M-30%20-30h60M-30%20-20h60M-30%20-10h60M-30%200h60M-30%2010h60M-30%2020h60M-30%2030h60%22%2F%3E%3Cpath%20d%3D%22M0%2035V-35M-5%20-27l5-8%205%208%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(314%20704)%22%3E%3Ccircle%20cx%3D%22-35%22%20cy%3D%220%22%20r%3D%229%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%220%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M-26%200h52%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Cpath%20d%3D%22M-35%20-9v-14M35%20-9v-14%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(402.5%20235)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22195%22%20height%3D%22130%22%2F%3E%3Cpath%20d%3D%22M90%200v70M90%20100v30%22%2F%3E%3Cpath%20d%3D%22M90%2070h30%22%2F%3E%3Cpath%20d%3D%22M120%2070A30%2030%200%200%201%2090%20100%22%2F%3E%3Cpath%20d%3D%22M90%2060h40M155%2060h40%22%2F%3E%3Cpath%20d%3D%22M155%2060v-25%22%2F%3E%3Cpath%20d%3D%22M155%2035A25%2025%200%200%200%20130%2060%22%2F%3E%3Crect%20x%3D%22100%22%20y%3D%228%22%20width%3D%2235%22%20height%3D%2245%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M100%2018h35%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%2275%22%20width%3D%2238%22%20height%3D%2248%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M150%2085h38%22%2F%3E%3Cpath%20d%3D%22M6%206h55v14H20v40H6z%22%2F%3E%3Ccircle%20cx%3D%2245%22%20cy%3D%2295%22%20r%3D%2211%22%2F%3E%3Crect%20x%3D%2225%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22140%22%20y%3D%22-4%22%20width%3D%2240%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22191%22%20y%3D%2280%22%20width%3D%228%22%20height%3D%2235%22%2F%3E%3Crect%20x%3D%22-4%22%20y%3D%2270%22%20width%3D%228%22%20height%3D%2235%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(490%2092)%22%3E%3Cpath%20d%3D%22M-45%200h90M-45%20-10v20M45%20-10v20M-49%204l8-8M41%204l8-8%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(506%20512)%22%3E%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M0%20-24v48M-5%20-13l5-11%205%2011%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(605%20630)%22%3E%3Cpath%20d%3D%22M0%200H120V60H190V140H0Z%22%2F%3E%3Cpath%20d%3D%22M70%200v50M70%2080v60%22%2F%3E%3Cpath%20d%3D%22M70%2050h30%22%2F%3E%3Cpath%20d%3D%22M100%2050A30%2030%200%200%201%2070%2080%22%2F%3E%3Cpath%20d%3D%22M150%2060v30H190%22%2F%3E%3Crect%20x%3D%22155%22%20y%3D%2264%22%20width%3D%2230%22%20height%3D%2222%22%20rx%3D%225%22%2F%3E%3Crect%20x%3D%2280%22%20y%3D%2292%22%20width%3D%2245%22%20height%3D%2240%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M80%20102h45%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%2298%22%20width%3D%2248%22%20height%3D%2230%22%20rx%3D%223%22%2F%3E%3Crect%20x%3D%2220%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22186%22%20y%3D%22105%22%20width%3D%228%22%20height%3D%2225%22%2F%3E%3Crect%20x%3D%22-4%22%20y%3D%2225%22%20width%3D%228%22%20height%3D%2240%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(686%2096)%22%3E%3Cpath%20d%3D%22M-45%20-15v30M45%20-15v30%22%2F%3E%3Cpath%20d%3D%22M-45%200h90%22%20stroke-dasharray%3D%2210%204%202%204%22%2F%3E%3Cpath%20d%3D%22M-45%20-15h12l-12%209zM45%20-15h-12l12%209z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(708%20486)%22%3E%3Crect%20x%3D%22-22%22%20y%3D%22-22%22%20width%3D%2244%22%20height%3D%2244%22%2F%3E%3Cpath%20d%3D%22M-22%20-22l44%2044M22%20-22l-44%2044%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(800%20237.5)%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22200%22%20height%3D%22110%22%2F%3E%3Cpath%20d%3D%22M120%20110v15h70v-15%22%20stroke-dasharray%3D%224%204%22%2F%3E%3Cpath%20d%3D%22M65%200v40M65%2065v45%22%2F%3E%3Cpath%20d%3D%22M65%2040h25%22%2F%3E%3Cpath%20d%3D%22M90%2040A25%2025%200%200%201%2065%2065%22%2F%3E%3Cpath%20d%3D%22M135%200v55M135%2080v30%22%2F%3E%3Cpath%20d%3D%22M135%2055h-25%22%2F%3E%3Cpath%20d%3D%22M110%2055A25%2025%200%200%200%20135%2080%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2240%22%20height%3D%2250%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M10%2020h40%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%2215%22%20width%3D%2240%22%20height%3D%2250%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M150%2025h40%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2288%22%20r%3D%2210%22%2F%3E%3Crect%20x%3D%2215%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%2285%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22-4%22%20width%3D%2235%22%20height%3D%228%22%2F%3E%3Crect%20x%3D%22196%22%20y%3D%2260%22%20width%3D%228%22%20height%3D%2230%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(896%20110)%22%3E%3Crect%20x%3D%22-42%22%20y%3D%22-20%22%20width%3D%2240%22%20height%3D%2224%22%20rx%3D%223%22%2F%3E%3Crect%20x%3D%22-38%22%20y%3D%22-16%22%20width%3D%2232%22%20height%3D%2216%22%20rx%3D%227%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%22-20%22%20width%3D%2226%22%20height%3D%2216%22%20rx%3D%222%22%2F%3E%3Ccircle%20cx%3D%2221%22%20cy%3D%22-12%22%20r%3D%224%22%2F%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2216%22%20rx%3D%227%22%20ry%3D%229%22%2F%3E%3Crect%20x%3D%2213%22%20y%3D%2225%22%20width%3D%2216%22%20height%3D%226%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(912%20494)%22%3E%3Crect%20x%3D%22-25%22%20y%3D%22-20%22%20width%3D%2250%22%20height%3D%2240%22%2F%3E%3Ccircle%20cx%3D%22-12%22%20cy%3D%22-8%22%20r%3D%227%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%22-8%22%20r%3D%227%22%2F%3E%3Ccircle%20cx%3D%22-12%22%20cy%3D%229%22%20r%3D%225%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229%22%20r%3D%228%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");background-size:1000px 800px;background-position:center top}
   @media(max-width:768px){body{background-size:750px 600px}}
-  /* Разделы прозрачные, чтобы рисунок шёл через всю страницу;
-     чередование — едва заметной полосой с плавными краями вместо резкой смены фона */
+
   .pains,.how,.goals,.features,.roles,.trust,.tools,.start,.faq,.closing,.contact,.footer{background:transparent}
   .how,.features,.trust,.start,.contact{background:linear-gradient(180deg,rgba(20,22,28,0) 0,rgba(20,22,28,.42) 16%,rgba(20,22,28,.42) 84%,rgba(20,22,28,0) 100%)}
   .tools{padding-top:96px}
@@ -356,16 +306,16 @@
 </head>
 <body>
 
-<!-- ===================== ШАПКА ===================== -->
+
 <header class="header">
   <div class="wrap header-inner">
     <a class="logo" href="#top" aria-label="DPrice"><svg viewBox="0 0 149 51" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#EAEFF5" d="M61.9414 18.4136H69.4323L70.7857 26.5812V41.1224H63.3735V25.9517L61.9414 18.4293V18.4136ZM81.613 18.0988V24.4724C80.889 24.315 80.1809 24.1891 79.457 24.1104C78.7645 24.0318 78.135 23.9845 77.5528 23.9845C76.278 23.9845 75.1292 24.2521 74.0906 24.7871C73.0834 25.2907 72.265 26.1091 71.667 27.2107C71.0847 28.328 70.7857 29.7759 70.7857 31.5542L69.3064 29.7286C69.4953 28.1077 69.7943 26.5812 70.2192 25.1491C70.6441 23.717 71.2264 22.458 71.966 21.3722C72.7057 20.2548 73.6184 19.3735 74.72 18.744C75.8374 18.1146 77.1751 17.7841 78.7488 17.7841C79.2052 17.7841 79.6773 17.8155 80.1809 17.8628C80.6845 17.91 81.1566 17.9887 81.613 18.0988ZM83.7218 18.0988L87.3885 18.8542L91.0868 18.0988V41.1067H83.7218V18.0988ZM87.42 16.0215C86.1138 16.0215 85.0594 15.691 84.2411 15.0301C83.4227 14.3376 83.0136 13.4406 83.0136 12.3233C83.0136 11.1744 83.4227 10.2774 84.2411 9.61645C85.0594 8.95548 86.1295 8.625 87.42 8.625C88.7419 8.625 89.8121 8.95548 90.5989 9.61645C91.4015 10.2774 91.795 11.1902 91.795 12.3233C91.795 13.4406 91.4015 14.3376 90.5989 15.0301C89.7963 15.691 88.7419 16.0215 87.42 16.0215ZM120.862 31.7115C120.641 33.6787 119.902 35.4098 118.627 36.9206C117.384 38.4313 115.763 39.6116 113.764 40.4614C111.797 41.3112 109.578 41.7362 107.107 41.7362C104.369 41.7362 101.961 41.2326 99.8524 40.2254C97.7594 39.2182 96.1227 37.8018 94.9581 36.0078C93.7936 34.198 93.2113 32.1207 93.2113 29.7601C93.2113 27.3995 93.7936 25.3222 94.9581 23.5439C96.1227 21.7341 97.7594 20.3335 99.8524 19.3263C101.945 18.2877 104.369 17.7683 107.107 17.7683C109.578 17.7683 111.797 18.1932 113.764 19.0431C115.763 19.8929 117.368 21.0732 118.627 22.5839C119.902 24.0632 120.641 25.8258 120.862 27.8402H113.497C113.198 26.3766 112.474 25.2593 111.309 24.4881C110.16 23.6855 108.775 23.2921 107.123 23.2921C105.817 23.2921 104.684 23.5439 103.692 24.0475C102.732 24.5511 101.993 25.2907 101.458 26.2822C100.923 27.2422 100.655 28.391 100.655 29.7444C100.655 31.0978 100.923 32.2466 101.458 33.2066C101.993 34.1665 102.732 34.8905 103.692 35.394C104.668 35.8976 105.817 36.1494 107.123 36.1494C108.791 36.1494 110.208 35.756 111.341 34.9534C112.489 34.1351 113.198 33.0492 113.497 31.6958H120.862V31.7115ZM136.741 41.7519C134.034 41.7519 131.61 41.2483 129.454 40.2411C127.33 39.2339 125.662 37.8176 124.434 36.0235C123.206 34.2138 122.608 32.105 122.608 29.6972C122.608 27.3366 123.191 25.2593 124.355 23.481C125.52 21.7026 127.125 20.302 129.171 19.2948C131.248 18.2877 133.577 17.7841 136.174 17.7841C138.834 17.7841 141.115 18.3664 143.02 19.5309C144.924 20.6955 146.403 22.3479 147.442 24.4724C148.481 26.5969 149 29.0991 149 31.9633H128.526V27.3051H144.924L142.249 28.9732C142.17 27.73 141.871 26.6756 141.336 25.8258C140.832 24.9445 140.156 24.2836 139.306 23.8272C138.456 23.3551 137.449 23.1033 136.284 23.1033C135.009 23.1033 133.908 23.3551 132.979 23.8586C132.051 24.3622 131.327 25.0704 130.792 25.9674C130.288 26.8645 130.036 27.9189 130.036 29.1149C130.036 30.6257 130.367 31.9161 131.028 32.9705C131.72 34.0249 132.696 34.8432 133.971 35.394C135.277 35.9448 136.851 36.2281 138.708 36.2281C140.407 36.2281 142.107 36.0078 143.807 35.5514C144.373 35.394 144.908 35.2209 145.443 35.0163C149.346 33.5371 148.386 32.7187 148.386 38.3841C146.844 39.4385 145.081 40.2726 143.083 40.8549C141.115 41.4371 138.991 41.7362 136.709 41.7362L136.741 41.7519Z"/><path fill="#8A8790" d="M28.7661 50.1909H25.178H21.5742L26.8462 36.8143L32.1182 23.4219L37.7206 27.4821L28.7661 50.1909Z"/><path fill="#EAEFF5" d="M45.4939 41.8942C42.5983 41.8942 40.0803 41.3276 37.9558 40.2103C35.8313 39.0929 34.1946 37.5349 33.03 35.5521C31.8655 33.5377 31.2832 31.1928 31.2832 28.5018C31.2832 25.8264 31.8655 23.4816 33.03 21.483C34.1946 19.4686 35.847 17.9106 37.9558 16.7933C40.0803 15.6759 42.5983 15.1094 45.4939 15.1094C48.3738 15.1094 50.8761 15.6759 53.0006 16.7933C55.1251 17.9106 56.7618 19.4843 57.9421 21.483C59.1066 23.4658 59.6889 25.8107 59.6889 28.5018C59.6889 31.1771 59.1066 33.5219 57.9421 35.5206C56.7775 37.5349 55.1251 39.0929 53.0006 40.2103C50.8761 41.3276 48.3738 41.8942 45.4939 41.8942ZM45.4939 36.6222C47.9332 36.6222 49.8374 35.914 51.1751 34.4977C52.5442 33.0813 53.2367 31.0827 53.2367 28.5018C53.2367 25.9209 52.5442 23.9222 51.1751 22.5059C49.8217 21.0895 47.9332 20.3814 45.4939 20.3814C43.0547 20.3814 41.1505 21.0895 39.7656 22.5059C38.3964 23.9222 37.704 25.9209 37.704 28.5018C37.704 31.0827 38.3964 33.0813 39.7656 34.4977C41.1347 35.914 43.0389 36.6222 45.4939 36.6222Z"/><path fill="#61E79B" d="M30.9232 0H34.5113H38.1152L32.8432 13.3767L27.5712 26.769L21.9688 22.7088L30.9232 0Z"/><path fill="#3FDD84" d="M14.195 8.28906C17.0906 8.28906 19.6086 8.8556 21.7331 9.97295C23.8577 11.0903 25.4943 12.6483 26.6589 14.6312C27.8234 16.6455 28.4057 18.9904 28.4057 21.6815C28.4057 24.3568 27.8234 26.7016 26.6589 28.7003C25.4943 30.7146 23.8419 32.2726 21.7331 33.39C19.6086 34.5073 17.0906 35.0738 14.195 35.0738C11.3151 35.0738 8.81285 34.5073 6.68833 33.39C4.5638 32.2726 2.92713 30.6989 1.74683 28.7003C0.582278 26.7174 0 24.3725 0 21.6815C0 19.0061 0.582278 16.6613 1.74683 14.6626C2.91139 12.6483 4.5638 11.0903 6.68833 9.97295C8.81285 8.8556 11.3151 8.28906 14.195 8.28906ZM14.195 13.561C11.7557 13.561 9.85151 14.2692 8.51385 15.6856C7.14471 17.1019 6.45227 19.1005 6.45227 21.6815C6.45227 24.2624 7.14471 26.261 8.51385 27.6773C9.86725 29.0937 11.7557 29.8019 14.195 29.8019C16.6343 29.8019 18.5385 29.0937 19.9233 27.6773C21.2925 26.261 21.9849 24.2624 21.9849 21.6815C21.9849 19.1005 21.2925 17.1019 19.9233 15.6856C18.5542 14.2692 16.65 13.561 14.195 13.561Z"/></svg></a>
     <nav class="nav" aria-label="Menu">
-      <a class="nav-link" href="#how"><span data-lang="en">How it works</span><span data-lang="ru">Как работает</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span></a>
-      <a class="nav-link" href="#goals"><span data-lang="en">Goals</span><span data-lang="ru">Цели</span><span data-lang="ar">الأهداف</span><span data-lang="th">เป้าหมาย</span></a>
-      <a class="nav-link" href="#features"><span data-lang="en">Features</span><span data-lang="ru">Возможности</span><span data-lang="ar">المزايا</span><span data-lang="th">ความสามารถ</span></a>
-      <a class="nav-link" href="#tools"><span data-lang="en">Try it</span><span data-lang="ru">Попробовать</span><span data-lang="ar">جرّبه</span><span data-lang="th">ทดลองใช้</span></a>
-      <a class="nav-link" href="#faq"><span data-lang="en">FAQ</span><span data-lang="ru">Вопросы</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span></a>
+      <a class="nav-link" href="#how"><span data-lang="en">How it works</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span><span data-lang="hi">यह कैसे काम करता है</span></a>
+      <a class="nav-link" href="#goals"><span data-lang="en">Goals</span><span data-lang="ar">الأهداف</span><span data-lang="th">เป้าหมาย</span><span data-lang="hi">लक्ष्य</span></a>
+      <a class="nav-link" href="#features"><span data-lang="en">Features</span><span data-lang="ar">المزايا</span><span data-lang="th">ความสามารถ</span><span data-lang="hi">विशेषताएँ</span></a>
+      <a class="nav-link" href="#tools"><span data-lang="en">Try it</span><span data-lang="ar">جرّبه</span><span data-lang="th">ทดลองใช้</span><span data-lang="hi">आज़माएँ</span></a>
+      <a class="nav-link" href="#faq"><span data-lang="en">FAQ</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span><span data-lang="hi">FAQ</span></a>
     </nav>
     <div class="header-right">
       <div class="switch">
@@ -373,492 +323,481 @@
           <option value="en">EN</option>
           <option value="ar" lang="ar">عربي</option>
           <option value="th" lang="th">ไทย</option>
-          <option value="ru">RU</option>
+          <option value="hi" lang="hi">हिन्दी</option>
+          
         </select>
         <select class="sw-region" data-switch="region" aria-label="Region">
           <option value="global">World · USD</option>
           <option value="uae">UAE · AED</option>
+          <option value="sa">Saudi Arabia · SAR</option>
           <option value="th">Thailand · THB</option>
-          <option value="ru">Russia · RUB</option>
+          <option value="in">India · INR</option>
+          
         </select>
       </div>
-      <a class="nav-link signin" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ru">Войти</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span></a>
-      <a class="btn btn-green btn-sm" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span></a>
+      <a class="nav-link signin" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span><span data-lang="hi">साइन इन</span></a>
+      <a class="btn btn-green btn-sm" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span><span data-lang="hi">डेमो का अनुरोध करें</span></a>
     </div>
   </div>
 </header>
 
 <main id="top">
 
-<!-- ===================== ПЕРВЫЙ ЭКРАН ===================== -->
+
 <section class="hero">
   <div class="hero-glow" aria-hidden="true"></div>
   <img class="hero-buildings" src="assets/buildings.png" alt="" aria-hidden="true">
   <div class="wrap hero-inner">
     <div class="hero-content">
       <span class="tag">
-        <span data-region="uae"><span data-lang="en">Dynamic pricing for UAE off-plan projects</span><span data-lang="ru">Динамическое ценообразование для off-plan проектов в ОАЭ</span><span data-lang="ar">التسعير الديناميكي لمشاريع البيع على الخارطة في الإمارات</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับโครงการขายก่อนสร้างในยูเออี</span></span>
-        <span data-region="th"><span data-lang="en">Dynamic pricing for developers in Thailand</span><span data-lang="ru">Динамическое ценообразование для застройщиков Таиланда</span><span data-lang="ar">التسعير الديناميكي للمطورين في تايلاند</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับผู้พัฒนาอสังหาฯ ในประเทศไทย</span></span>
-        <span data-region="ru"><span data-lang="en">Dynamic pricing for developers</span><span data-lang="ru">Динамическое ценообразование для застройщиков</span><span data-lang="ar">التسعير الديناميكي للمطورين العقاريين</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับผู้พัฒนาอสังหาฯ</span></span>
-        <span data-region="global"><span data-lang="en">The Science of Pricing</span><span data-lang="ru">Наука ценообразования</span><span data-lang="ar">علم التسعير</span><span data-lang="th">ศาสตร์แห่งการกำหนดราคา</span></span>
+        <span data-region="uae"><span data-lang="en">Dynamic pricing for UAE off-plan projects</span><span data-lang="ar">التسعير الديناميكي لمشاريع البيع على الخارطة في الإمارات</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับโครงการขายก่อนสร้างในยูเออี</span><span data-lang="hi">UAE के off-plan प्रोजेक्ट्स के लिए डायनेमिक प्राइसिंग</span></span>
+        <span data-region="th"><span data-lang="en">Dynamic pricing for developers in Thailand</span><span data-lang="ar">التسعير الديناميكي للمطورين في تايلاند</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับผู้พัฒนาอสังหาฯ ในประเทศไทย</span><span data-lang="hi">थाईलैंड के डेवलपर्स के लिए डायनेमिक प्राइसिंग</span></span>
+        
+        <span data-region="sa"><span data-lang="en">Dynamic pricing for Saudi off-plan (Wafi) projects</span><span data-lang="ar">التسعير الديناميكي لمشاريع البيع على الخارطة في السعودية</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับโครงการพรีเซลในซาอุดีอาระเบีย</span><span data-lang="hi">सऊदी अरब की ऑफ-प्लान (Wafi) परियोजनाओं के लिए डायनेमिक प्राइसिंग</span></span>
+        <span data-region="in"><span data-lang="en">Dynamic pricing for developers in India</span><span data-lang="ar">التسعير الديناميكي للمطورين في الهند</span><span data-lang="th">การกำหนดราคาแบบไดนามิกสำหรับผู้พัฒนาโครงการในอินเดีย</span><span data-lang="hi">भारत के डेवलपर्स के लिए डायनेमिक प्राइसिंग</span></span>
+        <span data-region="global"><span data-lang="en">The Science of Pricing</span><span data-lang="ar">علم التسعير</span><span data-lang="th">ศาสตร์แห่งการกำหนดราคา</span><span data-lang="hi">प्राइसिंग का विज्ञान</span></span>
       </span>
-      <!-- Заголовок и подзаголовок — из согласованной презентации (DP_UAE.pdf) -->
-      <h1><span data-lang="en">Optimal dynamic pricing for <span class="accent">new-build real estate</span></span><span data-lang="ru">Оптимальное динамическое ценообразование <span class="accent">для новостроек</span></span><span data-lang="ar">التسعير الديناميكي الأمثل <span class="accent">للعقارات الجديدة</span></span><span data-lang="th">การกำหนดราคาแบบไดนามิกที่เหมาะสมที่สุด <span class="accent">สำหรับอสังหาฯ โครงการใหม่</span></span></h1>
+      
+      <h1><span data-lang="en">Optimal dynamic pricing for <span class="accent">new-build real estate</span></span><span data-lang="ar">التسعير الديناميكي الأمثل <span class="accent">للعقارات الجديدة</span></span><span data-lang="th">การกำหนดราคาแบบไดนามิกที่เหมาะสมที่สุด <span class="accent">สำหรับอสังหาฯ โครงการใหม่</span></span><span data-lang="hi"><span class="accent">नए निर्माणाधीन रियल एस्टेट</span> के लिए इष्टतम डायनेमिक प्राइसिंग</span></h1>
       <div class="chips">
-        <span class="chip up">▲ <span data-lang="en">Revenue and profit</span><span data-lang="ru">Выручка и прибыль</span><span data-lang="ar">الإيرادات والأرباح</span><span data-lang="th">รายได้และกำไร</span></span>
-        <span class="chip down">▼ <span data-lang="en">Project financing costs</span><span data-lang="ru">Стоимость проектного финансирования</span><span data-lang="ar">تكاليف تمويل المشروع</span><span data-lang="th">ต้นทุนเงินทุนโครงการ</span></span>
+        <span class="chip up">▲ <span data-lang="en">Revenue and profit</span><span data-lang="ar">الإيرادات والأرباح</span><span data-lang="th">รายได้และกำไร</span><span data-lang="hi">राजस्व और मुनाफ़ा</span></span>
+        <span class="chip down">▼ <span data-lang="en">Project financing costs</span><span data-lang="ar">تكاليف تمويل المشروع</span><span data-lang="th">ต้นทุนเงินทุนโครงการ</span><span data-lang="hi">प्रोजेक्ट फ़ाइनेंसिंग की लागत</span></span>
       </div>
-      <p class="hero-sub"><span data-lang="en">DPrice is a web service for a developer’s sales team. It regularly recommends a price for every unit, so the whole building sells out by handover with maximum revenue — taking payment plans and the cost of construction finance into account.</span><span data-lang="ru">DPrice — веб-сервис для отдела продаж застройщика. Он регулярно рекомендует цену каждой квартиры, чтобы весь дом был продан к сдаче с максимальной выручкой — с учётом рассрочек и стоимости проектного финансирования.</span><span data-lang="ar">DPrice خدمة ويب لفريق مبيعات المطوّر. توصي بانتظام بسعر لكل وحدة كي يُباع المبنى بالكامل بحلول التسليم بأعلى إيرادات — مع مراعاة خطط الدفع وتكلفة تمويل المشروع.</span><span data-lang="th">DPrice คือบริการเว็บสำหรับทีมขายของผู้พัฒนาโครงการ แนะนำราคาของทุกยูนิตอย่างสม่ำเสมอ เพื่อให้ขายหมดทั้งอาคารภายในวันส่งมอบด้วยรายได้สูงสุด โดยคำนึงถึงแผนผ่อนชำระและต้นทุนเงินทุนโครงการ</span></p>
+      <p class="hero-sub"><span data-lang="en">DPrice is a web service for a developer’s sales team. It regularly recommends a price for every unit, so the whole building sells out by handover with maximum revenue — taking payment plans and the cost of construction finance into account.</span><span data-lang="ar">DPrice خدمة ويب لفريق مبيعات المطوّر. توصي بانتظام بسعر لكل وحدة كي يُباع المبنى بالكامل بحلول التسليم بأعلى إيرادات — مع مراعاة خطط الدفع وتكلفة تمويل المشروع.</span><span data-lang="th">DPrice คือบริการเว็บสำหรับทีมขายของผู้พัฒนาโครงการ แนะนำราคาของทุกยูนิตอย่างสม่ำเสมอ เพื่อให้ขายหมดทั้งอาคารภายในวันส่งมอบด้วยรายได้สูงสุด โดยคำนึงถึงแผนผ่อนชำระและต้นทุนเงินทุนโครงการ</span><span data-lang="hi">DPrice डेवलपर की सेल्स टीम के लिए एक वेब सर्विस है। यह हर यूनिट के लिए नियमित रूप से कीमत की सिफ़ारिश करता है, ताकि पूरी बिल्डिंग हैंडओवर तक अधिकतम राजस्व के साथ बिक जाए — पेमेंट प्लान और कंस्ट्रक्शन फ़ाइनेंस की लागत को ध्यान में रखते हुए।</span></p>
       <div class="hero-ctas">
-        <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span>
+        <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span><span data-lang="hi">डेमो का अनुरोध करें</span>
           <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></a>
-        <a class="btn btn-ghost" href="#product"><span data-lang="en">See the product</span><span data-lang="ru">Посмотреть продукт</span><span data-lang="ar">شاهد المنتج</span><span data-lang="th">ดูตัวผลิตภัณฑ์</span></a>
+        <a class="btn btn-ghost" href="#product"><span data-lang="en">See the product</span><span data-lang="ar">شاهد المنتج</span><span data-lang="th">ดูตัวผลิตภัณฑ์</span><span data-lang="hi">प्रोडक्ट देखें</span></a>
       </div>
       <div class="kpis">
-        <div class="kpi"><span class="kpi-value"><span data-lang="en">From the first sales</span><span data-lang="ru">С первых продаж</span><span data-lang="ar">من أولى المبيعات</span><span data-lang="th">ตั้งแต่ยอดขายแรก</span></span><span class="kpi-label"><span data-lang="en">works even when a unit type has only a few deals</span><span data-lang="ru">считает, даже когда сделок по типу квартир ещё мало</span><span data-lang="ar">يعمل حتى عندما تكون صفقات نوع الوحدة قليلة</span><span data-lang="th">คำนวณได้แม้ยอดขายของยูนิตแต่ละประเภทยังมีน้อย</span></span></div>
-        <div class="kpi"><span class="kpi-value"><span data-lang="en">Every unit</span><span data-lang="ru">Каждая квартира</span><span data-lang="ar">كل وحدة</span><span data-lang="th">ทุกยูนิต</span></span><span class="kpi-label"><span data-lang="en">a price recommendation per apartment, not per building</span><span data-lang="ru">рекомендация по каждому лоту, а не по корпусу</span><span data-lang="ar">توصية سعرية لكل شقة، لا لكل مبنى</span><span data-lang="th">คำแนะนำราคารายห้อง ไม่ใช่รายอาคาร</span></span></div>
-        <div class="kpi"><span class="kpi-value"><span data-lang="en">3 months free</span><span data-lang="ru">3 месяца бесплатно</span><span data-lang="ar">3 أشهر مجانًا</span><span data-lang="th">ฟรี 3 เดือน</span></span><span class="kpi-label"><span data-lang="en">a one-year contract with a quick, low-cost exit</span><span data-lang="ru">договор на год с быстрым и недорогим выходом</span><span data-lang="ar">عقد لمدة عام مع خروج سريع ومنخفض التكلفة</span><span data-lang="th">สัญญา 1 ปี ยกเลิกได้รวดเร็วและค่าใช้จ่ายต่ำ</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">From the first sales</span><span data-lang="ar">من أولى المبيعات</span><span data-lang="th">ตั้งแต่ยอดขายแรก</span><span data-lang="hi">पहली बिक्री से ही</span></span><span class="kpi-label"><span data-lang="en">works even when a unit type has only a few deals</span><span data-lang="ar">يعمل حتى عندما تكون صفقات نوع الوحدة قليلة</span><span data-lang="th">คำนวณได้แม้ยอดขายของยูนิตแต่ละประเภทยังมีน้อย</span><span data-lang="hi">तब भी काम करता है जब किसी यूनिट टाइप में केवल कुछ ही सौदे हों</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">Every unit</span><span data-lang="ar">كل وحدة</span><span data-lang="th">ทุกยูนิต</span><span data-lang="hi">हर यूनिट</span></span><span class="kpi-label"><span data-lang="en">a price recommendation per apartment, not per building</span><span data-lang="ar">توصية سعرية لكل شقة، لا لكل مبنى</span><span data-lang="th">คำแนะนำราคารายห้อง ไม่ใช่รายอาคาร</span><span data-lang="hi">हर अपार्टमेंट के लिए कीमत की सिफ़ारिश, पूरी बिल्डिंग के लिए नहीं</span></span></div>
+        <div class="kpi"><span class="kpi-value"><span data-lang="en">3 months free</span><span data-lang="ar">3 أشهر مجانًا</span><span data-lang="th">ฟรี 3 เดือน</span><span data-lang="hi">3 महीने मुफ़्त</span></span><span class="kpi-label"><span data-lang="en">a one-year contract with a quick, low-cost exit</span><span data-lang="ar">عقد لمدة عام مع خروج سريع ومنخفض التكلفة</span><span data-lang="th">สัญญา 1 ปี ยกเลิกได้รวดเร็วและค่าใช้จ่ายต่ำ</span><span data-lang="hi">एक साल का कॉन्ट्रैक्ट, जिससे जल्दी और कम लागत में बाहर निकला जा सकता है</span></span></div>
       </div>
     </div>
 
-    <!-- ===== ЭКРАН ПРОДУКТА (демо-проект, синтетические данные). Вход для клиентов — «Sign in» в шапке. ===== -->
+    
     <a class="hero-shot" href="#product">
       <img data-shot="today" src="assets/screens/today-en.jpg" alt="DPrice: what to do today" width="1172" height="760">
-      <span class="shot-note"><span data-lang="en">Demo project in Dubai · synthetic data</span><span data-lang="ru">Демо-проект в Дубае · данные синтетические</span><span data-lang="ar">مشروع تجريبي في دبي · بيانات اصطناعية</span><span data-lang="th">โครงการสาธิตในดูไบ · ข้อมูลจำลอง</span></span>
+      <span class="shot-note"><span data-lang="en">Demo project in Dubai · synthetic data</span><span data-lang="ar">مشروع تجريبي في دبي · بيانات اصطناعية</span><span data-lang="th">โครงการสาธิตในดูไบ · ข้อมูลจำลอง</span><span data-lang="hi">दुबई में डेमो प्रोजेक्ट · सिंथेटिक डेटा</span></span>
     </a>
   </div>
 </section>
 
-<!-- ===================== ПРОБЛЕМА ===================== -->
+
 <section class="section pains">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">The problem</span><span data-lang="ru">Проблема</span><span data-lang="ar">المشكلة</span><span data-lang="th">ปัญหา</span></span>
-    <h2 class="section-title"><span data-lang="en">Most projects leave money on the table — quietly</span><span data-lang="ru">Большинство проектов недобирает деньги — и этого не видно</span><span data-lang="ar">معظم المشاريع تخسر أموالًا دون أن يلاحظ أحد</span><span data-lang="th">โครงการส่วนใหญ่สูญเสียรายได้ไปโดยไม่มีใครสังเกต</span></h2>
-    <p class="section-sub"><span data-lang="en">Prices are usually set once a month by a committee, using spreadsheets and gut feel. The losses don’t show up in any report: they are the price you could have charged but didn’t.</span><span data-lang="ru">Цены обычно пересматривают раз в месяц на комитете, по таблицам и опыту. Потери не видны ни в одном отчёте: это та цена, которую можно было взять, но не взяли.</span><span data-lang="ar">عادةً ما تحدد لجنة الأسعار مرة واحدة في الشهر، اعتمادًا على جداول البيانات والحدس. ولا تظهر الخسائر في أي تقرير: إنها السعر الذي كان بالإمكان تحقيقه ولم يتحقق.</span><span data-lang="th">โดยทั่วไปคณะกรรมการจะกำหนดราคาเดือนละครั้งจากสเปรดชีตและความรู้สึก ความสูญเสียไม่ปรากฏในรายงานใด ๆ เพราะมันคือราคาที่ควรได้แต่ไม่ได้รับ</span></p>
+    <span class="section-tag"><span data-lang="en">The problem</span><span data-lang="ar">المشكلة</span><span data-lang="th">ปัญหา</span><span data-lang="hi">समस्या</span></span>
+    <h2 class="section-title"><span data-lang="en">Most projects leave money on the table — quietly</span><span data-lang="ar">معظم المشاريع تخسر أموالًا دون أن يلاحظ أحد</span><span data-lang="th">โครงการส่วนใหญ่สูญเสียรายได้ไปโดยไม่มีใครสังเกต</span><span data-lang="hi">ज़्यादातर प्रोजेक्ट चुपचाप पैसा गँवा देते हैं</span></h2>
+    <p class="section-sub"><span data-lang="en">Prices are usually set once a month by a committee, using spreadsheets and gut feel. The losses don’t show up in any report: they are the price you could have charged but didn’t.</span><span data-lang="ar">عادةً ما تحدد لجنة الأسعار مرة واحدة في الشهر، اعتمادًا على جداول البيانات والحدس. ولا تظهر الخسائر في أي تقرير: إنها السعر الذي كان بالإمكان تحقيقه ولم يتحقق.</span><span data-lang="th">โดยทั่วไปคณะกรรมการจะกำหนดราคาเดือนละครั้งจากสเปรดชีตและความรู้สึก ความสูญเสียไม่ปรากฏในรายงานใด ๆ เพราะมันคือราคาที่ควรได้แต่ไม่ได้รับ</span><span data-lang="hi">आमतौर पर कीमतें महीने में एक बार कमेटी तय करती है — स्प्रेडशीट और अंदाज़े के आधार पर। ये नुकसान किसी रिपोर्ट में नहीं दिखते: यह वह कीमत है जो आप ले सकते थे, पर नहीं ली।</span></p>
     <div class="grid4">
       <div class="pain"><div class="pain-num">01</div>
-        <h3><span data-lang="en">Hot units sold too cheap</span><span data-lang="ru">Ходовые квартиры уходят слишком дёшево</span><span data-lang="ar">الوحدات المطلوبة تُباع بأقل من قيمتها</span><span data-lang="th">ยูนิตขายดีถูกขายถูกเกินไป</span></h3>
-        <p><span data-lang="en">The best layouts sell out in days at a price set weeks ago.</span><span data-lang="ru">Лучшие планировки разбирают за дни по цене, назначенной недели назад.</span><span data-lang="ar">تنفد أفضل المخططات خلال أيام بسعر حُدِّد قبل أسابيع.</span><span data-lang="th">แปลนที่ดีที่สุดขายหมดในไม่กี่วันด้วยราคาที่ตั้งไว้เมื่อหลายสัปดาห์ก่อน</span></p></div>
+        <h3><span data-lang="en">Hot units sold too cheap</span><span data-lang="ar">الوحدات المطلوبة تُباع بأقل من قيمتها</span><span data-lang="th">ยูนิตขายดีถูกขายถูกเกินไป</span><span data-lang="hi">माँग वाली यूनिट्स बहुत सस्ते में बिक जाती हैं</span></h3>
+        <p><span data-lang="en">The best layouts sell out in days at a price set weeks ago.</span><span data-lang="ar">تنفد أفضل المخططات خلال أيام بسعر حُدِّد قبل أسابيع.</span><span data-lang="th">แปลนที่ดีที่สุดขายหมดในไม่กี่วันด้วยราคาที่ตั้งไว้เมื่อหลายสัปดาห์ก่อน</span><span data-lang="hi">सबसे अच्छे लेआउट हफ़्तों पहले तय की गई कीमत पर कुछ ही दिनों में बिक जाते हैं।</span></p></div>
       <div class="pain"><div class="pain-num">02</div>
-        <h3><span data-lang="en">Slow units sit for months</span><span data-lang="ru">Неликвид стоит месяцами</span><span data-lang="ar">الوحدات بطيئة البيع تبقى لأشهر</span><span data-lang="th">ยูนิตขายช้าค้างอยู่หลายเดือน</span></h3>
-        <p><span data-lang="en">The leftovers end up sold at a deep discount at the end of the project.</span><span data-lang="ru">В конце проекта остатки распродают с большой скидкой.</span><span data-lang="ar">وفي نهاية المشروع تُباع الوحدات المتبقية بخصومات كبيرة.</span><span data-lang="th">ยูนิตที่เหลือต้องขายพร้อมส่วนลดก้อนใหญ่ช่วงปลายโครงการ</span></p></div>
+        <h3><span data-lang="en">Slow units sit for months</span><span data-lang="ar">الوحدات بطيئة البيع تبقى لأشهر</span><span data-lang="th">ยูนิตขายช้าค้างอยู่หลายเดือน</span><span data-lang="hi">धीमी यूनिट्स महीनों तक पड़ी रहती हैं</span></h3>
+        <p><span data-lang="en">The leftovers end up sold at a deep discount at the end of the project.</span><span data-lang="ar">وفي نهاية المشروع تُباع الوحدات المتبقية بخصومات كبيرة.</span><span data-lang="th">ยูนิตที่เหลือต้องขายพร้อมส่วนลดก้อนใหญ่ช่วงปลายโครงการ</span><span data-lang="hi">बची हुई यूनिट्स आख़िर में प्रोजेक्ट के अंत में भारी छूट पर बेचनी पड़ती हैं।</span></p></div>
       <div class="pain"><div class="pain-num">03</div>
-        <h3><span data-lang="en">Demand shifts noticed late</span><span data-lang="ru">Изменения спроса замечают поздно</span><span data-lang="ar">تغيّرات الطلب تُلاحَظ متأخرة</span><span data-lang="th">รู้ตัวช้าเมื่อดีมานด์เปลี่ยน</span></h3>
-        <p><span data-lang="en">By the time the monthly report shows a slowdown, a month is already lost.</span><span data-lang="ru">Когда спад виден в месячном отчёте, месяц уже потерян.</span><span data-lang="ar">حين يُظهر التقرير الشهري التباطؤ، يكون شهر كامل قد ضاع.</span><span data-lang="th">กว่ารายงานประจำเดือนจะแสดงการชะลอตัว เวลาก็ผ่านไปหนึ่งเดือนแล้ว</span></p></div>
+        <h3><span data-lang="en">Demand shifts noticed late</span><span data-lang="ar">تغيّرات الطلب تُلاحَظ متأخرة</span><span data-lang="th">รู้ตัวช้าเมื่อดีมานด์เปลี่ยน</span><span data-lang="hi">माँग में बदलाव देर से पता चलता है</span></h3>
+        <p><span data-lang="en">By the time the monthly report shows a slowdown, a month is already lost.</span><span data-lang="ar">حين يُظهر التقرير الشهري التباطؤ، يكون شهر كامل قد ضاع.</span><span data-lang="th">กว่ารายงานประจำเดือนจะแสดงการชะลอตัว เวลาก็ผ่านไปหนึ่งเดือนแล้ว</span><span data-lang="hi">जब तक मासिक रिपोर्ट में मंदी दिखती है, तब तक एक महीना हाथ से निकल चुका होता है।</span></p></div>
       <div class="pain"><div class="pain-num">04</div>
-        <h3><span data-lang="en">Decisions hard to defend</span><span data-lang="ru">Решения сложно обосновать</span><span data-lang="ar">قرارات يصعب تبريرها</span><span data-lang="th">การตัดสินใจที่อธิบายได้ยาก</span></h3>
-        <p><span data-lang="en">“Why this price?” — the committee rarely has a clear, numbers-based answer.</span><span data-lang="ru">«Почему такая цена?» — у комитета редко есть ответ в цифрах.</span><span data-lang="ar">«لماذا هذا السعر؟» — نادرًا ما تملك اللجنة إجابة واضحة مدعومة بالأرقام.</span><span data-lang="th">«ทำไมถึงเป็นราคานี้?» — คณะกรรมการแทบไม่มีคำตอบที่ชัดเจนเป็นตัวเลข</span></p></div>
+        <h3><span data-lang="en">Decisions hard to defend</span><span data-lang="ar">قرارات يصعب تبريرها</span><span data-lang="th">การตัดสินใจที่อธิบายได้ยาก</span><span data-lang="hi">फ़ैसलों का बचाव करना मुश्किल</span></h3>
+        <p><span data-lang="en">“Why this price?” — the committee rarely has a clear, numbers-based answer.</span><span data-lang="ar">«لماذا هذا السعر؟» — نادرًا ما تملك اللجنة إجابة واضحة مدعومة بالأرقام.</span><span data-lang="th">«ทำไมถึงเป็นราคานี้?» — คณะกรรมการแทบไม่มีคำตอบที่ชัดเจนเป็นตัวเลข</span><span data-lang="hi">“यही कीमत क्यों?” — कमेटी के पास शायद ही कभी आँकड़ों पर आधारित स्पष्ट जवाब होता है।</span></p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== ПРИЗЫВ ПОСЛЕ ПРОБЛЕМЫ (из презентации) ===================== -->
+
 <section class="section closing">
   <div class="wrap">
     <div class="closing-box">
-      <h2><span data-lang="en">Developers who do not use optimal dynamic pricing methods lose potential profit every day</span><span data-lang="ru">Застройщики, которые не используют оптимальное динамическое ценообразование, каждый день теряют потенциальную прибыль</span><span data-lang="ar">المطورون الذين لا يستخدمون أساليب التسعير الديناميكي الأمثل يخسرون أرباحًا محتملة كل يوم</span><span data-lang="th">ผู้พัฒนาอสังหาฯ ที่ไม่ใช้การกำหนดราคาแบบไดนามิกที่เหมาะสมที่สุด กำลังสูญเสียกำไรที่ควรได้ทุกวัน</span></h2>
-      <p class="closing-get"><span data-lang="en">Get yours with DPrice</span><span data-lang="ru">Заберите свою — с DPrice</span><span data-lang="ar">احصل على أرباحك مع DPrice</span><span data-lang="th">รับส่วนนั้นคืนด้วย DPrice</span></p>
+      <h2><span data-lang="en">Developers who do not use optimal dynamic pricing methods lose potential profit every day</span><span data-lang="ar">المطورون الذين لا يستخدمون أساليب التسعير الديناميكي الأمثل يخسرون أرباحًا محتملة كل يوم</span><span data-lang="th">ผู้พัฒนาอสังหาฯ ที่ไม่ใช้การกำหนดราคาแบบไดนามิกที่เหมาะสมที่สุด กำลังสูญเสียกำไรที่ควรได้ทุกวัน</span><span data-lang="hi">जो डेवलपर्स इष्टतम डायनेमिक प्राइसिंग का उपयोग नहीं करते, वे हर दिन संभावित मुनाफ़ा गँवाते हैं</span></h2>
+      <p class="closing-get"><span data-lang="en">Get yours with DPrice</span><span data-lang="ar">احصل على أرباحك مع DPrice</span><span data-lang="th">รับส่วนนั้นคืนด้วย DPrice</span><span data-lang="hi">DPrice के साथ अपना हिस्सा पाएँ</span></p>
       <ul class="closing-points">
-        <li><span data-lang="en">Increase project profitability</span><span data-lang="ru">Повысить доходность проекта</span><span data-lang="ar">زيادة ربحية المشروع</span><span data-lang="th">เพิ่มความสามารถในการทำกำไรของโครงการ</span></li>
-        <li><span data-lang="en">Optimize project financing costs</span><span data-lang="ru">Снизить стоимость проектного финансирования</span><span data-lang="ar">تحسين تكاليف تمويل المشروع</span><span data-lang="th">ลดต้นทุนเงินทุนโครงการ</span></li>
+        <li><span data-lang="en">Increase project profitability</span><span data-lang="ar">زيادة ربحية المشروع</span><span data-lang="th">เพิ่มความสามารถในการทำกำไรของโครงการ</span><span data-lang="hi">प्रोजेक्ट की लाभप्रदता बढ़ाएँ</span></li>
+        <li><span data-lang="en">Optimize project financing costs</span><span data-lang="ar">تحسين تكاليف تمويل المشروع</span><span data-lang="th">ลดต้นทุนเงินทุนโครงการ</span><span data-lang="hi">प्रोजेक्ट फ़ाइनेंसिंग की लागत को ऑप्टिमाइज़ करें</span></li>
       </ul>
       <div class="hero-ctas">
-        <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ru">Запросить демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span></a>
-        <a class="btn btn-ghost" href="#how"><span data-lang="en">See how it works</span><span data-lang="ru">Как это работает</span><span data-lang="ar">شاهد كيف يعمل</span><span data-lang="th">ดูวิธีการทำงาน</span> ↓</a>
+        <a class="btn btn-green" href="#contact"><span data-lang="en">Request a demo</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span><span data-lang="hi">डेमो का अनुरोध करें</span></a>
+        <a class="btn btn-ghost" href="#how"><span data-lang="en">See how it works</span><span data-lang="ar">شاهد كيف يعمل</span><span data-lang="th">ดูวิธีการทำงาน</span><span data-lang="hi">देखें यह कैसे काम करता है</span> ↓</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== КАК ВЫГЛЯДИТ ПРОДУКТ: настоящие экраны демо-версии =====================
-     Снимки — assets/screens/<экран>-ru.jpg и -en.jpg (демо-проект в Дубае, синтетические данные).
-     Русская версия лендинга показывает русские снимки, остальные языки — английские. -->
+
 <section class="section product" id="product">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">Inside DPrice</span><span data-lang="ru">Продукт</span><span data-lang="ar">داخل DPrice</span><span data-lang="th">ภายใน DPrice</span></span>
-    <h2 class="section-title"><span data-lang="en">What your commercial team sees</span><span data-lang="ru">Что видит ваша коммерческая команда</span><span data-lang="ar">ما يراه فريقك التجاري</span><span data-lang="th">สิ่งที่ทีมขายของคุณจะเห็น</span></h2>
-    <p class="section-sub"><span data-lang="en">Real screens of the DPrice demo: a project in Dubai with synthetic data. Click a screen to open it full size.</span><span data-lang="ru">Настоящие экраны демо-версии DPrice: проект в Дубае с синтетическими данными. Нажмите на экран, чтобы открыть его целиком.</span><span data-lang="ar">شاشات حقيقية من النسخة التجريبية لـ DPrice: مشروع في دبي ببيانات اصطناعية. انقر على الشاشة لفتحها بالحجم الكامل.</span><span data-lang="th">หน้าจอจริงจากเดโมของ DPrice: โครงการในดูไบที่ใช้ข้อมูลจำลอง คลิกที่หน้าจอเพื่อเปิดขนาดเต็ม</span></p>
+    <span class="section-tag"><span data-lang="en">Inside DPrice</span><span data-lang="ar">داخل DPrice</span><span data-lang="th">ภายใน DPrice</span><span data-lang="hi">DPrice के अंदर</span></span>
+    <h2 class="section-title"><span data-lang="en">What your commercial team sees</span><span data-lang="ar">ما يراه فريقك التجاري</span><span data-lang="th">สิ่งที่ทีมขายของคุณจะเห็น</span><span data-lang="hi">आपकी कमर्शियल टीम क्या देखती है</span></h2>
+    <p class="section-sub"><span data-lang="en">Real screens of the DPrice demo: a project in Dubai with synthetic data. Click a screen to open it full size.</span><span data-lang="ar">شاشات حقيقية من النسخة التجريبية لـ DPrice: مشروع في دبي ببيانات اصطناعية. انقر على الشاشة لفتحها بالحجم الكامل.</span><span data-lang="th">หน้าจอจริงจากเดโมของ DPrice: โครงการในดูไบที่ใช้ข้อมูลจำลอง คลิกที่หน้าจอเพื่อเปิดขนาดเต็ม</span><span data-lang="hi">DPrice डेमो की असली स्क्रीनें: सिंथेटिक डेटा के साथ दुबई का एक प्रोजेक्ट। पूरे आकार में खोलने के लिए किसी स्क्रीन पर क्लिक करें।</span></p>
     <div class="shots">
       <figure class="shot">
         <a href="assets/screens/today-en.jpg" data-shot-link="today" target="_blank" rel="noopener"><img data-shot="today" src="assets/screens/today-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
-        <figcaption><h3><span data-lang="en">What to do today</span><span data-lang="ru">Что сделать сегодня</span><span data-lang="ar">ما يجب فعله اليوم</span><span data-lang="th">สิ่งที่ต้องทำวันนี้</span></h3><p><span data-lang="en">The gap to the price list, the remaining stock and the decisions that cannot wait — on one screen.</span><span data-lang="ru">Разрыв с прайсом, остаток и решения, которые нельзя откладывать, — на одном экране.</span><span data-lang="ar">الفجوة عن قائمة الأسعار والمخزون المتبقي والقرارات التي لا تحتمل التأجيل — في شاشة واحدة.</span><span data-lang="th">ส่วนต่างจากราคาตั้ง สต็อกคงเหลือ และการตัดสินใจที่รอไม่ได้ — ในหน้าจอเดียว</span></p></figcaption>
+        <figcaption><h3><span data-lang="en">What to do today</span><span data-lang="ar">ما يجب فعله اليوم</span><span data-lang="th">สิ่งที่ต้องทำวันนี้</span><span data-lang="hi">आज क्या करना है</span></h3><p><span data-lang="en">The gap to the price list, the remaining stock and the decisions that cannot wait — on one screen.</span><span data-lang="ar">الفجوة عن قائمة الأسعار والمخزون المتبقي والقرارات التي لا تحتمل التأجيل — في شاشة واحدة.</span><span data-lang="th">ส่วนต่างจากราคาตั้ง สต็อกคงเหลือ และการตัดสินใจที่รอไม่ได้ — ในหน้าจอเดียว</span><span data-lang="hi">प्राइस लिस्ट से अंतर, बचा हुआ स्टॉक और वे फ़ैसले जो टाले नहीं जा सकते — एक ही स्क्रीन पर।</span></p></figcaption>
       </figure>
       <figure class="shot">
         <a href="assets/screens/repricing-en.jpg" data-shot-link="repricing" target="_blank" rel="noopener"><img data-shot="repricing" src="assets/screens/repricing-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
-        <figcaption><h3><span data-lang="en">Repricing and approval</span><span data-lang="ru">Переоценка и согласование</span><span data-lang="ar">إعادة التسعير والاعتماد</span><span data-lang="th">การปรับราคาและการอนุมัติ</span></h3><p><span data-lang="en">Recommendations by price group with the reasoning behind them. Your team approves, edits or rejects.</span><span data-lang="ru">Рекомендации по ценовым группам с обоснованием. Команда согласует, правит или отклоняет.</span><span data-lang="ar">توصيات حسب فئات الأسعار مع أسبابها. فريقك يعتمدها أو يعدّلها أو يرفضها.</span><span data-lang="th">คำแนะนำตามกลุ่มราคาพร้อมเหตุผล ทีมของคุณอนุมัติ แก้ไข หรือปฏิเสธได้</span></p></figcaption>
+        <figcaption><h3><span data-lang="en">Repricing and approval</span><span data-lang="ar">إعادة التسعير والاعتماد</span><span data-lang="th">การปรับราคาและการอนุมัติ</span><span data-lang="hi">री-प्राइसिंग और अनुमोदन</span></h3><p><span data-lang="en">Recommendations by price group with the reasoning behind them. Your team approves, edits or rejects.</span><span data-lang="ar">توصيات حسب فئات الأسعار مع أسبابها. فريقك يعتمدها أو يعدّلها أو يرفضها.</span><span data-lang="th">คำแนะนำตามกลุ่มราคาพร้อมเหตุผล ทีมของคุณอนุมัติ แก้ไข หรือปฏิเสธได้</span><span data-lang="hi">प्राइस ग्रुप के अनुसार सिफ़ारिशें, उनके पीछे के तर्क के साथ। आपकी टीम उन्हें मंज़ूर करती है, बदलती है या अस्वीकार करती है।</span></p></figcaption>
       </figure>
       <figure class="shot">
         <a href="assets/screens/forecast-en.jpg" data-shot-link="forecast" target="_blank" rel="noopener"><img data-shot="forecast" src="assets/screens/forecast-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
-        <figcaption><h3><span data-lang="en">Price path to completion</span><span data-lang="ru">Траектория цены до сдачи</span><span data-lang="ar">مسار السعر حتى التسليم</span><span data-lang="th">เส้นทางราคาจนถึงวันส่งมอบ</span></h3><p><span data-lang="en">Actual prices and the forecast up to handover for each unit type.</span><span data-lang="ru">Факт и прогноз цены по каждому типу квартир до ввода дома.</span><span data-lang="ar">الأسعار الفعلية والتوقعات حتى التسليم لكل نوع وحدة.</span><span data-lang="th">ราคาจริงและการคาดการณ์จนถึงวันส่งมอบของยูนิตแต่ละประเภท</span></p></figcaption>
+        <figcaption><h3><span data-lang="en">Price path to completion</span><span data-lang="ar">مسار السعر حتى التسليم</span><span data-lang="th">เส้นทางราคาจนถึงวันส่งมอบ</span><span data-lang="hi">पूर्णता तक कीमत का रास्ता</span></h3><p><span data-lang="en">Actual prices and the forecast up to handover for each unit type.</span><span data-lang="ar">الأسعار الفعلية والتوقعات حتى التسليم لكل نوع وحدة.</span><span data-lang="th">ราคาจริงและการคาดการณ์จนถึงวันส่งมอบของยูนิตแต่ละประเภท</span><span data-lang="hi">हर यूनिट टाइप के लिए वास्तविक कीमतें और हैंडओवर तक का पूर्वानुमान।</span></p></figcaption>
       </figure>
       <figure class="shot">
         <a href="assets/screens/payment-en.jpg" data-shot-link="payment" target="_blank" rel="noopener"><img data-shot="payment" src="assets/screens/payment-en.jpg" alt="" loading="lazy" width="1172" height="760"></a>
-        <figcaption><h3><span data-lang="en">Payment plans</span><span data-lang="ru">Формы оплаты</span><span data-lang="ar">خطط الدفع</span><span data-lang="th">แผนการชำระเงิน</span></h3><p><span data-lang="en">Which payment plan really brings the project more money, including post-handover plans.</span><span data-lang="ru">Какая форма оплаты на деле приносит проекту больше денег, включая рассрочку после сдачи.</span><span data-lang="ar">أي خطة دفع تجلب للمشروع أموالًا أكثر فعلًا، بما في ذلك خطط ما بعد التسليم.</span><span data-lang="th">แผนการชำระเงินแบบไหนสร้างรายได้ให้โครงการมากกว่าจริง รวมถึงแผนผ่อนหลังส่งมอบ</span></p></figcaption>
+        <figcaption><h3><span data-lang="en">Payment plans</span><span data-lang="ar">خطط الدفع</span><span data-lang="th">แผนการชำระเงิน</span><span data-lang="hi">पेमेंट प्लान</span></h3><p><span data-lang="en">Which payment plan really brings the project more money, including post-handover plans.</span><span data-lang="ar">أي خطة دفع تجلب للمشروع أموالًا أكثر فعلًا، بما في ذلك خطط ما بعد التسليم.</span><span data-lang="th">แผนการชำระเงินแบบไหนสร้างรายได้ให้โครงการมากกว่าจริง รวมถึงแผนผ่อนหลังส่งมอบ</span><span data-lang="hi">कौन-सा पेमेंट प्लान वास्तव में प्रोजेक्ट को ज़्यादा पैसा दिलाता है, पोस्ट-हैंडओवर प्लान सहित।</span></p></figcaption>
       </figure>
     </div>
   </div>
 </section>
 
-<!-- ===================== КАК РАБОТАЕТ ===================== -->
+
 <section class="section how" id="how">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">How it works</span><span data-lang="ru">Как работает</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span></span>
-    <h2 class="section-title"><span data-lang="en">From your sales data to a price for every unit</span><span data-lang="ru">От ваших продаж — к цене каждой квартиры</span><span data-lang="ar">من بيانات مبيعاتك إلى سعر لكل وحدة</span><span data-lang="th">จากข้อมูลการขายของคุณ สู่ราคาของทุกยูนิต</span></h2>
-    <p class="section-sub"><span data-lang="en">DPrice reads your own sales and recommends the price of every apartment — up, down or hold — so the project earns as much as the market allows. You set the goal, DPrice does the maths, your team makes the call.</span><span data-lang="ru">DPrice анализирует ваши продажи и рекомендует цену каждой квартиры: поднять, снизить или держать. Так проект забирает с рынка максимум возможного. Вы задаёте цель, DPrice считает, решение остаётся за вашей командой.</span><span data-lang="ar">يحلّل DPrice مبيعاتك ويوصي بسعر كل شقة — رفعه أو خفضه أو تثبيته — ليحقق المشروع أقصى ما يسمح به السوق. أنت تحدد الهدف، وDPrice يتولى الحسابات، والقرار لفريقك.</span><span data-lang="th">DPrice วิเคราะห์ยอดขายของคุณและแนะนำราคาของทุกยูนิต — ขึ้นราคา ลดราคา หรือคงราคา — เพื่อให้โครงการได้รายได้สูงสุดเท่าที่ตลาดเอื้อ คุณกำหนดเป้าหมาย DPrice คำนวณ และทีมของคุณเป็นผู้ตัดสินใจ</span></p>
+    <span class="section-tag"><span data-lang="en">How it works</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span><span data-lang="hi">यह कैसे काम करता है</span></span>
+    <h2 class="section-title"><span data-lang="en">From your sales data to a price for every unit</span><span data-lang="ar">من بيانات مبيعاتك إلى سعر لكل وحدة</span><span data-lang="th">จากข้อมูลการขายของคุณ สู่ราคาของทุกยูนิต</span><span data-lang="hi">आपके सेल्स डेटा से हर यूनिट की कीमत तक</span></h2>
+    <p class="section-sub"><span data-lang="en">DPrice reads your own sales and recommends the price of every apartment — up, down or hold — so the project earns as much as the market allows. You set the goal, DPrice does the maths, your team makes the call.</span><span data-lang="ar">يحلّل DPrice مبيعاتك ويوصي بسعر كل شقة — رفعه أو خفضه أو تثبيته — ليحقق المشروع أقصى ما يسمح به السوق. أنت تحدد الهدف، وDPrice يتولى الحسابات، والقرار لفريقك.</span><span data-lang="th">DPrice วิเคราะห์ยอดขายของคุณและแนะนำราคาของทุกยูนิต — ขึ้นราคา ลดราคา หรือคงราคา — เพื่อให้โครงการได้รายได้สูงสุดเท่าที่ตลาดเอื้อ คุณกำหนดเป้าหมาย DPrice คำนวณ และทีมของคุณเป็นผู้ตัดสินใจ</span><span data-lang="hi">DPrice आपकी अपनी बिक्री का विश्लेषण करता है और हर अपार्टमेंट की कीमत की सिफ़ारिश करता है — बढ़ाएँ, घटाएँ या स्थिर रखें — ताकि प्रोजेक्ट उतना कमाए जितना बाज़ार अनुमति देता है। लक्ष्य आप तय करते हैं, गणना DPrice करता है, फ़ैसला आपकी टीम लेती है।</span></p>
     <div class="how-grid">
       <ol class="steps">
         <li class="step"><div class="step-n">1</div><div>
-          <h3><span data-lang="en">Connect your sales data</span><span data-lang="ru">Подключаем ваши данные о продажах</span><span data-lang="ar">اربط بيانات مبيعاتك</span><span data-lang="th">เชื่อมต่อข้อมูลการขาย</span></h3>
-          <p><span data-lang="en">Units, prices, bookings and deals from your CRM or a spreadsheet export. Sales keep running.</span><span data-lang="ru">Лоты, цены, брони и сделки — из CRM или выгрузки в таблице. Продажи не останавливаются.</span><span data-lang="ar">الوحدات والأسعار والحجوزات والصفقات من نظام CRM أو من ملف جداول بيانات. والمبيعات مستمرة دون توقف.</span><span data-lang="th">ยูนิต ราคา การจอง และการซื้อขาย จาก CRM หรือไฟล์สเปรดชีต โดยการขายยังดำเนินต่อไปตามปกติ</span></p></div></li>
+          <h3><span data-lang="en">Connect your sales data</span><span data-lang="ar">اربط بيانات مبيعاتك</span><span data-lang="th">เชื่อมต่อข้อมูลการขาย</span><span data-lang="hi">अपना सेल्स डेटा जोड़ें</span></h3>
+          <p><span data-lang="en">Units, prices, bookings and deals from your CRM or a spreadsheet export. Sales keep running.</span><span data-lang="ar">الوحدات والأسعار والحجوزات والصفقات من نظام CRM أو من ملف جداول بيانات. والمبيعات مستمرة دون توقف.</span><span data-lang="th">ยูนิต ราคา การจอง และการซื้อขาย จาก CRM หรือไฟล์สเปรดชีต โดยการขายยังดำเนินต่อไปตามปกติ</span><span data-lang="hi">आपके CRM या स्प्रेडशीट एक्सपोर्ट से यूनिट्स, कीमतें, बुकिंग और सौदे। बिक्री चलती रहती है।</span></p></div></li>
         <li class="step"><div class="step-n">2</div><div>
-          <h3><span data-lang="en">Choose the goal</span><span data-lang="ru">Выбираете цель</span><span data-lang="ar">اختر الهدف</span><span data-lang="th">เลือกเป้าหมาย</span></h3>
-          <p><span data-lang="en">Cash flow now, maximum value from remaining stock, or an even sell-out — you decide what “better” means.</span><span data-lang="ru">Деньги сейчас, максимум с остатка или равномерные продажи — вы решаете, что значит «лучше».</span><span data-lang="ar">تدفق نقدي الآن، أو أقصى قيمة من المخزون المتبقي، أو بيع متوازن — أنت من يحدد معنى «الأفضل».</span><span data-lang="th">กระแสเงินสดตอนนี้ มูลค่าสูงสุดจากยูนิตคงเหลือ หรือการขายอย่างสมดุล — คุณเป็นผู้กำหนดว่า «ดีกว่า» หมายถึงอะไร</span></p></div></li>
+          <h3><span data-lang="en">Choose the goal</span><span data-lang="ar">اختر الهدف</span><span data-lang="th">เลือกเป้าหมาย</span><span data-lang="hi">लक्ष्य चुनें</span></h3>
+          <p><span data-lang="en">Cash flow now, maximum value from remaining stock, or an even sell-out — you decide what “better” means.</span><span data-lang="ar">تدفق نقدي الآن، أو أقصى قيمة من المخزون المتبقي، أو بيع متوازن — أنت من يحدد معنى «الأفضل».</span><span data-lang="th">กระแสเงินสดตอนนี้ มูลค่าสูงสุดจากยูนิตคงเหลือ หรือการขายอย่างสมดุล — คุณเป็นผู้กำหนดว่า «ดีกว่า» หมายถึงอะไร</span><span data-lang="hi">अभी कैश फ़्लो, बचे हुए स्टॉक से अधिकतम मूल्य, या संतुलित बिक्री — “बेहतर” का मतलब आप तय करते हैं।</span></p></div></li>
         <li class="step"><div class="step-n">3</div><div>
-          <h3><span data-lang="en">Get recommendations for each unit</span><span data-lang="ru">Получаете рекомендации по каждой квартире</span><span data-lang="ar">احصل على توصيات لكل وحدة</span><span data-lang="th">รับคำแนะนำสำหรับแต่ละยูนิต</span></h3>
-          <p><span data-lang="en">Raise, lower or hold — with the demand trend and the reasoning behind each number.</span><span data-lang="ru">Поднять, снизить или держать — с динамикой спроса и обоснованием каждой цифры.</span><span data-lang="ar">رفع السعر أو خفضه أو تثبيته — مع اتجاه الطلب والمبرر وراء كل رقم.</span><span data-lang="th">ขึ้น ลด หรือคงราคา — พร้อมแนวโน้มดีมานด์และเหตุผลของทุกตัวเลข</span></p></div></li>
+          <h3><span data-lang="en">Get recommendations for each unit</span><span data-lang="ar">احصل على توصيات لكل وحدة</span><span data-lang="th">รับคำแนะนำสำหรับแต่ละยูนิต</span><span data-lang="hi">हर यूनिट के लिए सिफ़ारिशें पाएँ</span></h3>
+          <p><span data-lang="en">Raise, lower or hold — with the demand trend and the reasoning behind each number.</span><span data-lang="ar">رفع السعر أو خفضه أو تثبيته — مع اتجاه الطلب والمبرر وراء كل رقم.</span><span data-lang="th">ขึ้น ลด หรือคงราคา — พร้อมแนวโน้มดีมานด์และเหตุผลของทุกตัวเลข</span><span data-lang="hi">बढ़ाएँ, घटाएँ या स्थिर रखें — माँग के रुझान और हर आँकड़े के पीछे के तर्क के साथ।</span></p></div></li>
         <li class="step"><div class="step-n">4</div><div>
-          <h3><span data-lang="en">Your team approves</span><span data-lang="ru">Решение принимает ваша команда</span><span data-lang="ar">فريقك يتخذ القرار</span><span data-lang="th">ทีมของคุณเป็นผู้อนุมัติ</span></h3>
-          <p><span data-lang="en">Accept, adjust or reject. The system learns from new sales and keeps updating.</span><span data-lang="ru">Принять, поправить или отклонить. Система учится на новых продажах и обновляет рекомендации.</span><span data-lang="ar">اقبل أو عدّل أو ارفض. ويتعلّم النظام من المبيعات الجديدة ويحدّث توصياته باستمرار.</span><span data-lang="th">ยอมรับ ปรับแก้ หรือปฏิเสธ ระบบเรียนรู้จากยอดขายใหม่และอัปเดตอย่างต่อเนื่อง</span></p></div></li>
+          <h3><span data-lang="en">Your team approves</span><span data-lang="ar">فريقك يتخذ القرار</span><span data-lang="th">ทีมของคุณเป็นผู้อนุมัติ</span><span data-lang="hi">आपकी टीम मंज़ूरी देती है</span></h3>
+          <p><span data-lang="en">Accept, adjust or reject. The system learns from new sales and keeps updating.</span><span data-lang="ar">اقبل أو عدّل أو ارفض. ويتعلّم النظام من المبيعات الجديدة ويحدّث توصياته باستمرار.</span><span data-lang="th">ยอมรับ ปรับแก้ หรือปฏิเสธ ระบบเรียนรู้จากยอดขายใหม่และอัปเดตอย่างต่อเนื่อง</span><span data-lang="hi">स्वीकार करें, बदलें या अस्वीकार करें। सिस्टम नई बिक्री से सीखता है और लगातार अपडेट होता रहता है।</span></p></div></li>
       </ol>
 
-      <!-- Иллюстрация: как выглядит рекомендация (цифры условные) -->
+      
       <div class="mock" aria-label="Illustration">
-        <p class="mock-label"><svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17 22v-8h-4v2h2v6h-3v2h8v-2zM16 8a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 8z"/><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/></svg><span data-lang="en">Example screen · figures are illustrative</span><span data-lang="ru">Пример экрана · цифры условные</span><span data-lang="ar">مثال للشاشة · الأرقام توضيحية</span><span data-lang="th">ตัวอย่างหน้าจอ · ตัวเลขใช้เพื่อการอธิบาย</span></p>
+        <p class="mock-label"><svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17 22v-8h-4v2h2v6h-3v2h8v-2zM16 8a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 8z"/><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/></svg><span data-lang="en">Example screen · figures are illustrative</span><span data-lang="ar">مثال للشاشة · الأرقام توضيحية</span><span data-lang="th">ตัวอย่างหน้าจอ · ตัวเลขใช้เพื่อการอธิบาย</span><span data-lang="hi">उदाहरण स्क्रीन · आँकड़े केवल उदाहरण के लिए हैं</span></p>
         <div class="mock-head">
-          <span><span data-lang="en">Building A · today</span><span data-lang="ru">Корпус А · сегодня</span><span data-lang="ar">المبنى A · اليوم</span><span data-lang="th">อาคาร A · วันนี้</span></span>
-          <span class="mock-goal"><span data-lang="en">Goal: cash flow</span><span data-lang="ru">Цель: денежный поток</span><span data-lang="ar">الهدف: التدفق النقدي</span><span data-lang="th">เป้าหมาย: กระแสเงินสด</span></span>
+          <span><span data-lang="en">Building A · today</span><span data-lang="ar">المبنى A · اليوم</span><span data-lang="th">อาคาร A · วันนี้</span><span data-lang="hi">बिल्डिंग A · आज</span></span>
+          <span class="mock-goal"><span data-lang="en">Goal: cash flow</span><span data-lang="ar">الهدف: التدفق النقدي</span><span data-lang="th">เป้าหมาย: กระแสเงินสด</span><span data-lang="hi">लक्ष्य: कैश फ़्लो</span></span>
         </div>
-        <div class="mock-row th"><span><span data-lang="en">Unit</span><span data-lang="ru">Лот</span><span data-lang="ar">الوحدة</span><span data-lang="th">ยูนิต</span></span><span><span data-lang="en">Demand</span><span data-lang="ru">Спрос</span><span data-lang="ar">الطلب</span><span data-lang="th">ดีมานด์</span></span><span><span data-lang="en">Advice</span><span data-lang="ru">Совет</span><span data-lang="ar">التوصية</span><span data-lang="th">คำแนะนำ</span></span><span><span data-lang="en">Change</span><span data-lang="ru">Изм.</span><span data-lang="ar">التغيير</span><span data-lang="th">เปลี่ยนแปลง</span></span></div>
-        <div class="mock-row"><span>A-1204 · 2BR</span><span><span data-lang="en">rising</span><span data-lang="ru">растёт</span><span data-lang="ar">في ارتفاع</span><span data-lang="th">เพิ่มขึ้น</span></span><span><span data-lang="en">raise</span><span data-lang="ru">поднять</span><span data-lang="ar">رفع</span><span data-lang="th">ขึ้นราคา</span></span><span class="up">+2.4%</span></div>
-        <div class="mock-row"><span>A-0703 · 1BR</span><span><span data-lang="en">stable</span><span data-lang="ru">ровный</span><span data-lang="ar">مستقر</span><span data-lang="th">คงที่</span></span><span><span data-lang="en">hold</span><span data-lang="ru">держать</span><span data-lang="ar">تثبيت</span><span data-lang="th">คงราคา</span></span><span class="hold">0.0%</span></div>
-        <div class="mock-row"><span>A-0211 · 3BR</span><span><span data-lang="en">slowing</span><span data-lang="ru">падает</span><span data-lang="ar">في تباطؤ</span><span data-lang="th">ชะลอตัว</span></span><span><span data-lang="en">lower</span><span data-lang="ru">снизить</span><span data-lang="ar">خفض</span><span data-lang="th">ลดราคา</span></span><span class="down">−1.8%</span></div>
-        <div class="mock-row"><span>A-1501 · PH</span><span><span data-lang="en">rising</span><span data-lang="ru">растёт</span><span data-lang="ar">في ارتفاع</span><span data-lang="th">เพิ่มขึ้น</span></span><span><span data-lang="en">raise</span><span data-lang="ru">поднять</span><span data-lang="ar">رفع</span><span data-lang="th">ขึ้นราคา</span></span><span class="up">+3.1%</span></div>
-        <div class="mock-actions"><span><span data-lang="en">Approve</span><span data-lang="ru">Принять</span><span data-lang="ar">اعتماد</span><span data-lang="th">อนุมัติ</span></span><span><span data-lang="en">Adjust</span><span data-lang="ru">Поправить</span><span data-lang="ar">تعديل</span><span data-lang="th">ปรับแก้</span></span></div>
+        <div class="mock-row th"><span><span data-lang="en">Unit</span><span data-lang="ar">الوحدة</span><span data-lang="th">ยูนิต</span><span data-lang="hi">यूनिट</span></span><span><span data-lang="en">Demand</span><span data-lang="ar">الطلب</span><span data-lang="th">ดีมานด์</span><span data-lang="hi">माँग</span></span><span><span data-lang="en">Advice</span><span data-lang="ar">التوصية</span><span data-lang="th">คำแนะนำ</span><span data-lang="hi">सलाह</span></span><span><span data-lang="en">Change</span><span data-lang="ar">التغيير</span><span data-lang="th">เปลี่ยนแปลง</span><span data-lang="hi">बदलाव</span></span></div>
+        <div class="mock-row"><span>A-1204 · 2BR</span><span><span data-lang="en">rising</span><span data-lang="ar">في ارتفاع</span><span data-lang="th">เพิ่มขึ้น</span><span data-lang="hi">बढ़ रही</span></span><span><span data-lang="en">raise</span><span data-lang="ar">رفع</span><span data-lang="th">ขึ้นราคา</span><span data-lang="hi">बढ़ाएँ</span></span><span class="up">+2.4%</span></div>
+        <div class="mock-row"><span>A-0703 · 1BR</span><span><span data-lang="en">stable</span><span data-lang="ar">مستقر</span><span data-lang="th">คงที่</span><span data-lang="hi">स्थिर</span></span><span><span data-lang="en">hold</span><span data-lang="ar">تثبيت</span><span data-lang="th">คงราคา</span><span data-lang="hi">स्थिर रखें</span></span><span class="hold">0.0%</span></div>
+        <div class="mock-row"><span>A-0211 · 3BR</span><span><span data-lang="en">slowing</span><span data-lang="ar">في تباطؤ</span><span data-lang="th">ชะลอตัว</span><span data-lang="hi">धीमी हो रही</span></span><span><span data-lang="en">lower</span><span data-lang="ar">خفض</span><span data-lang="th">ลดราคา</span><span data-lang="hi">घटाएँ</span></span><span class="down">−1.8%</span></div>
+        <div class="mock-row"><span>A-1501 · PH</span><span><span data-lang="en">rising</span><span data-lang="ar">في ارتفاع</span><span data-lang="th">เพิ่มขึ้น</span><span data-lang="hi">बढ़ रही</span></span><span><span data-lang="en">raise</span><span data-lang="ar">رفع</span><span data-lang="th">ขึ้นราคา</span><span data-lang="hi">बढ़ाएँ</span></span><span class="up">+3.1%</span></div>
+        <div class="mock-actions"><span><span data-lang="en">Approve</span><span data-lang="ar">اعتماد</span><span data-lang="th">อนุมัติ</span><span data-lang="hi">मंज़ूर करें</span></span><span><span data-lang="en">Adjust</span><span data-lang="ar">تعديل</span><span data-lang="th">ปรับแก้</span><span data-lang="hi">बदलें</span></span></div>
       </div>
     </div>
-    <!-- Что учитывает модель — из презентации -->
+    
     <div class="inputs">
-      <h3><span data-lang="en">Inputs for our model</span><span data-lang="ru">Что учитывает модель</span><span data-lang="ar">مدخلات نموذجنا</span><span data-lang="th">ข้อมูลที่โมเดลของเราใช้</span></h3>
+      <h3><span data-lang="en">Inputs for our model</span><span data-lang="ar">مدخلات نموذجنا</span><span data-lang="th">ข้อมูลที่โมเดลของเราใช้</span><span data-lang="hi">हमारे मॉडल के इनपुट</span></h3>
       <ul>
-        <li><span data-lang="en">Current and predicted demand</span><span data-lang="ru">Текущий и прогнозный спрос</span><span data-lang="ar">الطلب الحالي والمتوقع</span><span data-lang="th">ดีมานด์ปัจจุบันและที่คาดการณ์</span></li>
-        <li><span data-lang="en">Cost of project financing</span><span data-lang="ru">Стоимость проектного финансирования</span><span data-lang="ar">تكلفة تمويل المشروع</span><span data-lang="th">ต้นทุนเงินทุนโครงการ</span></li>
-        <li><span data-lang="en">Project financing obligations</span><span data-lang="ru">Обязательства по проектному финансированию</span><span data-lang="ar">التزامات تمويل المشروع</span><span data-lang="th">ภาระผูกพันด้านเงินทุนโครงการ</span></li>
-        <li><span data-lang="en">Financial model of the project</span><span data-lang="ru">Финансовая модель проекта</span><span data-lang="ar">النموذج المالي للمشروع</span><span data-lang="th">โมเดลทางการเงินของโครงการ</span></li>
-        <li><span data-lang="en">Rising value as the project nears completion</span><span data-lang="ru">Рост стоимости по мере готовности объекта</span><span data-lang="ar">ارتفاع القيمة مع اقتراب اكتمال المشروع</span><span data-lang="th">มูลค่าที่เพิ่มขึ้นเมื่อโครงการใกล้แล้วเสร็จ</span></li>
-        <li><span data-lang="en">Payment options and installment plans</span><span data-lang="ru">Варианты оплаты и рассрочки</span><span data-lang="ar">خيارات الدفع وخطط التقسيط</span><span data-lang="th">ทางเลือกการชำระเงินและแผนผ่อนชำระ</span></li>
+        <li><span data-lang="en">Current and predicted demand</span><span data-lang="ar">الطلب الحالي والمتوقع</span><span data-lang="th">ดีมานด์ปัจจุบันและที่คาดการณ์</span><span data-lang="hi">मौजूदा और अनुमानित माँग</span></li>
+        <li><span data-lang="en">Cost of project financing</span><span data-lang="ar">تكلفة تمويل المشروع</span><span data-lang="th">ต้นทุนเงินทุนโครงการ</span><span data-lang="hi">प्रोजेक्ट फ़ाइनेंसिंग की लागत</span></li>
+        <li><span data-lang="en">Project financing obligations</span><span data-lang="ar">التزامات تمويل المشروع</span><span data-lang="th">ภาระผูกพันด้านเงินทุนโครงการ</span><span data-lang="hi">प्रोजेक्ट फ़ाइनेंसिंग की देनदारियाँ</span></li>
+        <li><span data-lang="en">Financial model of the project</span><span data-lang="ar">النموذج المالي للمشروع</span><span data-lang="th">โมเดลทางการเงินของโครงการ</span><span data-lang="hi">प्रोजेक्ट का फ़ाइनेंशियल मॉडल</span></li>
+        <li><span data-lang="en">Rising value as the project nears completion</span><span data-lang="ar">ارتفاع القيمة مع اقتراب اكتمال المشروع</span><span data-lang="th">มูลค่าที่เพิ่มขึ้นเมื่อโครงการใกล้แล้วเสร็จ</span><span data-lang="hi">प्रोजेक्ट पूरा होने के करीब आने पर बढ़ता मूल्य</span></li>
+        <li><span data-lang="en">Payment options and installment plans</span><span data-lang="ar">خيارات الدفع وخطط التقسيط</span><span data-lang="th">ทางเลือกการชำระเงินและแผนผ่อนชำระ</span><span data-lang="hi">भुगतान विकल्प और किस्त योजनाएँ</span></li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- ===================== ЦЕЛИ ===================== -->
+
 <section class="section goals" id="goals">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">Pricing goals</span><span data-lang="ru">Цели ценообразования</span><span data-lang="ar">أهداف التسعير</span><span data-lang="th">เป้าหมายการกำหนดราคา</span></span>
-    <h2 class="section-title"><span data-lang="en">One project, different priorities — pick the one that matters now</span><span data-lang="ru">Один проект — разные приоритеты. Выберите тот, что важен сейчас</span><span data-lang="ar">مشروع واحد وأولويات مختلفة — اختر ما يهمّك الآن</span><span data-lang="th">โครงการเดียว หลายลำดับความสำคัญ — เลือกสิ่งที่สำคัญที่สุดตอนนี้</span></h2>
-    <p class="section-sub"><span data-lang="en">Whatever the market does, DPrice aims to take the most your project can get under the goal you set. The goal can be changed at any time.</span><span data-lang="ru">Как бы ни менялся рынок, DPrice стремится взять максимум, возможный для вашего проекта при выбранной цели. Цель можно сменить в любой момент.</span><span data-lang="ar">مهما تقلّب السوق، يسعى DPrice إلى تحقيق أقصى ما يمكن لمشروعك وفق الهدف الذي تحدده. ويمكن تغيير الهدف في أي وقت.</span><span data-lang="th">ไม่ว่าตลาดจะเป็นอย่างไร DPrice มุ่งให้โครงการได้ผลลัพธ์สูงสุดตามเป้าหมายที่คุณตั้งไว้ และเปลี่ยนเป้าหมายได้ทุกเมื่อ</span></p>
+    <span class="section-tag"><span data-lang="en">Pricing goals</span><span data-lang="ar">أهداف التسعير</span><span data-lang="th">เป้าหมายการกำหนดราคา</span><span data-lang="hi">प्राइसिंग के लक्ष्य</span></span>
+    <h2 class="section-title"><span data-lang="en">One project, different priorities — pick the one that matters now</span><span data-lang="ar">مشروع واحد وأولويات مختلفة — اختر ما يهمّك الآن</span><span data-lang="th">โครงการเดียว หลายลำดับความสำคัญ — เลือกสิ่งที่สำคัญที่สุดตอนนี้</span><span data-lang="hi">एक प्रोजेक्ट, अलग-अलग प्राथमिकताएँ — वह चुनें जो अभी सबसे ज़रूरी है</span></h2>
+    <p class="section-sub"><span data-lang="en">Whatever the market does, DPrice aims to take the most your project can get under the goal you set. The goal can be changed at any time.</span><span data-lang="ar">مهما تقلّب السوق، يسعى DPrice إلى تحقيق أقصى ما يمكن لمشروعك وفق الهدف الذي تحدده. ويمكن تغيير الهدف في أي وقت.</span><span data-lang="th">ไม่ว่าตลาดจะเป็นอย่างไร DPrice มุ่งให้โครงการได้ผลลัพธ์สูงสุดตามเป้าหมายที่คุณตั้งไว้ และเปลี่ยนเป้าหมายได้ทุกเมื่อ</span><span data-lang="hi">बाज़ार चाहे जैसा भी हो, DPrice आपके तय किए गए लक्ष्य के तहत आपके प्रोजेक्ट के लिए अधिकतम हासिल करने का प्रयास करता है। लक्ष्य कभी भी बदला जा सकता है।</span></p>
     <div class="grid3">
       <div class="goal">
         <div class="goal-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M23 20.5c0-4.6-3.8-5.1-6.8-5.6-3.3-.5-5.2-.9-5.2-3.7 0-2.4 2.5-3.2 4.7-3.2 2.3 0 4.1.9 5.5 2.6l1.6-1.2A8.7 8.7 0 0 0 17 6.1V3h-2v3c-3.6.2-6 2.3-6 5.2 0 4.7 3.8 5.3 6.9 5.7 3.3.5 5.1.9 5.1 3.6 0 3.1-3.1 3.5-5 3.5-3.4 0-4.9-1-6.2-2.6l-1.6 1.2a8.4 8.4 0 0 0 6.8 3.3V29h2v-3c3.7-.3 6-2.3 6-5.5z"/></svg></div>
-        <h3><span data-lang="en">Cash flow</span><span data-lang="ru">Денежный поток</span><span data-lang="ar">التدفق النقدي</span><span data-lang="th">กระแสเงินสด</span></h3>
-        <p><span data-lang="en">Prioritises money coming in sooner — to fund construction, repay financing or meet bank covenants.</span><span data-lang="ru">Приоритет — деньги раньше: на стройку, погашение финансирования, выполнение ковенантов банка.</span><span data-lang="ar">الأولوية لتحصيل الأموال أسرع — لتمويل البناء أو سداد التمويل أو الوفاء بالتزامات البنك.</span><span data-lang="th">เน้นให้เงินเข้าเร็วขึ้น — เพื่อใช้ก่อสร้าง ชำระเงินกู้ หรือปฏิบัติตามเงื่อนไขของธนาคาร</span></p>
-        <span class="when"><span data-lang="en">When cash matters most right now.</span><span data-lang="ru">Когда деньги нужны сейчас.</span><span data-lang="ar">عندما تكون السيولة هي الأهم الآن.</span><span data-lang="th">เมื่อสภาพคล่องสำคัญที่สุดในตอนนี้</span></span>
+        <h3><span data-lang="en">Cash flow</span><span data-lang="ar">التدفق النقدي</span><span data-lang="th">กระแสเงินสด</span><span data-lang="hi">कैश फ़्लो</span></h3>
+        <p><span data-lang="en">Prioritises money coming in sooner — to fund construction, repay financing or meet bank covenants.</span><span data-lang="ar">الأولوية لتحصيل الأموال أسرع — لتمويل البناء أو سداد التمويل أو الوفاء بالتزامات البنك.</span><span data-lang="th">เน้นให้เงินเข้าเร็วขึ้น — เพื่อใช้ก่อสร้าง ชำระเงินกู้ หรือปฏิบัติตามเงื่อนไขของธนาคาร</span><span data-lang="hi">पैसा जल्दी आने को प्राथमिकता देता है — निर्माण के लिए फ़ंड जुटाने, फ़ाइनेंसिंग चुकाने या बैंक कोवेनेंट्स पूरे करने के लिए।</span></p>
+        <span class="when"><span data-lang="en">When cash matters most right now.</span><span data-lang="ar">عندما تكون السيولة هي الأهم الآن.</span><span data-lang="th">เมื่อสภาพคล่องสำคัญที่สุดในตอนนี้</span><span data-lang="hi">जब अभी नकदी सबसे ज़्यादा मायने रखती है।</span></span>
       </div>
       <div class="goal">
         <div class="goal-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20 8v2h6.6L18 18.6l-4.3-4.3-1.4 0L2 24.6 3.4 26 13 16.4l4.3 4.3 1.4 0L28 11.4V18h2V8z"/></svg></div>
-        <h3><span data-lang="en">Maximum from remaining stock</span><span data-lang="ru">Максимум остатка</span><span data-lang="ar">أقصى قيمة من المخزون المتبقي</span><span data-lang="th">มูลค่าสูงสุดจากยูนิตคงเหลือ</span></h3>
-        <p><span data-lang="en">Prioritises the total value of unsold units, holding price where demand allows.</span><span data-lang="ru">Приоритет — итоговая стоимость непроданных квартир; цена удерживается там, где позволяет спрос.</span><span data-lang="ar">الأولوية للقيمة الإجمالية للوحدات غير المباعة، مع تثبيت السعر حيث يسمح الطلب.</span><span data-lang="th">เน้นมูลค่ารวมของยูนิตที่ยังขายไม่ได้ โดยคงราคาไว้เมื่อดีมานด์เอื้ออำนวย</span></p>
-        <span class="when"><span data-lang="en">When the project has time and you want the best final result.</span><span data-lang="ru">Когда есть время и важен итоговый результат.</span><span data-lang="ar">عندما يتوفر الوقت للمشروع وتريد أفضل نتيجة نهائية.</span><span data-lang="th">เมื่อโครงการมีเวลาและต้องการผลลัพธ์สุดท้ายที่ดีที่สุด</span></span>
+        <h3><span data-lang="en">Maximum from remaining stock</span><span data-lang="ar">أقصى قيمة من المخزون المتبقي</span><span data-lang="th">มูลค่าสูงสุดจากยูนิตคงเหลือ</span><span data-lang="hi">बचे हुए स्टॉक से अधिकतम</span></h3>
+        <p><span data-lang="en">Prioritises the total value of unsold units, holding price where demand allows.</span><span data-lang="ar">الأولوية للقيمة الإجمالية للوحدات غير المباعة، مع تثبيت السعر حيث يسمح الطلب.</span><span data-lang="th">เน้นมูลค่ารวมของยูนิตที่ยังขายไม่ได้ โดยคงราคาไว้เมื่อดีมานด์เอื้ออำนวย</span><span data-lang="hi">बिना बिकी यूनिट्स के कुल मूल्य को प्राथमिकता देता है, और जहाँ माँग अनुमति दे वहाँ कीमत बनाए रखता है।</span></p>
+        <span class="when"><span data-lang="en">When the project has time and you want the best final result.</span><span data-lang="ar">عندما يتوفر الوقت للمشروع وتريد أفضل نتيجة نهائية.</span><span data-lang="th">เมื่อโครงการมีเวลาและต้องการผลลัพธ์สุดท้ายที่ดีที่สุด</span><span data-lang="hi">जब प्रोजेक्ट के पास समय हो और आप सबसे अच्छा अंतिम परिणाम चाहते हों।</span></span>
       </div>
       <div class="goal">
         <div class="goal-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/><path d="M20.6 22 15 16.4V7h2v8.6l5 5z"/></svg></div>
-        <h3><span data-lang="en">Even sell-out</span><span data-lang="ru">Равномерное вымывание</span><span data-lang="ar">بيع متوازن</span><span data-lang="th">การขายอย่างสมดุล</span></h3>
-        <p><span data-lang="en">Keeps all unit types selling evenly, so you don’t end up with only the hardest units left.</span><span data-lang="ru">Все типы квартир продаются равномерно — в конце не остаются одни «неудобные» лоты.</span><span data-lang="ar">تُباع جميع أنواع الوحدات بوتيرة متوازنة، حتى لا تبقى في النهاية أصعب الوحدات بيعًا وحدها.</span><span data-lang="th">ให้ทุกประเภทยูนิตขายได้อย่างสม่ำเสมอ เพื่อไม่ให้เหลือแต่ยูนิตที่ขายยากที่สุด</span></p>
-        <span class="when"><span data-lang="en">When a balanced inventory matters.</span><span data-lang="ru">Когда важен сбалансированный остаток.</span><span data-lang="ar">عندما يهمّك توازن المخزون.</span><span data-lang="th">เมื่อความสมดุลของสต็อกเป็นเรื่องสำคัญ</span></span>
+        <h3><span data-lang="en">Even sell-out</span><span data-lang="ar">بيع متوازن</span><span data-lang="th">การขายอย่างสมดุล</span><span data-lang="hi">संतुलित बिक्री</span></h3>
+        <p><span data-lang="en">Keeps all unit types selling evenly, so you don’t end up with only the hardest units left.</span><span data-lang="ar">تُباع جميع أنواع الوحدات بوتيرة متوازنة، حتى لا تبقى في النهاية أصعب الوحدات بيعًا وحدها.</span><span data-lang="th">ให้ทุกประเภทยูนิตขายได้อย่างสม่ำเสมอ เพื่อไม่ให้เหลือแต่ยูนิตที่ขายยากที่สุด</span><span data-lang="hi">सभी यूनिट टाइप्स की बिक्री संतुलित रखता है, ताकि अंत में केवल सबसे मुश्किल यूनिट्स ही न बचें।</span></p>
+        <span class="when"><span data-lang="en">When a balanced inventory matters.</span><span data-lang="ar">عندما يهمّك توازن المخزون.</span><span data-lang="th">เมื่อความสมดุลของสต็อกเป็นเรื่องสำคัญ</span><span data-lang="hi">जब संतुलित इन्वेंटरी मायने रखती है।</span></span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== ВОЗМОЖНОСТИ ===================== -->
+
 <section class="section features" id="features">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">Features</span><span data-lang="ru">Возможности</span><span data-lang="ar">المزايا</span><span data-lang="th">ความสามารถ</span></span>
-    <h2 class="section-title"><span data-lang="en">Transparent, field-proven mathematics</span><span data-lang="ru">Прозрачная, проверенная практикой математика</span><span data-lang="ar">رياضيات شفافة ومُثبتة عمليًا</span><span data-lang="th">คณิตศาสตร์ที่โปร่งใสและพิสูจน์แล้วในการใช้งานจริง</span></h2>
-    <p class="section-sub"><span data-lang="en">Our international team of applied mathematicians has tailored best practices from leading industries to real estate development.</span><span data-lang="ru">Международная команда прикладных математиков адаптировала лучшие практики ведущих отраслей к задачам девелопмента.</span><span data-lang="ar">قام فريقنا الدولي من علماء الرياضيات التطبيقية بتكييف أفضل الممارسات من القطاعات الرائدة لتناسب التطوير العقاري.</span><span data-lang="th">ทีมนักคณิตศาสตร์ประยุกต์นานาชาติของเราได้ปรับแนวปฏิบัติที่ดีที่สุดจากอุตสาหกรรมชั้นนำมาใช้กับการพัฒนาอสังหาฯ</span></p>
+    <span class="section-tag"><span data-lang="en">Features</span><span data-lang="ar">المزايا</span><span data-lang="th">ความสามารถ</span><span data-lang="hi">विशेषताएँ</span></span>
+    <h2 class="section-title"><span data-lang="en">Transparent, field-proven mathematics</span><span data-lang="ar">رياضيات شفافة ومُثبتة عمليًا</span><span data-lang="th">คณิตศาสตร์ที่โปร่งใสและพิสูจน์แล้วในการใช้งานจริง</span><span data-lang="hi">पारदर्शी, व्यवहार में परखा हुआ गणित</span></h2>
+    <p class="section-sub"><span data-lang="en">Our international team of applied mathematicians has tailored best practices from leading industries to real estate development.</span><span data-lang="ar">قام فريقنا الدولي من علماء الرياضيات التطبيقية بتكييف أفضل الممارسات من القطاعات الرائدة لتناسب التطوير العقاري.</span><span data-lang="th">ทีมนักคณิตศาสตร์ประยุกต์นานาชาติของเราได้ปรับแนวปฏิบัติที่ดีที่สุดจากอุตสาหกรรมชั้นนำมาใช้กับการพัฒนาอสังหาฯ</span><span data-lang="hi">एप्लाइड गणितज्ञों की हमारी अंतरराष्ट्रीय टीम ने अग्रणी उद्योगों की सर्वोत्तम प्रथाओं को रियल एस्टेट डेवलपमेंट के अनुरूप ढाला है।</span></p>
     <div class="grid3">
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20 8v2h6.6L18 18.6l-4.3-4.3-1.4 0L2 24.6 3.4 26 13 16.4l4.3 4.3 1.4 0L28 11.4V18h2V8z"/></svg></div>
-        <h3><span data-lang="en">Dynamic pricing</span><span data-lang="ru">Динамическое ценообразование</span><span data-lang="ar">التسعير الديناميكي</span><span data-lang="th">การกำหนดราคาแบบไดนามิก</span></h3>
-        <p><span data-lang="en">Models adapt prices as demand changes, instead of waiting for the next monthly review.</span><span data-lang="ru">Модели подстраивают цены под изменения спроса, не дожидаясь ежемесячного пересмотра.</span><span data-lang="ar">تعدّل النماذج الأسعار مع تغيّر الطلب، بدل انتظار المراجعة الشهرية التالية.</span><span data-lang="th">โมเดลปรับราคาตามดีมานด์ที่เปลี่ยนไป แทนการรอทบทวนราคาประจำเดือน</span></p>
+        <h3><span data-lang="en">Dynamic pricing</span><span data-lang="ar">التسعير الديناميكي</span><span data-lang="th">การกำหนดราคาแบบไดนามิก</span><span data-lang="hi">डायनेमिक प्राइसिंग</span></h3>
+        <p><span data-lang="en">Models adapt prices as demand changes, instead of waiting for the next monthly review.</span><span data-lang="ar">تعدّل النماذج الأسعار مع تغيّر الطلب، بدل انتظار المراجعة الشهرية التالية.</span><span data-lang="th">โมเดลปรับราคาตามดีมานด์ที่เปลี่ยนไป แทนการรอทบทวนราคาประจำเดือน</span><span data-lang="hi">मॉडल अगली मासिक समीक्षा का इंतज़ार करने के बजाय माँग बदलते ही कीमतों को समायोजित करते हैं।</span></p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M23 20.5c0-4.6-3.8-5.1-6.8-5.6-3.3-.5-5.2-.9-5.2-3.7 0-2.4 2.5-3.2 4.7-3.2 2.3 0 4.1.9 5.5 2.6l1.6-1.2A8.7 8.7 0 0 0 17 6.1V3h-2v3c-3.6.2-6 2.3-6 5.2 0 4.7 3.8 5.3 6.9 5.7 3.3.5 5.1.9 5.1 3.6 0 3.1-3.1 3.5-5 3.5-3.4 0-4.9-1-6.2-2.6l-1.6 1.2a8.4 8.4 0 0 0 6.8 3.3V29h2v-3c3.7-.3 6-2.3 6-5.5z"/></svg></div>
-        <h3><span data-lang="en">Financing-aware</span><span data-lang="ru">Учёт финансирования</span><span data-lang="ar">مراعاة التمويل</span><span data-lang="th">คำนึงถึงต้นทุนเงินทุน</span></h3>
-        <p><span data-lang="en">Balances revenue against the cost of construction financing and the pace of incoming payments.</span><span data-lang="ru">Баланс между выручкой, стоимостью проектного финансирования и скоростью поступления денег.</span><span data-lang="ar">توازن بين الإيرادات وتكلفة تمويل البناء ووتيرة تحصيل الدفعات.</span><span data-lang="th">สร้างสมดุลระหว่างรายได้ ต้นทุนเงินกู้ก่อสร้าง และความเร็วของเงินที่เข้ามา</span></p>
+        <h3><span data-lang="en">Financing-aware</span><span data-lang="ar">مراعاة التمويل</span><span data-lang="th">คำนึงถึงต้นทุนเงินทุน</span><span data-lang="hi">फ़ाइनेंसिंग को ध्यान में रखता है</span></h3>
+        <p><span data-lang="en">Balances revenue against the cost of construction financing and the pace of incoming payments.</span><span data-lang="ar">توازن بين الإيرادات وتكلفة تمويل البناء ووتيرة تحصيل الدفعات.</span><span data-lang="th">สร้างสมดุลระหว่างรายได้ ต้นทุนเงินกู้ก่อสร้าง และความเร็วของเงินที่เข้ามา</span><span data-lang="hi">राजस्व को कंस्ट्रक्शन फ़ाइनेंसिंग की लागत और आने वाले भुगतानों की गति के साथ संतुलित करता है।</span></p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M4 2H2v26a2 2 0 0 0 2 2h26v-2H4z"/><path d="M30 9h-7v2h3.6L19 18.6l-4.3-4.3a1 1 0 0 0-1.4 0L6 21.6 7.4 23 14 16.4l4.3 4.3a1 1 0 0 0 1.4 0L28 12.4V16h2z"/></svg></div>
-        <h3><span data-lang="en">Transparent analytics</span><span data-lang="ru">Прозрачная аналитика</span><span data-lang="ar">تحليلات شفافة</span><span data-lang="th">การวิเคราะห์ที่โปร่งใส</span></h3>
-        <p><span data-lang="en">Every recommendation comes with its basis: demand curves, sales dynamics, financing indicators.</span><span data-lang="ru">У каждой рекомендации есть обоснование: графики спроса, динамика продаж, показатели финансирования.</span><span data-lang="ar">لكل توصية مبرراتها: منحنيات الطلب، وديناميكية المبيعات، ومؤشرات التمويل.</span><span data-lang="th">ทุกคำแนะนำมีที่มา: เส้นอุปสงค์ พลวัตการขาย และตัวชี้วัดด้านเงินทุน</span></p>
+        <h3><span data-lang="en">Transparent analytics</span><span data-lang="ar">تحليلات شفافة</span><span data-lang="th">การวิเคราะห์ที่โปร่งใส</span><span data-lang="hi">पारदर्शी एनालिटिक्स</span></h3>
+        <p><span data-lang="en">Every recommendation comes with its basis: demand curves, sales dynamics, financing indicators.</span><span data-lang="ar">لكل توصية مبرراتها: منحنيات الطلب، وديناميكية المبيعات، ومؤشرات التمويل.</span><span data-lang="th">ทุกคำแนะนำมีที่มา: เส้นอุปสงค์ พลวัตการขาย และตัวชี้วัดด้านเงินทุน</span><span data-lang="hi">हर सिफ़ारिश अपने आधार के साथ आती है: डिमांड कर्व, बिक्री की गतिशीलता, फ़ाइनेंसिंग संकेतक।</span></p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 30a14 14 0 1 1 14-14 14 14 0 0 1-14 14zm0-26a12 12 0 1 0 12 12A12 12 0 0 0 16 4z"/><path d="M20.6 22 15 16.4V7h2v8.6l5 5z"/></svg></div>
-        <h3><span data-lang="en">Early demand signals</span><span data-lang="ru">Ранние сигналы спроса</span><span data-lang="ar">إشارات مبكرة للطلب</span><span data-lang="th">สัญญาณดีมานด์ล่วงหน้า</span></h3>
-        <p><span data-lang="en">Spots a change in demand in your sales earlier than routine reports do — so you can react in time.</span><span data-lang="ru">Замечает изменение спроса в ваших продажах раньше обычных отчётов — чтобы успеть отреагировать.</span><span data-lang="ar">يرصد تغيّر الطلب في مبيعاتك أبكر من التقارير المعتادة — لتتمكن من التصرف في الوقت المناسب.</span><span data-lang="th">จับการเปลี่ยนแปลงของดีมานด์ในยอดขายได้เร็วกว่ารายงานปกติ — เพื่อให้คุณตอบสนองได้ทันเวลา</span></p>
+        <h3><span data-lang="en">Early demand signals</span><span data-lang="ar">إشارات مبكرة للطلب</span><span data-lang="th">สัญญาณดีมานด์ล่วงหน้า</span><span data-lang="hi">माँग के शुरुआती संकेत</span></h3>
+        <p><span data-lang="en">Spots a change in demand in your sales earlier than routine reports do — so you can react in time.</span><span data-lang="ar">يرصد تغيّر الطلب في مبيعاتك أبكر من التقارير المعتادة — لتتمكن من التصرف في الوقت المناسب.</span><span data-lang="th">จับการเปลี่ยนแปลงของดีมานด์ในยอดขายได้เร็วกว่ารายงานปกติ — เพื่อให้คุณตอบสนองได้ทันเวลา</span><span data-lang="hi">आपकी बिक्री में माँग के बदलाव को नियमित रिपोर्टों से पहले पकड़ लेता है — ताकि आप समय पर कदम उठा सकें।</span></p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 9a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm16 0a4 4 0 1 1 4-4 4 4 0 0 1-4 4zM26 30h-4a2 2 0 0 1-2-2v-7h2v7h4v-9h2v-6a1 1 0 0 0-1-1h-6.4L16 20l-4.6-8H5a1 1 0 0 0-1 1v6h2v9h4v-7h2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1-2-2v-6a3 3 0 0 1 3-3h7.6l3.4 6 3.4-6H27a3 3 0 0 1 3 3v6a2 2 0 0 1-2 2v7a2 2 0 0 1-2 2z"/></svg></div>
-        <h3><span data-lang="en">Less guesswork</span><span data-lang="ru">Меньше субъективности</span><span data-lang="ar">تخمين أقل</span><span data-lang="th">ลดการคาดเดา</span></h3>
-        <p><span data-lang="en">Decisions based on data rather than intuition — and easier to explain to owners and the bank.</span><span data-lang="ru">Решения на данных, а не на интуиции — и их проще объяснить собственнику и банку.</span><span data-lang="ar">قرارات مبنية على البيانات لا على الحدس — ويسهل شرحها للملّاك وللبنك.</span><span data-lang="th">ตัดสินใจจากข้อมูลแทนสัญชาตญาณ — และอธิบายให้เจ้าของและธนาคารเข้าใจได้ง่ายขึ้น</span></p>
+        <h3><span data-lang="en">Less guesswork</span><span data-lang="ar">تخمين أقل</span><span data-lang="th">ลดการคาดเดา</span><span data-lang="hi">कम अनुमानबाज़ी</span></h3>
+        <p><span data-lang="en">Decisions based on data rather than intuition — and easier to explain to owners and the bank.</span><span data-lang="ar">قرارات مبنية على البيانات لا على الحدس — ويسهل شرحها للملّاك وللبنك.</span><span data-lang="th">ตัดสินใจจากข้อมูลแทนสัญชาตญาณ — และอธิบายให้เจ้าของและธนาคารเข้าใจได้ง่ายขึ้น</span><span data-lang="hi">अंदाज़े के बजाय डेटा पर आधारित फ़ैसले — जिन्हें मालिकों और बैंक को समझाना आसान होता है।</span></p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M26 4v24H6V4h20m0-2H6a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 7h14v3H9zm0 6h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 18h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 23h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2z"/></svg></div>
-        <h3><span data-lang="en">Live in 7 days</span><span data-lang="ru">Подключение за 7 дней</span><span data-lang="ar">التشغيل خلال 7 أيام</span><span data-lang="th">เริ่มใช้งานได้ใน 7 วัน</span></h3>
-        <p><span data-lang="en">Fast setup without pausing sales. Works with the data formats developers already use.</span><span data-lang="ru">Быстрый запуск без остановки продаж. Работает с форматами данных, которые уже есть у застройщика.</span><span data-lang="ar">إعداد سريع دون إيقاف المبيعات. يعمل مع صيغ البيانات المتوفرة لدى المطورين.</span><span data-lang="th">ติดตั้งรวดเร็วโดยไม่ต้องหยุดขาย ใช้ได้กับรูปแบบข้อมูลที่ผู้พัฒนาใช้อยู่แล้ว</span></p>
+        <h3><span data-lang="en">Live in 7 days</span><span data-lang="ar">التشغيل خلال 7 أيام</span><span data-lang="th">เริ่มใช้งานได้ใน 7 วัน</span><span data-lang="hi">7 दिनों में लाइव</span></h3>
+        <p><span data-lang="en">Fast setup without pausing sales. Works with the data formats developers already use.</span><span data-lang="ar">إعداد سريع دون إيقاف المبيعات. يعمل مع صيغ البيانات المتوفرة لدى المطورين.</span><span data-lang="th">ติดตั้งรวดเร็วโดยไม่ต้องหยุดขาย ใช้ได้กับรูปแบบข้อมูลที่ผู้พัฒนาใช้อยู่แล้ว</span><span data-lang="hi">बिक्री रोके बिना तेज़ सेटअप। उन्हीं डेटा फ़ॉर्मैट के साथ काम करता है जो डेवलपर्स पहले से इस्तेमाल करते हैं।</span></p>
       </article>
     </div>
   </div>
 </section>
 
-<!-- ===================== ДЛЯ КОГО ===================== -->
+
 <section class="section roles">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">Who it’s for</span><span data-lang="ru">Для кого</span><span data-lang="ar">لمن صُمّم</span><span data-lang="th">เหมาะสำหรับใคร</span></span>
-    <h2 class="section-title"><span data-lang="en">Built for the people who own the price</span><span data-lang="ru">Для тех, кто отвечает за цену</span><span data-lang="ar">لمن يتحمّل مسؤولية السعر</span><span data-lang="th">สร้างมาเพื่อผู้ที่รับผิดชอบเรื่องราคา</span></h2>
-    <p class="section-sub"><span data-lang="en">Residential developers selling off-plan or ready units, from a single project to a portfolio.</span><span data-lang="ru">Девелоперы жилья — от одного проекта до портфеля, продажи на стадии строительства и готового жилья.</span><span data-lang="ar">مطورو العقارات السكنية الذين يبيعون على الخارطة أو وحدات جاهزة — من مشروع واحد إلى محفظة مشاريع.</span><span data-lang="th">ผู้พัฒนาที่อยู่อาศัยที่ขายทั้งก่อนสร้างและพร้อมอยู่ ตั้งแต่โครงการเดียวไปจนถึงพอร์ตโครงการ</span></p>
+    <span class="section-tag"><span data-lang="en">Who it’s for</span><span data-lang="ar">لمن صُمّم</span><span data-lang="th">เหมาะสำหรับใคร</span><span data-lang="hi">यह किसके लिए है</span></span>
+    <h2 class="section-title"><span data-lang="en">Built for the people who own the price</span><span data-lang="ar">لمن يتحمّل مسؤولية السعر</span><span data-lang="th">สร้างมาเพื่อผู้ที่รับผิดชอบเรื่องราคา</span><span data-lang="hi">उन लोगों के लिए बना है जो कीमत के लिए ज़िम्मेदार हैं</span></h2>
+    <p class="section-sub"><span data-lang="en">Residential developers selling off-plan or ready units, from a single project to a portfolio.</span><span data-lang="ar">مطورو العقارات السكنية الذين يبيعون على الخارطة أو وحدات جاهزة — من مشروع واحد إلى محفظة مشاريع.</span><span data-lang="th">ผู้พัฒนาที่อยู่อาศัยที่ขายทั้งก่อนสร้างและพร้อมอยู่ ตั้งแต่โครงการเดียวไปจนถึงพอร์ตโครงการ</span><span data-lang="hi">off-plan या रेडी यूनिट्स बेचने वाले रेज़िडेंशियल डेवलपर्स, एक प्रोजेक्ट से लेकर पूरे पोर्टफ़ोलियो तक।</span></p>
     <div class="grid4">
-      <div class="role"><h3><span data-lang="en">Owner / CEO</span><span data-lang="ru">Собственник / CEO</span><span data-lang="ar">المالك / الرئيس التنفيذي</span><span data-lang="th">เจ้าของ / ซีอีโอ</span></h3><p><span data-lang="en">Sees whether the project is earning what the market allows.</span><span data-lang="ru">Видит, забирает ли проект всё, что даёт рынок.</span><span data-lang="ar">يرى ما إذا كان المشروع يحقق كل ما يتيحه السوق.</span><span data-lang="th">เห็นว่าโครงการทำรายได้ได้เต็มที่ตามที่ตลาดเอื้อหรือไม่</span></p></div>
-      <div class="role"><h3><span data-lang="en">Commercial director</span><span data-lang="ru">Коммерческий директор</span><span data-lang="ar">المدير التجاري</span><span data-lang="th">ผู้อำนวยการฝ่ายพาณิชย์</span></h3><p><span data-lang="en">Gets numbers-backed prices for the pricing committee.</span><span data-lang="ru">Приходит на комитет с ценами, обоснованными в цифрах.</span><span data-lang="ar">يحضر إلى لجنة التسعير بأسعار مدعومة بالأرقام.</span><span data-lang="th">มีราคาที่อ้างอิงตัวเลขสำหรับคณะกรรมการกำหนดราคา</span></p></div>
-      <div class="role"><h3><span data-lang="en">CFO</span><span data-lang="ru">Финансовый директор</span><span data-lang="ar">المدير المالي</span><span data-lang="th">ผู้อำนวยการฝ่ายการเงิน (CFO)</span></h3><p><span data-lang="en">Links pricing to cash flow and financing costs.</span><span data-lang="ru">Связывает цены с денежным потоком и стоимостью финансирования.</span><span data-lang="ar">يربط التسعير بالتدفق النقدي وتكاليف التمويل.</span><span data-lang="th">เชื่อมโยงราคากับกระแสเงินสดและต้นทุนเงินทุน</span></p></div>
-      <div class="role"><h3><span data-lang="en">Pricing analyst</span><span data-lang="ru">Аналитик по ценам</span><span data-lang="ar">محلل التسعير</span><span data-lang="th">นักวิเคราะห์ราคา</span></h3><p><span data-lang="en">Swaps manual spreadsheets for daily unit-level recommendations.</span><span data-lang="ru">Меняет ручные таблицы на ежедневные рекомендации по лотам.</span><span data-lang="ar">يستبدل الجداول اليدوية بتوصيات يومية لكل وحدة.</span><span data-lang="th">เปลี่ยนจากสเปรดชีตทำมือเป็นคำแนะนำรายยูนิตทุกวัน</span></p></div>
+      <div class="role"><h3><span data-lang="en">Owner / CEO</span><span data-lang="ar">المالك / الرئيس التنفيذي</span><span data-lang="th">เจ้าของ / ซีอีโอ</span><span data-lang="hi">मालिक / CEO</span></h3><p><span data-lang="en">Sees whether the project is earning what the market allows.</span><span data-lang="ar">يرى ما إذا كان المشروع يحقق كل ما يتيحه السوق.</span><span data-lang="th">เห็นว่าโครงการทำรายได้ได้เต็มที่ตามที่ตลาดเอื้อหรือไม่</span><span data-lang="hi">देखते हैं कि प्रोजेक्ट उतना कमा रहा है या नहीं जितना बाज़ार अनुमति देता है।</span></p></div>
+      <div class="role"><h3><span data-lang="en">Commercial director</span><span data-lang="ar">المدير التجاري</span><span data-lang="th">ผู้อำนวยการฝ่ายพาณิชย์</span><span data-lang="hi">कमर्शियल डायरेक्टर</span></h3><p><span data-lang="en">Gets numbers-backed prices for the pricing committee.</span><span data-lang="ar">يحضر إلى لجنة التسعير بأسعار مدعومة بالأرقام.</span><span data-lang="th">มีราคาที่อ้างอิงตัวเลขสำหรับคณะกรรมการกำหนดราคา</span><span data-lang="hi">प्राइसिंग कमेटी के लिए आँकड़ों पर आधारित कीमतें पाते हैं।</span></p></div>
+      <div class="role"><h3><span data-lang="en">CFO</span><span data-lang="ar">المدير المالي</span><span data-lang="th">ผู้อำนวยการฝ่ายการเงิน (CFO)</span><span data-lang="hi">CFO</span></h3><p><span data-lang="en">Links pricing to cash flow and financing costs.</span><span data-lang="ar">يربط التسعير بالتدفق النقدي وتكاليف التمويل.</span><span data-lang="th">เชื่อมโยงราคากับกระแสเงินสดและต้นทุนเงินทุน</span><span data-lang="hi">प्राइसिंग को कैश फ़्लो और फ़ाइनेंसिंग लागत से जोड़ते हैं।</span></p></div>
+      <div class="role"><h3><span data-lang="en">Pricing analyst</span><span data-lang="ar">محلل التسعير</span><span data-lang="th">นักวิเคราะห์ราคา</span><span data-lang="hi">प्राइसिंग एनालिस्ट</span></h3><p><span data-lang="en">Swaps manual spreadsheets for daily unit-level recommendations.</span><span data-lang="ar">يستبدل الجداول اليدوية بتوصيات يومية لكل وحدة.</span><span data-lang="th">เปลี่ยนจากสเปรดชีตทำมือเป็นคำแนะนำรายยูนิตทุกวัน</span><span data-lang="hi">मैन्युअल स्प्रेडशीट की जगह रोज़ाना यूनिट-स्तर की सिफ़ारिशें पाते हैं।</span></p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== О КОМПАНИИ (из презентации) ===================== -->
+
 <section class="section trust">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">About us</span><span data-lang="ru">О нас</span><span data-lang="ar">من نحن</span><span data-lang="th">เกี่ยวกับเรา</span></span>
-    <h2 class="section-title"><span data-lang="en">DPrice is a PropTech startup by Advantix</span><span data-lang="ru">DPrice — PropTech-стартап компании Advantix</span><span data-lang="ar">DPrice شركة ناشئة في التكنولوجيا العقارية من Advantix</span><span data-lang="th">DPrice คือสตาร์ทอัพพร็อพเทคของ Advantix</span></h2>
+    <span class="section-tag"><span data-lang="en">About us</span><span data-lang="ar">من نحن</span><span data-lang="th">เกี่ยวกับเรา</span><span data-lang="hi">हमारे बारे में</span></span>
+    <h2 class="section-title"><span data-lang="en">DPrice is a PropTech startup by Advantix</span><span data-lang="ar">DPrice شركة ناشئة في التكنولوجيا العقارية من Advantix</span><span data-lang="th">DPrice คือสตาร์ทอัพพร็อพเทคของ Advantix</span><span data-lang="hi">DPrice, Advantix का एक PropTech स्टार्टअप है</span></h2>
     <div class="trust-grid">
       <div class="trust-item"><div class="trust-num">32</div>
-        <h3><span data-lang="en">years in the IT business</span><span data-lang="ru">года в ИТ-бизнесе</span><span data-lang="ar">عامًا في قطاع تقنية المعلومات</span><span data-lang="th">ปีในธุรกิจไอที</span></h3>
-        <p><span data-lang="en">Our clients trust DPrice thanks to the impeccable reputation of Advantix.</span><span data-lang="ru">Клиенты доверяют DPrice благодаря безупречной репутации Advantix.</span><span data-lang="ar">يثق عملاؤنا بـ DPrice بفضل السمعة الممتازة لشركة Advantix.</span><span data-lang="th">ลูกค้าไว้วางใจ DPrice ด้วยชื่อเสียงอันยอดเยี่ยมของ Advantix</span></p></div>
+        <h3><span data-lang="en">years in the IT business</span><span data-lang="ar">عامًا في قطاع تقنية المعلومات</span><span data-lang="th">ปีในธุรกิจไอที</span><span data-lang="hi">वर्ष IT व्यवसाय में</span></h3>
+        <p><span data-lang="en">Our clients trust DPrice thanks to the impeccable reputation of Advantix.</span><span data-lang="ar">يثق عملاؤنا بـ DPrice بفضل السمعة الممتازة لشركة Advantix.</span><span data-lang="th">ลูกค้าไว้วางใจ DPrice ด้วยชื่อเสียงอันยอดเยี่ยมของ Advantix</span><span data-lang="hi">Advantix की बेदाग़ प्रतिष्ठा के कारण हमारे क्लाइंट्स DPrice पर भरोसा करते हैं।</span></p></div>
       <div class="trust-item"><div class="trust-num">7</div>
-        <h3><span data-lang="en">years of experience</span><span data-lang="ru">лет опыта</span><span data-lang="ar">سنوات من الخبرة</span><span data-lang="th">ปีของประสบการณ์</span></h3>
-        <p><span data-lang="en">With successful projects for industry leaders.</span><span data-lang="ru">Успешные проекты для лидеров отрасли.</span><span data-lang="ar">مشاريع ناجحة لروّاد القطاع.</span><span data-lang="th">พร้อมโครงการที่ประสบความสำเร็จให้กับผู้นำในอุตสาหกรรม</span></p></div>
+        <h3><span data-lang="en">years of experience</span><span data-lang="ar">سنوات من الخبرة</span><span data-lang="th">ปีของประสบการณ์</span><span data-lang="hi">वर्षों का अनुभव</span></h3>
+        <p><span data-lang="en">With successful projects for industry leaders.</span><span data-lang="ar">مشاريع ناجحة لروّاد القطاع.</span><span data-lang="th">พร้อมโครงการที่ประสบความสำเร็จให้กับผู้นำในอุตสาหกรรม</span><span data-lang="hi">उद्योग के अग्रणी दिग्गजों के लिए सफल प्रोजेक्ट्स के साथ।</span></p></div>
       <div class="trust-item"><div class="trust-num">R&amp;D</div>
-        <h3><span data-lang="en">International team</span><span data-lang="ru">Международная команда</span><span data-lang="ar">فريق دولي</span><span data-lang="th">ทีมนานาชาติ</span></h3>
-        <p><span data-lang="en">The product team members are R&amp;D professionals.</span><span data-lang="ru">Продуктовая команда — профессионалы R&amp;D.</span><span data-lang="ar">أعضاء فريق المنتج متخصصون في البحث والتطوير.</span><span data-lang="th">ทีมผลิตภัณฑ์ประกอบด้วยผู้เชี่ยวชาญด้านวิจัยและพัฒนา (R&amp;D)</span></p></div>
+        <h3><span data-lang="en">International team</span><span data-lang="ar">فريق دولي</span><span data-lang="th">ทีมนานาชาติ</span><span data-lang="hi">अंतरराष्ट्रीय टीम</span></h3>
+        <p><span data-lang="en">The product team members are R&amp;D professionals.</span><span data-lang="ar">أعضاء فريق المنتج متخصصون في البحث والتطوير.</span><span data-lang="th">ทีมผลิตภัณฑ์ประกอบด้วยผู้เชี่ยวชาญด้านวิจัยและพัฒนา (R&amp;D)</span><span data-lang="hi">प्रोडक्ट टीम के सदस्य R&amp;D प्रोफ़ेशनल्स हैं।</span></p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== ПОПРОБУЙТЕ САМИ ===================== -->
+
 <section class="section tools" id="tools">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">Try it yourself</span><span data-lang="ru">Попробуйте сами</span><span data-lang="ar">جرّب بنفسك</span><span data-lang="th">ลองด้วยตัวเอง</span></span>
-    <h2 class="section-title"><span data-lang="en">See DPrice in action before you talk to us</span><span data-lang="ru">Посмотрите DPrice в деле ещё до разговора с нами</span><span data-lang="ar">شاهد DPrice أثناء العمل قبل أن تتحدث إلينا</span><span data-lang="th">ดู DPrice ทำงานจริงก่อนคุยกับเรา</span></h2>
-    <p class="section-sub"><span data-lang="en">Three ways in: play against the algorithm, run your own numbers, or open a worked calculation on real apartments.</span><span data-lang="ru">Три способа: сыграть против алгоритма, посчитать свой проект или открыть готовый расчёт на реальных квартирах.</span><span data-lang="ar">ثلاث طرق: العب ضد الخوارزمية، أو احسب أرقام مشروعك، أو افتح حسابًا جاهزًا على شقق حقيقية.</span><span data-lang="th">สามช่องทาง: เล่นแข่งกับอัลกอริทึม คำนวณตัวเลขของคุณเอง หรือเปิดดูการคำนวณตัวอย่างบนยูนิตจริง</span></p>
+    <span class="section-tag"><span data-lang="en">Try it yourself</span><span data-lang="ar">جرّب بنفسك</span><span data-lang="th">ลองด้วยตัวเอง</span><span data-lang="hi">ख़ुद आज़माएँ</span></span>
+    <h2 class="section-title"><span data-lang="en">See DPrice in action before you talk to us</span><span data-lang="ar">شاهد DPrice أثناء العمل قبل أن تتحدث إلينا</span><span data-lang="th">ดู DPrice ทำงานจริงก่อนคุยกับเรา</span><span data-lang="hi">हमसे बात करने से पहले DPrice को काम करते हुए देखें</span></h2>
+    <p class="section-sub"><span data-lang="en">Three ways in: play against the algorithm, run your own numbers, or open a worked calculation on real apartments.</span><span data-lang="ar">ثلاث طرق: العب ضد الخوارزمية، أو احسب أرقام مشروعك، أو افتح حسابًا جاهزًا على شقق حقيقية.</span><span data-lang="th">สามช่องทาง: เล่นแข่งกับอัลกอริทึม คำนวณตัวเลขของคุณเอง หรือเปิดดูการคำนวณตัวอย่างบนยูนิตจริง</span><span data-lang="hi">तीन तरीके: एल्गोरिदम के ख़िलाफ़ खेलें, अपने आँकड़ों से गणना करें, या असली अपार्टमेंट्स पर तैयार गणना खोलें।</span></p>
     <div class="grid3">
-      <a class="cta-card blue" data-link="game" href="../game/en/game/?region=global">
-        <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M7.5 26A5.6 5.6 0 0 1 2.2 19l2.3-8.8A5.5 5.5 0 0 1 14.7 9h2.6a5.5 5.5 0 0 1 10.2 1.2l2.3 8.8a5.6 5.6 0 0 1-10.6 2.9L19 21h-6l-.2.9A5.6 5.6 0 0 1 7.5 26zM9.8 8a3.6 3.6 0 0 0-3.4 2.7L4.1 19.5a3.6 3.6 0 0 0 6.8 1.9l.6-2.4h9l.6 2.4a3.6 3.6 0 0 0 6.8-1.9l-2.3-8.8A3.6 3.6 0 0 0 19 10.3l-.2.7h-5.6l-.2-.7A3.5 3.5 0 0 0 9.8 8z"/><path d="M9 11h2v3h3v2h-3v3H9v-3H6v-2h3z"/></svg></div>
-        <h3><span data-lang="en">DPrice game</span><span data-lang="ru">Игра DPrice</span><span data-lang="ar">لعبة DPrice</span><span data-lang="th">เกม DPrice</span></h3>
-        <p><span data-lang="en">Your goal is to maximize revenue over 12 months. Adjust the price once a month: too high and sales slow down, too low and apartments go below their value. About five minutes.</span><span data-lang="ru">Ваша цель — максимизировать выручку за 12 месяцев. Меняйте цену раз в месяц: слишком высокая — продажи падают, слишком низкая — квартиры уходят дешевле своей стоимости. Около пяти минут.</span><span data-lang="ar">هدفك تحقيق أقصى إيرادات خلال 12 شهرًا. عدّل السعر مرة كل شهر: إن كان مرتفعًا جدًا تتراجع المبيعات، وإن كان منخفضًا جدًا تُباع الشقق بأقل من قيمتها. نحو خمس دقائق.</span><span data-lang="th">เป้าหมายของคุณคือทำรายได้สูงสุดใน 12 เดือน ปรับราคาเดือนละครั้ง: ตั้งสูงไป ยอดขายจะชะลอ ตั้งต่ำไป ห้องจะขายต่ำกว่ามูลค่า ใช้เวลาประมาณห้านาที</span></p>
-        <small><span data-lang="en">The game is in English, Russian and Arabic; prices are in the currency of the selected region.</span><span data-lang="ru">Игра на английском, русском и арабском, цены — в валюте выбранного региона.</span><span data-lang="ar">اللعبة بالإنجليزية والروسية والعربية، والأسعار بعملة المنطقة المختارة.</span><span data-lang="th">เกมมีภาษาอังกฤษ รัสเซีย และอาหรับ ราคาเป็นสกุลเงินของภูมิภาคที่เลือก</span></small>
-        <span class="cta-link"><span data-lang="en">Play with DPrice</span><span data-lang="ru">Сыграть с DPrice</span><span data-lang="ar">العب مع DPrice</span><span data-lang="th">เล่นกับ DPrice</span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
-      </a>
-      <!-- ROI-калькулятор по регионам (site/../calculator/, исходники — calc/) -->
-      <!-- ROI-калькулятор по регионам (site/calculator/index.html, исходники — calc/) -->
-      <!-- ROI-калькулятор по регионам (site/calculator/index.html, исходники — calc/) -->
-      <a class="cta-card green" data-link="calc" href="../calculator/">
-        <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M26 4v24H6V4h20m0-2H6a2 2 0 0 0-2 2v24a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 7h14v3H9zm0 6h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 18h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2zM9 23h2v2H9zm6 0h2v2h-2zm6 0h2v2h-2z"/></svg></div>
-        <h3><span data-lang="en">ROI calculator</span><span data-lang="ru">ROI-калькулятор</span><span data-lang="ar">حاسبة العائد على الاستثمار</span><span data-lang="th">เครื่องคำนวณ ROI</span></h3>
-        <p><span data-lang="en">Enter your project’s parameters and compare scenarios with and without DPrice: revenue, financing interest, profit.</span><span data-lang="ru">Введите параметры ЖК и сравните сценарии с DPrice и без: выручка, проценты по финансированию, прибыль.</span><span data-lang="ar">أدخل معايير مشروعك وقارن السيناريوهات مع DPrice وبدونه: الإيرادات وفوائد التمويل والأرباح.</span><span data-lang="th">กรอกข้อมูลโครงการแล้วเปรียบเทียบสถานการณ์เมื่อใช้และไม่ใช้ DPrice: รายได้ ดอกเบี้ยเงินกู้ และกำไร</span></p>
-        <small><span data-region="global"><span data-lang="en">Calculated in USD, prices per m², with this region’s financing assumptions.</span><span data-lang="ru">Расчёт в USD, цены за м², с допущениями региона по финансированию.</span><span data-lang="ar">الحساب بـ USD، والأسعار لكل متر مربع، مع افتراضات التمويل لهذه المنطقة.</span><span data-lang="th">คำนวณเป็น USD ราคาต่อตร.ม. พร้อมสมมติฐานด้านเงินทุนของภูมิภาคนี้</span></span><span data-region="uae"><span data-lang="en">Calculated in AED, prices per sq ft, with this region’s financing assumptions.</span><span data-lang="ru">Расчёт в AED, цены за кв. фут, с допущениями региона по финансированию.</span><span data-lang="ar">الحساب بـ AED، والأسعار لكل قدم مربعة، مع افتراضات التمويل لهذه المنطقة.</span><span data-lang="th">คำนวณเป็น AED ราคาต่อตร.ฟุต พร้อมสมมติฐานด้านเงินทุนของภูมิภาคนี้</span></span><span data-region="th"><span data-lang="en">Calculated in THB, prices per m², with this region’s financing assumptions.</span><span data-lang="ru">Расчёт в THB, цены за м², с допущениями региона по финансированию.</span><span data-lang="ar">الحساب بـ THB، والأسعار لكل متر مربع، مع افتراضات التمويل لهذه المنطقة.</span><span data-lang="th">คำนวณเป็น THB ราคาต่อตร.ม. พร้อมสมมติฐานด้านเงินทุนของภูมิภาคนี้</span></span><span data-region="ru"><span data-lang="en">Calculated in RUB, prices per m², with this region’s financing assumptions.</span><span data-lang="ru">Расчёт в RUB, цены за м², с допущениями региона по финансированию.</span><span data-lang="ar">الحساب بـ RUB، والأسعار لكل متر مربع، مع افتراضات التمويل لهذه المنطقة.</span><span data-lang="th">คำนวณเป็น RUB ราคาต่อตร.ม. พร้อมสมมติฐานด้านเงินทุนของภูมิภาคนี้</span></span> <span data-lang="en">Scenario model, not a guaranteed result.</span><span data-lang="ru">Сценарная модель, а не гарантированный результат.</span><span data-lang="ar">نموذج سيناريو، وليس نتيجة مضمونة.</span><span data-lang="th">โมเดลสถานการณ์ ไม่ใช่ผลลัพธ์ที่รับประกัน</span></small>
-        <span class="cta-link"><span data-region="global"><span data-lang="en">Calculate · USD</span><span data-lang="ru">Рассчитать · USD</span><span data-lang="ar">احسب · USD</span><span data-lang="th">คำนวณ · USD</span></span><span data-region="uae"><span data-lang="en">Calculate · AED</span><span data-lang="ru">Рассчитать · AED</span><span data-lang="ar">احسب · AED</span><span data-lang="th">คำนวณ · AED</span></span><span data-region="th"><span data-lang="en">Calculate · THB</span><span data-lang="ru">Рассчитать · THB</span><span data-lang="ar">احسب · THB</span><span data-lang="th">คำนวณ · THB</span></span><span data-region="ru"><span data-lang="en">Calculate · RUB</span><span data-lang="ru">Рассчитать · RUB</span><span data-lang="ar">احسب · RUB</span><span data-lang="th">คำนวณ · RUB</span></span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
-      </a>
-      <!-- Модельный расчёт на опубликованных квартирах по регионам (site/apartments/index.html, исходник — scenario/).
-           Не кейс клиента: только «модельный расчёт», «допущения», «не итог реальных продаж».
-           Цифры — режим «выручка» при исходных допущениях; генерируются scenario/landing-card.js из summary.json. -->
+      
+      
+      
+      
+      
+      
       <a class="cta-card gold" data-link="scenario" href="../apartments/" target="_blank" rel="noopener">
         <div class="cta-icon"><svg viewBox="0 0 32 32" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M4 2H2v26a2 2 0 0 0 2 2h26v-2H4z"/><path d="M30 9h-7v2h3.6L19 18.6l-4.3-4.3a1 1 0 0 0-1.4 0L6 21.6 7.4 23 14 16.4l4.3 4.3a1 1 0 0 0 1.4 0L28 12.4V16h2z"/></svg></div>
-        <h3><span data-lang="en">Calculation on real apartments</span><span data-lang="ru">Расчёт на реальных квартирах</span><span data-lang="ar">حساب على شقق حقيقية</span><span data-lang="th">การคำนวณบนห้องชุดจริง</span></h3>
-        <p><span data-region="global"><span data-lang="en">17 listed apartments in one building. In the model: <b>+US$191.9k (+2.1%) revenue</b> over 6 months.</span><span data-lang="ru">17 опубликованных квартир одного корпуса. В модели: <b>+191,9 тыс. $ (+2,1%) выручки</b> за 6 месяцев.</span><span data-lang="ar">17 شقة معروضة في مبنى واحد. في النموذج: <b>+‏191.9 ألف US$ (+2.1%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 17 ห้องในอาคารเดียว ตามโมเดล: <b>รายได้ +US$191.9K (+2.1%)</b> ใน 6 เดือน</span></span><span data-region="uae"><span data-lang="en">17 listed apartments in one building. In the model: <b>+AED 704.9k (+2.1%) revenue</b> over 6 months.</span><span data-lang="ru">17 опубликованных квартир одного корпуса. В модели: <b>+704,9 тыс. AED (+2,1%) выручки</b> за 6 месяцев.</span><span data-lang="ar">17 شقة معروضة في مبنى واحد. في النموذج: <b>+‏704.9 ألف د.إ.‏ (+2.1%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 17 ห้องในอาคารเดียว ตามโมเดล: <b>รายได้ +AED 704.9K (+2.1%)</b> ใน 6 เดือน</span></span><span data-region="th"><span data-lang="en">25 listed apartments in one project. In the model: <b>+THB 3.7m (+1.9%) revenue</b> over 6 months.</span><span data-lang="ru">25 опубликованных квартир одного проекта. В модели: <b>+3,7 млн ฿ (+1,9%) выручки</b> за 6 месяцев.</span><span data-lang="ar">25 شقة معروضة في مشروع واحد. في النموذج: <b>+‏3.7 مليون ฿ (+1.9%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 25 ห้องในโครงการเดียว ตามโมเดล: <b>รายได้ +฿3.7M (+1.9%)</b> ใน 6 เดือน</span></span><span data-region="ru"><span data-lang="en">20 listed apartments in one building. In the model: <b>+RUB 5.7m (+2.5%) revenue</b> over 6 months.</span><span data-lang="ru">20 опубликованных квартир одного корпуса. В модели: <b>+5,7 млн ₽ (+2,5%) выручки</b> за 6 месяцев.</span><span data-lang="ar">20 شقة معروضة في مبنى واحد. في النموذج: <b>+‏5.7 مليون RUB (+2.5%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 20 ห้องในอาคารเดียว ตามโมเดล: <b>รายได้ +RUB 5.7M (+2.5%)</b> ใน 6 เดือน</span></span></p>
-        <small><span data-lang="en">An open model: every assumption can be checked and changed. The real effect is measured on your own sales data.</span><span data-lang="ru">Открытая модель: каждое допущение можно проверить и изменить. Реальный эффект считается на ваших данных о продажах.</span><span data-lang="ar">نموذج مفتوح: يمكن التحقق من كل افتراض وتغييره. أما الأثر الفعلي فيُقاس على بيانات مبيعاتك.</span><span data-lang="th">โมเดลแบบเปิด: ตรวจสอบและปรับทุกสมมติฐานได้ ผลจริงวัดจากข้อมูลการขายของคุณเอง</span></small>
-        <span class="cta-link"><span data-region="global"><span data-lang="en">Open the calculation · USD</span><span data-lang="ru">Открыть расчёт · USD</span><span data-lang="ar">افتح الحساب · USD</span><span data-lang="th">เปิดการคำนวณ · USD</span></span><span data-region="uae"><span data-lang="en">Open the calculation · AED</span><span data-lang="ru">Открыть расчёт · AED</span><span data-lang="ar">افتح الحساب · AED</span><span data-lang="th">เปิดการคำนวณ · AED</span></span><span data-region="th"><span data-lang="en">Open the calculation · THB</span><span data-lang="ru">Открыть расчёт · THB</span><span data-lang="ar">افتح الحساب · THB</span><span data-lang="th">เปิดการคำนวณ · THB</span></span><span data-region="ru"><span data-lang="en">Open the calculation · RUB</span><span data-lang="ru">Открыть расчёт · RUB</span><span data-lang="ar">افتح الحساب · RUB</span><span data-lang="th">เปิดการคำนวณ · RUB</span></span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
+        <h3><span data-lang="en">Calculation on real apartments</span><span data-lang="ar">حساب على شقق حقيقية</span><span data-lang="th">การคำนวณบนห้องชุดจริง</span><span data-lang="hi">असली अपार्टमेंट्स पर गणना</span></h3>
+        <p><span data-region="global sa in"><span data-lang="en">17 listed apartments in one building. In the model: <b>+US$191.9k (+2.1%) revenue</b> over 6 months.</span><span data-lang="ar">17 شقة معروضة في مبنى واحد. في النموذج: <b>+‏191.9 ألف US$ (+2.1%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 17 ห้องในอาคารเดียว ตามโมเดล: <b>รายได้ +US$191.9K (+2.1%)</b> ใน 6 เดือน</span><span data-lang="hi">एक बिल्डिंग में 17 सूचीबद्ध अपार्टमेंट। मॉडल में: 6 महीनों में <b>+US$191.9k (+2.1%) राजस्व</b>।</span></span><span data-region="uae"><span data-lang="en">17 listed apartments in one building. In the model: <b>+AED 704.9k (+2.1%) revenue</b> over 6 months.</span><span data-lang="ar">17 شقة معروضة في مبنى واحد. في النموذج: <b>+‏704.9 ألف د.إ.‏ (+2.1%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 17 ห้องในอาคารเดียว ตามโมเดล: <b>รายได้ +AED 704.9K (+2.1%)</b> ใน 6 เดือน</span><span data-lang="hi">एक बिल्डिंग में 17 सूचीबद्ध अपार्टमेंट। मॉडल में: 6 महीनों में <b>+AED 704.9k (+2.1%) राजस्व</b>।</span></span><span data-region="th"><span data-lang="en">25 listed apartments in one project. In the model: <b>+THB 3.7m (+1.9%) revenue</b> over 6 months.</span><span data-lang="ar">25 شقة معروضة في مشروع واحد. في النموذج: <b>+‏3.7 مليون ฿ (+1.9%) إيرادات إضافية</b> خلال 6 أشهر.</span><span data-lang="th">ห้องที่ประกาศขาย 25 ห้องในโครงการเดียว ตามโมเดล: <b>รายได้ +฿3.7M (+1.9%)</b> ใน 6 เดือน</span><span data-lang="hi">एक प्रोजेक्ट में 25 सूचीबद्ध अपार्टमेंट। मॉडल में: 6 महीनों में <b>+THB 3.7m (+1.9%) राजस्व</b>।</span></span></p>
+        <small><span data-lang="en">An open model: every assumption can be checked and changed. The real effect is measured on your own sales data.</span><span data-lang="ar">نموذج مفتوح: يمكن التحقق من كل افتراض وتغييره. أما الأثر الفعلي فيُقاس على بيانات مبيعاتك.</span><span data-lang="th">โมเดลแบบเปิด: ตรวจสอบและปรับทุกสมมติฐานได้ ผลจริงวัดจากข้อมูลการขายของคุณเอง</span><span data-lang="hi">एक खुला मॉडल: हर मान्यता की जाँच की जा सकती है और उसे बदला जा सकता है। वास्तविक प्रभाव आपके अपने सेल्स डेटा पर मापा जाता है।</span></small>
+        <span class="cta-link"><span data-region="global sa in"><span data-lang="en">Open the calculation · USD</span><span data-lang="ar">افتح الحساب · USD</span><span data-lang="th">เปิดการคำนวณ · USD</span><span data-lang="hi">गणना खोलें · USD</span></span><span data-region="uae"><span data-lang="en">Open the calculation · AED</span><span data-lang="ar">افتح الحساب · AED</span><span data-lang="th">เปิดการคำนวณ · AED</span><span data-lang="hi">गणना खोलें · AED</span></span><span data-region="th"><span data-lang="en">Open the calculation · THB</span><span data-lang="ar">افتح الحساب · THB</span><span data-lang="th">เปิดการคำนวณ · THB</span><span data-lang="hi">गणना खोलें · THB</span></span> <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></span>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ===================== КАК НАЧАТЬ ===================== -->
+
 <section class="section start">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">Getting started</span><span data-lang="ru">Как начать</span><span data-lang="ar">كيف تبدأ</span><span data-lang="th">เริ่มต้นใช้งาน</span></span>
-    <h2 class="section-title"><span data-lang="en">From first call to live recommendations</span><span data-lang="ru">От первого звонка до рабочих рекомендаций</span><span data-lang="ar">من أول مكالمة إلى توصيات فعلية</span><span data-lang="th">จากการโทรครั้งแรกสู่คำแนะนำที่ใช้งานจริง</span></h2>
-    <p class="section-sub"><span data-lang="en">We start with one project and agree in advance how the result will be measured.</span><span data-lang="ru">Начинаем с одного проекта и заранее договариваемся, как будем измерять результат.</span><span data-lang="ar">نبدأ بمشروع واحد ونتفق مسبقًا على طريقة قياس النتيجة.</span><span data-lang="th">เราเริ่มจากโครงการเดียว และตกลงกันล่วงหน้าว่าจะวัดผลอย่างไร</span></p>
+    <span class="section-tag"><span data-lang="en">Getting started</span><span data-lang="ar">كيف تبدأ</span><span data-lang="th">เริ่มต้นใช้งาน</span><span data-lang="hi">शुरुआत कैसे करें</span></span>
+    <h2 class="section-title"><span data-lang="en">From first call to live recommendations</span><span data-lang="ar">من أول مكالمة إلى توصيات فعلية</span><span data-lang="th">จากการโทรครั้งแรกสู่คำแนะนำที่ใช้งานจริง</span><span data-lang="hi">पहली कॉल से लाइव सिफ़ारिशों तक</span></h2>
+    <p class="section-sub"><span data-lang="en">We start with one project and agree in advance how the result will be measured.</span><span data-lang="ar">نبدأ بمشروع واحد ونتفق مسبقًا على طريقة قياس النتيجة.</span><span data-lang="th">เราเริ่มจากโครงการเดียว และตกลงกันล่วงหน้าว่าจะวัดผลอย่างไร</span><span data-lang="hi">हम एक प्रोजेक्ट से शुरू करते हैं और पहले ही तय कर लेते हैं कि परिणाम कैसे मापा जाएगा।</span></p>
     <div class="timeline">
-      <div class="tl"><div class="tl-when"><span data-lang="en">Step 1</span><span data-lang="ru">Шаг 1</span><span data-lang="ar">الخطوة 1</span><span data-lang="th">ขั้นที่ 1</span></div>
-        <h3><span data-lang="en">Intro call</span><span data-lang="ru">Знакомство</span><span data-lang="ar">مكالمة تعارف</span><span data-lang="th">การโทรแนะนำ</span></h3>
-        <p><span data-lang="en">30 minutes: your project, your goal, a live look at the platform.</span><span data-lang="ru">30 минут: ваш проект, ваша цель, показ платформы.</span><span data-lang="ar">30 دقيقة: مشروعك، وهدفك، وعرض مباشر للمنصة.</span><span data-lang="th">30 นาที: โครงการของคุณ เป้าหมาย และการสาธิตแพลตฟอร์มแบบสด</span></p></div>
-      <div class="tl"><div class="tl-when"><span data-lang="en">Step 2</span><span data-lang="ru">Шаг 2</span><span data-lang="ar">الخطوة 2</span><span data-lang="th">ขั้นที่ 2</span></div>
-        <h3><span data-lang="en">Data and goal</span><span data-lang="ru">Данные и цель</span><span data-lang="ar">البيانات والهدف</span><span data-lang="th">ข้อมูลและเป้าหมาย</span></h3>
-        <p><span data-lang="en">You share a sales export; we agree the goal and how success is measured.</span><span data-lang="ru">Вы передаёте выгрузку продаж, мы фиксируем цель и способ оценки результата.</span><span data-lang="ar">تشاركنا بيانات المبيعات، ونتفق على الهدف وطريقة قياس النجاح.</span><span data-lang="th">คุณส่งข้อมูลการขาย เราตกลงเป้าหมายและวิธีวัดความสำเร็จร่วมกัน</span></p></div>
-      <div class="tl"><div class="tl-when"><span data-lang="en">First 3 months</span><span data-lang="ru">Первые 3 месяца</span><span data-lang="ar">أول 3 أشهر</span><span data-lang="th">3 เดือนแรก</span></div>
-        <h3><span data-lang="en">Free period</span><span data-lang="ru">Бесплатный период</span><span data-lang="ar">فترة مجانية</span><span data-lang="th">ช่วงทดลองฟรี</span></h3>
-        <p><span data-lang="en">DPrice is set up on your project and your team works with it — the first three months of the one-year contract are free.</span><span data-lang="ru">DPrice настроен на ваш проект, команда работает с ним. Первые три месяца годового договора — бесплатно.</span><span data-lang="ar">يُهيَّأ DPrice لمشروعك ويعمل به فريقك — أول ثلاثة أشهر من العقد السنوي مجانية.</span><span data-lang="th">ตั้งค่า DPrice สำหรับโครงการของคุณและทีมเริ่มใช้งาน — 3 เดือนแรกของสัญญา 1 ปีไม่มีค่าใช้จ่าย</span></p></div>
-      <div class="tl"><div class="tl-when"><span data-lang="en">Ongoing</span><span data-lang="ru">Дальше</span><span data-lang="ar">باستمرار</span><span data-lang="th">ต่อเนื่อง</span></div>
-        <h3><span data-lang="en">Recommendations</span><span data-lang="ru">Рекомендации</span><span data-lang="ar">التوصيات</span><span data-lang="th">คำแนะนำ</span></h3>
-        <p><span data-lang="en">Regular unit-level advice and reviews of the results with our team.</span><span data-lang="ru">Регулярные рекомендации по лотам и разбор результатов с нашей командой.</span><span data-lang="ar">توصيات منتظمة لكل وحدة ومراجعة النتائج مع فريقنا.</span><span data-lang="th">คำแนะนำรายยูนิตอย่างสม่ำเสมอ และทบทวนผลลัพธ์ร่วมกับทีมของเรา</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">Step 1</span><span data-lang="ar">الخطوة 1</span><span data-lang="th">ขั้นที่ 1</span><span data-lang="hi">चरण 1</span></div>
+        <h3><span data-lang="en">Intro call</span><span data-lang="ar">مكالمة تعارف</span><span data-lang="th">การโทรแนะนำ</span><span data-lang="hi">परिचय कॉल</span></h3>
+        <p><span data-lang="en">30 minutes: your project, your goal, a live look at the platform.</span><span data-lang="ar">30 دقيقة: مشروعك، وهدفك، وعرض مباشر للمنصة.</span><span data-lang="th">30 นาที: โครงการของคุณ เป้าหมาย และการสาธิตแพลตฟอร์มแบบสด</span><span data-lang="hi">30 मिनट: आपका प्रोजेक्ट, आपका लक्ष्य, प्लेटफ़ॉर्म की लाइव झलक।</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">Step 2</span><span data-lang="ar">الخطوة 2</span><span data-lang="th">ขั้นที่ 2</span><span data-lang="hi">चरण 2</span></div>
+        <h3><span data-lang="en">Data and goal</span><span data-lang="ar">البيانات والهدف</span><span data-lang="th">ข้อมูลและเป้าหมาย</span><span data-lang="hi">डेटा और लक्ष्य</span></h3>
+        <p><span data-lang="en">You share a sales export; we agree the goal and how success is measured.</span><span data-lang="ar">تشاركنا بيانات المبيعات، ونتفق على الهدف وطريقة قياس النجاح.</span><span data-lang="th">คุณส่งข้อมูลการขาย เราตกลงเป้าหมายและวิธีวัดความสำเร็จร่วมกัน</span><span data-lang="hi">आप सेल्स एक्सपोर्ट साझा करते हैं; हम लक्ष्य और सफलता मापने का तरीका तय करते हैं।</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">First 3 months</span><span data-lang="ar">أول 3 أشهر</span><span data-lang="th">3 เดือนแรก</span><span data-lang="hi">पहले 3 महीने</span></div>
+        <h3><span data-lang="en">Free period</span><span data-lang="ar">فترة مجانية</span><span data-lang="th">ช่วงทดลองฟรี</span><span data-lang="hi">मुफ़्त अवधि</span></h3>
+        <p><span data-lang="en">DPrice is set up on your project and your team works with it — the first three months of the one-year contract are free.</span><span data-lang="ar">يُهيَّأ DPrice لمشروعك ويعمل به فريقك — أول ثلاثة أشهر من العقد السنوي مجانية.</span><span data-lang="th">ตั้งค่า DPrice สำหรับโครงการของคุณและทีมเริ่มใช้งาน — 3 เดือนแรกของสัญญา 1 ปีไม่มีค่าใช้จ่าย</span><span data-lang="hi">DPrice आपके प्रोजेक्ट पर सेट अप किया जाता है और आपकी टीम उसके साथ काम करती है — एक साल के कॉन्ट्रैक्ट के पहले तीन महीने मुफ़्त हैं।</span></p></div>
+      <div class="tl"><div class="tl-when"><span data-lang="en">Ongoing</span><span data-lang="ar">باستمرار</span><span data-lang="th">ต่อเนื่อง</span><span data-lang="hi">निरंतर</span></div>
+        <h3><span data-lang="en">Recommendations</span><span data-lang="ar">التوصيات</span><span data-lang="th">คำแนะนำ</span><span data-lang="hi">सिफ़ारिशें</span></h3>
+        <p><span data-lang="en">Regular unit-level advice and reviews of the results with our team.</span><span data-lang="ar">توصيات منتظمة لكل وحدة ومراجعة النتائج مع فريقنا.</span><span data-lang="th">คำแนะนำรายยูนิตอย่างสม่ำเสมอ และทบทวนผลลัพธ์ร่วมกับทีมของเรา</span><span data-lang="hi">नियमित यूनिट-स्तर की सलाह और हमारी टीम के साथ परिणामों की समीक्षा।</span></p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== ВОПРОСЫ ===================== -->
+
 <section class="section faq" id="faq">
   <div class="wrap">
-    <span class="section-tag"><span data-lang="en">FAQ</span><span data-lang="ru">Вопросы</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span></span>
-    <h2 class="section-title"><span data-lang="en">Frequently asked questions</span><span data-lang="ru">Частые вопросы</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span></h2>
+    <span class="section-tag"><span data-lang="en">FAQ</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span><span data-lang="hi">FAQ</span></span>
+    <h2 class="section-title"><span data-lang="en">Frequently asked questions</span><span data-lang="ar">الأسئلة الشائعة</span><span data-lang="th">คำถามที่พบบ่อย</span><span data-lang="hi">अक्सर पूछे जाने वाले प्रश्न</span></h2>
     <div class="faq-list">
-      <details><summary><span data-lang="en">What data does DPrice need?</span><span data-lang="ru">Какие данные нужны DPrice?</span><span data-lang="ar">ما البيانات التي يحتاجها DPrice؟</span><span data-lang="th">DPrice ต้องใช้ข้อมูลอะไรบ้าง?</span></summary>
-        <p><span data-lang="en">Your sales data: the list of units with their characteristics, price history, bookings and deals — from your CRM or a spreadsheet export. Recommendations are built on how your project actually sells; market information, such as nearby launches, is shown as context. Your data is never shared with other developers.</span><span data-lang="ru">Ваши данные о продажах: список лотов с характеристиками, история цен, брони и сделки — из CRM или выгрузки в таблице. Рекомендации строятся на том, как продаётся именно ваш проект; рыночная информация, например новые запуски рядом, показывается как фон. Ваши данные никогда не передаются другим застройщикам.</span><span data-lang="ar">بيانات مبيعاتك: قائمة الوحدات بخصائصها وسجل الأسعار والحجوزات والصفقات — من نظام CRM أو ملف جدول بيانات. تُبنى التوصيات على طريقة بيع مشروعك فعلًا، وتُعرض معلومات السوق، مثل المشاريع الجديدة القريبة، كخلفية. ولا تُشارك بياناتك أبدًا مع مطوّرين آخرين.</span><span data-lang="th">ข้อมูลการขายของคุณ: รายการยูนิตพร้อมคุณสมบัติ ประวัติราคา การจอง และการซื้อขาย — จาก CRM หรือไฟล์สเปรดชีต คำแนะนำสร้างจากการขายจริงของโครงการคุณ ส่วนข้อมูลตลาด เช่น โครงการใหม่ใกล้เคียง จะแสดงเป็นข้อมูลประกอบ ข้อมูลของคุณจะไม่ถูกแชร์กับผู้พัฒนารายอื่น</span></p></details>
-      <details><summary><span data-lang="en">Does DPrice change prices automatically?</span><span data-lang="ru">DPrice сам меняет цены?</span><span data-lang="ar">هل يغيّر DPrice الأسعار تلقائيًا؟</span><span data-lang="th">DPrice เปลี่ยนราคาอัตโนมัติหรือไม่?</span></summary>
-        <p><span data-lang="en">No. DPrice recommends; your team decides. Every recommendation can be accepted, adjusted or rejected.</span><span data-lang="ru">Нет. DPrice рекомендует, решение принимает ваша команда. Каждую рекомендацию можно принять, поправить или отклонить.</span><span data-lang="ar">لا. DPrice يوصي، وفريقك يقرر. ويمكن قبول كل توصية أو تعديلها أو رفضها.</span><span data-lang="th">ไม่ DPrice เป็นผู้แนะนำ ทีมของคุณเป็นผู้ตัดสินใจ ทุกคำแนะนำสามารถยอมรับ ปรับแก้ หรือปฏิเสธได้</span></p></details>
-      <details><summary><span data-lang="en">When will we see the effect?</span><span data-lang="ru">Когда будет виден эффект?</span><span data-lang="ar">متى سنرى النتيجة؟</span><span data-lang="th">จะเห็นผลเมื่อไร?</span></summary>
-        <p><span data-lang="en">It depends on the goal. With a cash-flow goal the change shows in the pace of incoming money. With a goal of maximising remaining stock, some months may show less revenue than usual — the gain comes over the life of the project. We agree how to measure it before we start.</span><span data-lang="ru">Зависит от цели. При цели «денежный поток» изменения видны в скорости поступления денег. При цели «максимум остатка» в отдельные месяцы выручка может быть ниже обычной — выигрыш складывается на длинной дистанции проекта. О том, как измерять результат, договариваемся до старта.</span><span data-lang="ar">يعتمد ذلك على الهدف. مع هدف التدفق النقدي يظهر التغيير في سرعة تحصيل الأموال. ومع هدف تعظيم قيمة المخزون المتبقي قد تكون الإيرادات في بعض الأشهر أقل من المعتاد — فالمكسب يتحقق على امتداد عمر المشروع. نتفق على طريقة القياس قبل البدء.</span><span data-lang="th">ขึ้นอยู่กับเป้าหมาย หากเป้าหมายคือกระแสเงินสด จะเห็นความเปลี่ยนแปลงจากความเร็วของเงินที่เข้ามา หากเป้าหมายคือมูลค่าสูงสุดจากยูนิตคงเหลือ บางเดือนรายได้อาจต่ำกว่าปกติ — ผลดีจะสะสมตลอดอายุโครงการ เราตกลงวิธีวัดผลกันก่อนเริ่ม</span></p></details>
-      <details><summary><span data-lang="en">Will DPrice explain why demand changed?</span><span data-lang="ru">DPrice объясняет, почему изменился спрос?</span><span data-lang="ar">هل يشرح DPrice سبب تغيّر الطلب؟</span><span data-lang="th">DPrice อธิบายได้หรือไม่ว่าทำไมดีมานด์เปลี่ยน?</span></summary>
-        <p><span data-lang="en">DPrice detects the change in demand early and shows it in the data. The reasons — a competitor’s launch, a mortgage rate move, a marketing campaign — are for your team to interpret.</span><span data-lang="ru">DPrice рано замечает изменение спроса и показывает его в данных. Причины — запуск конкурента, изменение ставок, рекламная кампания — оценивает ваша команда.</span><span data-lang="ar">يرصد DPrice تغيّر الطلب مبكرًا ويُظهره في البيانات. أما الأسباب — إطلاق مشروع منافس، أو تغيّر فائدة الرهن العقاري، أو حملة تسويقية — فيقيّمها فريقك.</span><span data-lang="th">DPrice ตรวจพบการเปลี่ยนแปลงของดีมานด์ได้เร็วและแสดงในข้อมูล ส่วนสาเหตุ — การเปิดตัวของคู่แข่ง อัตราดอกเบี้ยสินเชื่อบ้านที่เปลี่ยน หรือแคมเปญการตลาด — ทีมของคุณเป็นผู้ประเมิน</span></p></details>
-      <details><summary><span data-lang="en">How is DPrice priced?</span><span data-lang="ru">Сколько стоит DPrice?</span><span data-lang="ar">كم تبلغ تكلفة DPrice؟</span><span data-lang="th">DPrice มีค่าใช้จ่ายอย่างไร?</span></summary>
-        <p><span data-lang="en">We sign a one-year contract, and the first three months are free. If DPrice does not suit you, you can leave the contract quickly and at low cost. The fee depends on the size of the project — contact us for a proposal.</span><span data-lang="ru">Договор заключается на год, первые три месяца — бесплатно. Если DPrice вам не подойдёт, из договора можно выйти быстро и недорого. Стоимость зависит от размера проекта — напишите нам, и мы подготовим предложение.</span><span data-lang="ar">نوقّع عقدًا لمدة عام، وأول ثلاثة أشهر مجانية. وإذا لم يناسبك DPrice يمكنك إنهاء العقد بسرعة وبتكلفة منخفضة. تعتمد الرسوم على حجم المشروع — تواصل معنا لنعدّ لك عرضًا.</span><span data-lang="th">เราทำสัญญา 1 ปี โดย 3 เดือนแรกไม่มีค่าใช้จ่าย หาก DPrice ไม่เหมาะกับคุณ สามารถยกเลิกสัญญาได้รวดเร็วและค่าใช้จ่ายต่ำ ค่าบริการขึ้นอยู่กับขนาดโครงการ — ติดต่อเราเพื่อรับข้อเสนอ</span></p></details>
-      <details><summary><span data-lang="en">Is our data safe?</span><span data-lang="ru">Насколько защищены наши данные?</span><span data-lang="ar">هل بياناتنا آمنة؟</span><span data-lang="th">ข้อมูลของเราปลอดภัยหรือไม่?</span></summary>
-        <p><span data-lang="en">Your data is used only to build recommendations for your project and is not shared with third parties. Data handling terms are fixed in the contract.</span><span data-lang="ru">Данные используются только для расчёта рекомендаций по вашему проекту и не передаются третьим лицам. Условия обработки данных фиксируются в договоре.</span><span data-lang="ar">تُستخدم بياناتك فقط لإعداد التوصيات لمشروعك ولا تُشارك مع أطراف ثالثة. وتُحدَّد شروط معالجة البيانات في العقد.</span><span data-lang="th">ข้อมูลของคุณใช้เพื่อสร้างคำแนะนำสำหรับโครงการของคุณเท่านั้น และไม่เปิดเผยต่อบุคคลที่สาม เงื่อนไขการจัดการข้อมูลระบุไว้ในสัญญา</span></p></details>
+      <details><summary><span data-lang="en">What data does DPrice need?</span><span data-lang="ar">ما البيانات التي يحتاجها DPrice؟</span><span data-lang="th">DPrice ต้องใช้ข้อมูลอะไรบ้าง?</span><span data-lang="hi">DPrice को किस डेटा की ज़रूरत है?</span></summary>
+        <p><span data-lang="en">Your sales data: the list of units with their characteristics, price history, bookings and deals — from your CRM or a spreadsheet export. Recommendations are built on how your project actually sells; market information, such as nearby launches, is shown as context. Your data is never shared with other developers.</span><span data-lang="ar">بيانات مبيعاتك: قائمة الوحدات بخصائصها وسجل الأسعار والحجوزات والصفقات — من نظام CRM أو ملف جدول بيانات. تُبنى التوصيات على طريقة بيع مشروعك فعلًا، وتُعرض معلومات السوق، مثل المشاريع الجديدة القريبة، كخلفية. ولا تُشارك بياناتك أبدًا مع مطوّرين آخرين.</span><span data-lang="th">ข้อมูลการขายของคุณ: รายการยูนิตพร้อมคุณสมบัติ ประวัติราคา การจอง และการซื้อขาย — จาก CRM หรือไฟล์สเปรดชีต คำแนะนำสร้างจากการขายจริงของโครงการคุณ ส่วนข้อมูลตลาด เช่น โครงการใหม่ใกล้เคียง จะแสดงเป็นข้อมูลประกอบ ข้อมูลของคุณจะไม่ถูกแชร์กับผู้พัฒนารายอื่น</span><span data-lang="hi">आपका सेल्स डेटा: यूनिट्स की सूची उनकी विशेषताओं के साथ, कीमतों का इतिहास, बुकिंग और सौदे — आपके CRM या स्प्रेडशीट एक्सपोर्ट से। सिफ़ारिशें इस आधार पर बनती हैं कि आपका प्रोजेक्ट वास्तव में कैसे बिक रहा है; बाज़ार की जानकारी, जैसे आस-पास के नए लॉन्च, संदर्भ के रूप में दिखाई जाती है। आपका डेटा कभी भी अन्य डेवलपर्स के साथ साझा नहीं किया जाता।</span></p></details>
+      <details><summary><span data-lang="en">Does DPrice change prices automatically?</span><span data-lang="ar">هل يغيّر DPrice الأسعار تلقائيًا؟</span><span data-lang="th">DPrice เปลี่ยนราคาอัตโนมัติหรือไม่?</span><span data-lang="hi">क्या DPrice अपने-आप कीमतें बदलता है?</span></summary>
+        <p><span data-lang="en">No. DPrice recommends; your team decides. Every recommendation can be accepted, adjusted or rejected.</span><span data-lang="ar">لا. DPrice يوصي، وفريقك يقرر. ويمكن قبول كل توصية أو تعديلها أو رفضها.</span><span data-lang="th">ไม่ DPrice เป็นผู้แนะนำ ทีมของคุณเป็นผู้ตัดสินใจ ทุกคำแนะนำสามารถยอมรับ ปรับแก้ หรือปฏิเสธได้</span><span data-lang="hi">नहीं। DPrice सिफ़ारिश करता है; फ़ैसला आपकी टीम करती है। हर सिफ़ारिश को स्वीकार किया, बदला या अस्वीकार किया जा सकता है।</span></p></details>
+      <details><summary><span data-lang="en">When will we see the effect?</span><span data-lang="ar">متى سنرى النتيجة؟</span><span data-lang="th">จะเห็นผลเมื่อไร?</span><span data-lang="hi">हमें असर कब दिखेगा?</span></summary>
+        <p><span data-lang="en">It depends on the goal. With a cash-flow goal the change shows in the pace of incoming money. With a goal of maximising remaining stock, some months may show less revenue than usual — the gain comes over the life of the project. We agree how to measure it before we start.</span><span data-lang="ar">يعتمد ذلك على الهدف. مع هدف التدفق النقدي يظهر التغيير في سرعة تحصيل الأموال. ومع هدف تعظيم قيمة المخزون المتبقي قد تكون الإيرادات في بعض الأشهر أقل من المعتاد — فالمكسب يتحقق على امتداد عمر المشروع. نتفق على طريقة القياس قبل البدء.</span><span data-lang="th">ขึ้นอยู่กับเป้าหมาย หากเป้าหมายคือกระแสเงินสด จะเห็นความเปลี่ยนแปลงจากความเร็วของเงินที่เข้ามา หากเป้าหมายคือมูลค่าสูงสุดจากยูนิตคงเหลือ บางเดือนรายได้อาจต่ำกว่าปกติ — ผลดีจะสะสมตลอดอายุโครงการ เราตกลงวิธีวัดผลกันก่อนเริ่ม</span><span data-lang="hi">यह लक्ष्य पर निर्भर करता है। कैश फ़्लो लक्ष्य में बदलाव आने वाले पैसे की गति में दिखता है। बचे हुए स्टॉक को अधिकतम करने के लक्ष्य में, कुछ महीनों में राजस्व सामान्य से कम दिख सकता है — फ़ायदा प्रोजेक्ट की पूरी अवधि में मिलता है। इसे कैसे मापना है, यह हम शुरू करने से पहले तय करते हैं।</span></p></details>
+      <details><summary><span data-lang="en">Will DPrice explain why demand changed?</span><span data-lang="ar">هل يشرح DPrice سبب تغيّر الطلب؟</span><span data-lang="th">DPrice อธิบายได้หรือไม่ว่าทำไมดีมานด์เปลี่ยน?</span><span data-lang="hi">क्या DPrice बताएगा कि माँग क्यों बदली?</span></summary>
+        <p><span data-lang="en">DPrice detects the change in demand early and shows it in the data. The reasons — a competitor’s launch, a mortgage rate move, a marketing campaign — are for your team to interpret.</span><span data-lang="ar">يرصد DPrice تغيّر الطلب مبكرًا ويُظهره في البيانات. أما الأسباب — إطلاق مشروع منافس، أو تغيّر فائدة الرهن العقاري، أو حملة تسويقية — فيقيّمها فريقك.</span><span data-lang="th">DPrice ตรวจพบการเปลี่ยนแปลงของดีมานด์ได้เร็วและแสดงในข้อมูล ส่วนสาเหตุ — การเปิดตัวของคู่แข่ง อัตราดอกเบี้ยสินเชื่อบ้านที่เปลี่ยน หรือแคมเปญการตลาด — ทีมของคุณเป็นผู้ประเมิน</span><span data-lang="hi">DPrice माँग में बदलाव को जल्दी पकड़ता है और उसे डेटा में दिखाता है। कारणों — किसी प्रतिस्पर्धी का लॉन्च, होम लोन दरों में बदलाव, कोई मार्केटिंग कैंपेन — की व्याख्या आपकी टीम करती है।</span></p></details>
+      <details><summary><span data-lang="en">How is DPrice priced?</span><span data-lang="ar">كم تبلغ تكلفة DPrice؟</span><span data-lang="th">DPrice มีค่าใช้จ่ายอย่างไร?</span><span data-lang="hi">DPrice की कीमत कैसे तय होती है?</span></summary>
+        <p><span data-lang="en">We sign a one-year contract, and the first three months are free. If DPrice does not suit you, you can leave the contract quickly and at low cost. The fee depends on the size of the project — contact us for a proposal.</span><span data-lang="ar">نوقّع عقدًا لمدة عام، وأول ثلاثة أشهر مجانية. وإذا لم يناسبك DPrice يمكنك إنهاء العقد بسرعة وبتكلفة منخفضة. تعتمد الرسوم على حجم المشروع — تواصل معنا لنعدّ لك عرضًا.</span><span data-lang="th">เราทำสัญญา 1 ปี โดย 3 เดือนแรกไม่มีค่าใช้จ่าย หาก DPrice ไม่เหมาะกับคุณ สามารถยกเลิกสัญญาได้รวดเร็วและค่าใช้จ่ายต่ำ ค่าบริการขึ้นอยู่กับขนาดโครงการ — ติดต่อเราเพื่อรับข้อเสนอ</span><span data-lang="hi">हम एक साल का कॉन्ट्रैक्ट करते हैं, और पहले तीन महीने मुफ़्त होते हैं। अगर DPrice आपके लिए उपयुक्त नहीं है, तो आप जल्दी और कम लागत में कॉन्ट्रैक्ट से बाहर निकल सकते हैं। शुल्क प्रोजेक्ट के आकार पर निर्भर करता है — प्रस्ताव के लिए हमसे संपर्क करें।</span></p></details>
+      <details><summary><span data-lang="en">Is our data safe?</span><span data-lang="ar">هل بياناتنا آمنة؟</span><span data-lang="th">ข้อมูลของเราปลอดภัยหรือไม่?</span><span data-lang="hi">क्या हमारा डेटा सुरक्षित है?</span></summary>
+        <p><span data-lang="en">Your data is used only to build recommendations for your project and is not shared with third parties. Data handling terms are fixed in the contract.</span><span data-lang="ar">تُستخدم بياناتك فقط لإعداد التوصيات لمشروعك ولا تُشارك مع أطراف ثالثة. وتُحدَّد شروط معالجة البيانات في العقد.</span><span data-lang="th">ข้อมูลของคุณใช้เพื่อสร้างคำแนะนำสำหรับโครงการของคุณเท่านั้น และไม่เปิดเผยต่อบุคคลที่สาม เงื่อนไขการจัดการข้อมูลระบุไว้ในสัญญา</span><span data-lang="hi">आपका डेटा केवल आपके प्रोजेक्ट के लिए सिफ़ारिशें बनाने में उपयोग होता है और किसी तीसरे पक्ष के साथ साझा नहीं किया जाता। डेटा संभालने की शर्तें कॉन्ट्रैक्ट में तय होती हैं।</span></p></details>
     </div>
   </div>
 </section>
 
-<!-- ===================== ЗАЯВКА ===================== -->
+
 <section class="section contact" id="contact">
   <div class="wrap">
     <div class="contact-box">
       <div>
-        <span class="section-tag"><span data-lang="en">Request a demo</span><span data-lang="ru">Запрос демо</span><span data-lang="ar">اطلب عرضًا تجريبيًا</span><span data-lang="th">ขอดูเดโม</span></span>
-        <h2 class="section-title"><span data-lang="en">Get the most out of every unit <span class="accent">you sell</span></span><span data-lang="ru">Забирайте максимум с <span class="accent">каждой квартиры</span></span><span data-lang="ar">حقّق أقصى عائد من <span class="accent">كل وحدة تبيعها</span></span><span data-lang="th">ได้ผลตอบแทนสูงสุด <span class="accent">จากทุกยูนิตที่ขาย</span></span></h2>
-        <p class="section-sub"><span data-lang="en">Let’s look at your project. Tell us a little about it and we’ll come back with a time for a 30-minute call.</span><span data-lang="ru">Давайте посмотрим на ваш проект. Расскажите о нём коротко — мы предложим время для 30-минутного звонка.</span><span data-lang="ar">لنلقِ نظرة على مشروعك. أخبرنا عنه باختصار وسنقترح موعدًا لمكالمة مدتها 30 دقيقة.</span><span data-lang="th">มาดูโครงการของคุณกัน เล่าให้เราฟังสั้น ๆ แล้วเราจะเสนอเวลาสำหรับการโทรคุย 30 นาที</span></p>
+        <span class="section-tag"><span data-lang="en">Try the demo</span><span data-lang="ar">جرّب العرض التجريبي</span><span data-lang="th">ทดลองใช้เดโม</span><span data-lang="hi">डेमो आज़माएँ</span></span>
+        <h2 class="section-title"><span data-lang="en">Get the most out of every unit <span class="accent">you sell</span></span><span data-lang="ar">حقّق أقصى عائد من <span class="accent">كل وحدة تبيعها</span></span><span data-lang="th">ได้ผลตอบแทนสูงสุด <span class="accent">จากทุกยูนิตที่ขาย</span></span><span data-lang="hi"><span class="accent">आपकी बेची गई</span> हर यूनिट से अधिकतम पाएँ</span></h2>
+        <p class="section-sub"><span data-lang="en">Leave your details and the demo with projects for your region opens right away. We will get in touch to connect your own project.</span><span data-lang="ar">اترك بياناتك وسيُفتح العرض التجريبي بمشاريع منطقتك فورًا. سنتواصل معك لربط مشروعك.</span><span data-lang="th">กรอกข้อมูลของคุณ แล้วเดโมพร้อมโครงการในภูมิภาคของคุณจะเปิดขึ้นทันที เราจะติดต่อกลับเพื่อเชื่อมต่อโครงการของคุณ</span><span data-lang="hi">अपना विवरण दें — आपके क्षेत्र की परियोजनाओं वाला डेमो तुरंत खुल जाएगा। अपनी परियोजना जोड़ने के लिए हम आपसे संपर्क करेंगे।</span></p>
         <ul class="contact-points">
-          <li><span data-lang="en">A live demo on a real-life scenario</span><span data-lang="ru">Показ платформы на живом сценарии</span><span data-lang="ar">عرض مباشر على سيناريو واقعي</span><span data-lang="th">สาธิตสดด้วยสถานการณ์จริง</span></li>
-          <li><span data-lang="en">A first look at what DPrice could do for your project</span><span data-lang="ru">Первая оценка, что DPrice может дать вашему проекту</span><span data-lang="ar">تقييم أولي لما يمكن أن يقدمه DPrice لمشروعك</span><span data-lang="th">ประเมินเบื้องต้นว่า DPrice ช่วยโครงการของคุณได้อย่างไร</span></li>
-          <li><span data-lang="en">No commitment</span><span data-lang="ru">Без обязательств</span><span data-lang="ar">دون أي التزام</span><span data-lang="th">ไม่มีข้อผูกมัด</span></li>
+          <li><span data-lang="en">A live demo on a real-life scenario</span><span data-lang="ar">عرض مباشر على سيناريو واقعي</span><span data-lang="th">สาธิตสดด้วยสถานการณ์จริง</span><span data-lang="hi">वास्तविक परिदृश्य पर लाइव डेमो</span></li>
+          <li><span data-lang="en">A first look at what DPrice could do for your project</span><span data-lang="ar">تقييم أولي لما يمكن أن يقدمه DPrice لمشروعك</span><span data-lang="th">ประเมินเบื้องต้นว่า DPrice ช่วยโครงการของคุณได้อย่างไร</span><span data-lang="hi">DPrice आपके प्रोजेक्ट के लिए क्या कर सकता है, इसकी पहली झलक</span></li>
+          <li><span data-lang="en">No commitment</span><span data-lang="ar">دون أي التزام</span><span data-lang="th">ไม่มีข้อผูกมัด</span><span data-lang="hi">कोई बाध्यता नहीं</span></li>
         </ul>
       </div>
-      <form class="form" id="lead-form">
+      <form class="form" id="lead-form" novalidate>
         <div class="form-row">
-          <input class="input" name="name" required data-ph-en="Your name" data-ph-ru="Ваше имя" data-ph-ar="اسمك" data-ph-th="ชื่อของคุณ" placeholder="Your name" aria-label="Name">
-          <input class="input" name="company" required data-ph-en="Company" data-ph-ru="Компания" data-ph-ar="الشركة" data-ph-th="บริษัท" placeholder="Company" aria-label="Company">
+          <input class="input" name="name" required data-ph-en="Your name" data-ph-ar="اسمك" data-ph-th="ชื่อของคุณ" data-ph-hi="आपका नाम" placeholder="Your name" aria-label="Name">
+          <input class="input" name="company" required data-ph-en="Company" data-ph-ar="الشركة" data-ph-th="บริษัท" data-ph-hi="कंपनी" placeholder="Company" aria-label="Company">
         </div>
         <div class="form-row">
-          <input class="input" name="email" type="email" required data-ph-en="Work e-mail" data-ph-ru="Рабочий e-mail" data-ph-ar="البريد الإلكتروني للعمل" data-ph-th="อีเมลที่ทำงาน" placeholder="Work e-mail" aria-label="E-mail">
-          <input class="input" name="phone" data-ph-en="Phone (optional)" data-ph-ru="Телефон (необязательно)" data-ph-ar="الهاتف (اختياري)" data-ph-th="โทรศัพท์ (ไม่บังคับ)" placeholder="Phone (optional)" aria-label="Phone">
+          <input class="input" name="email" type="email" required data-ph-en="Work e-mail" data-ph-ar="البريد الإلكتروني للعمل" data-ph-th="อีเมลที่ทำงาน" data-ph-hi="ऑफ़िस ई-मेल" placeholder="Work e-mail" aria-label="E-mail">
+          <input class="input" name="phone" data-ph-en="Phone (optional)" data-ph-ar="الهاتف (اختياري)" data-ph-th="โทรศัพท์ (ไม่บังคับ)" data-ph-hi="फ़ोन (वैकल्पिक)" placeholder="Phone (optional)" aria-label="Phone">
         </div>
-        <textarea class="input" name="message" data-ph-en="Project: city, number of units, current goal" data-ph-ru="Проект: город, число квартир, текущая цель" data-ph-ar="المشروع: المدينة، وعدد الوحدات، والهدف الحالي" data-ph-th="โครงการ: เมือง จำนวนยูนิต เป้าหมายปัจจุบัน" placeholder="Project: city, number of units, current goal" aria-label="Message"></textarea>
-        <button type="submit" class="btn btn-green btn-block"><span data-lang="en">Send request</span><span data-lang="ru">Отправить заявку</span><span data-lang="ar">أرسل الطلب</span><span data-lang="th">ส่งคำขอ</span></button>
-        <p class="form-note"><span data-lang="en">The button opens your e-mail app with the request filled in.</span><span data-lang="ru">Кнопка откроет почтовую программу с заполненным письмом.</span><span data-lang="ar">يفتح الزر تطبيق البريد الإلكتروني مع طلب جاهز.</span><span data-lang="th">ปุ่มนี้จะเปิดแอปอีเมลพร้อมข้อความคำขอที่กรอกไว้แล้ว</span></p>
+        <textarea class="input" name="message" data-ph-en="Project: city, number of units, current goal" data-ph-ar="المشروع: المدينة، وعدد الوحدات، والهدف الحالي" data-ph-th="โครงการ: เมือง จำนวนยูนิต เป้าหมายปัจจุบัน" data-ph-hi="प्रोजेक्ट: शहर, यूनिट्स की संख्या, मौजूदा लक्ष्य" placeholder="Project: city, number of units, current goal" aria-label="Message"></textarea>
+        <button type="submit" class="btn btn-green btn-block" id="lead-submit"><span data-lang="en">Open the demo</span><span data-lang="ar">افتح العرض التجريبي</span><span data-lang="th">เปิดเดโม</span><span data-lang="hi">डेमो खोलें</span></button>
+        <p class="form-note" id="lead-note"><span data-lang="en">Your request goes to the DPrice team; the demo uses synthetic data only.</span><span data-lang="ar">يصل طلبك إلى فريق DPrice؛ يستخدم العرض التجريبي بيانات اصطناعية فقط.</span><span data-lang="th">คำขอของคุณจะส่งถึงทีม DPrice เดโมใช้ข้อมูลจำลองเท่านั้น</span><span data-lang="hi">आपका अनुरोध DPrice टीम तक पहुँचता है; डेमो में केवल सिंथेटिक डेटा है।</span></p>
       </form>
     </div>
   </div>
 </section>
 </main>
 
-<!-- ===================== ПОДВАЛ ===================== -->
+
 <footer class="footer">
   <div class="wrap footer-inner">
     <div>
-      <!-- Компания — Advantix во всех регионах (решение владельца 16.10.2026) -->
-      <p>© 2026 Advantix. <span data-lang="en">DPrice is a product of Advantix.</span><span data-lang="ru">DPrice — продукт компании Advantix.</span><span data-lang="ar">DPrice منتج من شركة Advantix.</span><span data-lang="th">DPrice เป็นผลิตภัณฑ์ของ Advantix</span></p>
+      
+      <p>© 2026 Advantix. <span data-lang="en">DPrice is a product of Advantix.</span><span data-lang="ar">DPrice منتج من شركة Advantix.</span><span data-lang="th">DPrice เป็นผลิตภัณฑ์ของ Advantix</span><span data-lang="hi">DPrice, Advantix का एक प्रोडक्ट है।</span></p>
       <p class="tagline">The Science of Pricing</p>
     </div>
     <div class="footer-links">
-      <a href="#how"><span data-lang="en">How it works</span><span data-lang="ru">Как работает</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span></a>
-      <a data-link="calc" href="../calculator/"><span data-lang="en">ROI calculator</span><span data-lang="ru">ROI-калькулятор</span><span data-lang="ar">حاسبة العائد على الاستثمار</span><span data-lang="th">เครื่องคำนวณ ROI</span></a>
-      <a data-link="game" href="../game/en/game/?region=global"><span data-lang="en">DPrice game</span><span data-lang="ru">Игра DPrice</span><span data-lang="ar">لعبة DPrice</span><span data-lang="th">เกม DPrice</span></a>
-      <a href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ru">Вход</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span></a>
-      <a href="#contact"><span data-lang="en">Contact</span><span data-lang="ru">Связаться</span><span data-lang="ar">تواصل معنا</span><span data-lang="th">ติดต่อ</span></a>
+      <a href="#how"><span data-lang="en">How it works</span><span data-lang="ar">كيف يعمل</span><span data-lang="th">วิธีการทำงาน</span><span data-lang="hi">यह कैसे काम करता है</span></a>
+      
+      
+      <a href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Sign in</span><span data-lang="ar">تسجيل الدخول</span><span data-lang="th">เข้าสู่ระบบ</span><span data-lang="hi">साइन इन</span></a>
+      <a href="#contact"><span data-lang="en">Contact</span><span data-lang="ar">تواصل معنا</span><span data-lang="th">ติดต่อ</span><span data-lang="hi">संपर्क</span></a>
     </div>
   </div>
 </footer>
 
-<!-- ===================== ОКНО «ДЕМО» ===================== -->
+
 <div class="modal" id="demo" role="dialog" aria-modal="true" aria-labelledby="demo-title">
   <div class="modal-panel">
     <button type="button" class="modal-close" data-close-demo aria-label="Close">×</button>
-    <h2 id="demo-title"><span data-lang="en">Access the <span class="accent">DPrice</span> demo</span><span data-lang="ru">Доступ к демо <span class="accent">DPrice</span></span><span data-lang="ar">الوصول إلى النسخة التجريبية من <span class="accent">DPrice</span></span><span data-lang="th">เข้าใช้เดโม <span class="accent">DPrice</span></span></h2>
-    <p class="modal-sub"><span data-lang="en">Create an account on the platform to explore a demo project, or ask us for a guided tour.</span><span data-lang="ru">Создайте аккаунт на платформе и изучите демо-проект — или попросите нас провести показ.</span><span data-lang="ar">أنشئ حسابًا على المنصة لاستكشاف مشروع تجريبي، أو اطلب منا عرضًا مصحوبًا بشرح.</span><span data-lang="th">สร้างบัญชีบนแพลตฟอร์มเพื่อสำรวจโครงการเดโม หรือขอให้เราพาชม</span></p>
+    <h2 id="demo-title"><span data-lang="en">Access the <span class="accent">DPrice</span> demo</span><span data-lang="ar">الوصول إلى النسخة التجريبية من <span class="accent">DPrice</span></span><span data-lang="th">เข้าใช้เดโม <span class="accent">DPrice</span></span><span data-lang="hi"><span class="accent">DPrice</span> डेमो तक पहुँचें</span></h2>
+    <p class="modal-sub"><span data-lang="en">Create an account on the platform to explore a demo project, or ask us for a guided tour.</span><span data-lang="ar">أنشئ حسابًا على المنصة لاستكشاف مشروع تجريبي، أو اطلب منا عرضًا مصحوبًا بشرح.</span><span data-lang="th">สร้างบัญชีบนแพลตฟอร์มเพื่อสำรวจโครงการเดโม หรือขอให้เราพาชม</span><span data-lang="hi">डेमो प्रोजेक्ट देखने के लिए प्लेटफ़ॉर्म पर अकाउंट बनाएँ, या हमसे गाइडेड टूर का अनुरोध करें।</span></p>
     <div class="modal-actions">
-      <a class="btn btn-green btn-block" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Open the platform</span><span data-lang="ru">Открыть платформу</span><span data-lang="ar">افتح المنصة</span><span data-lang="th">เปิดแพลตฟอร์ม</span>
+      <a class="btn btn-green btn-block" href="https://platform.dprice.ru/" target="_blank" rel="noopener noreferrer"><span data-lang="en">Open the platform</span><span data-lang="ar">افتح المنصة</span><span data-lang="th">เปิดแพลตฟอร์ม</span><span data-lang="hi">प्लेटफ़ॉर्म खोलें</span>
         <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18 6 16.6 7.4 24.2 15H4v2h20.2l-7.6 7.6L18 26l10-10z"/></svg></a>
-      <a class="btn btn-ghost btn-block" href="#contact" data-close-demo><span data-lang="en">Request a guided demo</span><span data-lang="ru">Запросить показ</span><span data-lang="ar">اطلب عرضًا مع شرح</span><span data-lang="th">ขอการสาธิตพร้อมคำอธิบาย</span></a>
+      <a class="btn btn-ghost btn-block" href="#contact" data-close-demo><span data-lang="en">Request a guided demo</span><span data-lang="ar">اطلب عرضًا مع شرح</span><span data-lang="th">ขอการสาธิตพร้อมคำอธิบาย</span><span data-lang="hi">गाइडेड डेमो का अनुरोध करें</span></a>
     </div>
   </div>
 </div>
 
 <script>
-  /* ===================== НАСТРОЙКИ ===================== */
-  // Почта, на которую уходят заявки с формы. ЗАМЕНИТЬ перед публикацией!
-  const CONTACT_EMAIL = 'sales@example.com';
 
-  // Регионы: язык по умолчанию и ссылки на игру и калькулятор.
-  // Ссылку можно задать одну на все языки или отдельно: { en: '...', ru: '...', ar: '...', th: '...' }.
-  // '#contact' — вместо перехода прокрутить к форме заявки.
-  // Порядок здесь = порядок кнопок вверху страницы.
+  const LEAD_EMAIL = 'dc408a47c661c9c7107ec6a0730a1472';
+  const WEB3FORMS_KEY = '__WEB3FORMS_KEY__';
+
   const REGIONS = {
     global: {
-      name: { en: 'World', ru: 'Мир', ar: 'العالم', th: 'ทั่วโลก' },
-      scenario: { en: '../apartments/?region=global&lang=en', ru: '../apartments/?region=global&lang=ru', ar: '../apartments/?region=global&lang=ar', th: '../apartments/?region=global&lang=th' },
+      name: { en: 'World', ar: 'العالم', th: 'ทั่วโลก', hi: 'विश्व' },
+      scenario: { en: '../apartments/?region=global&lang=en', ar: '../apartments/?region=global&lang=ar', th: '../apartments/?region=global&lang=th', hi: '../apartments/?region=global&lang=en' },
       lang: 'en',
-      game: { en: '../game/en/game/?region=global', ru: '../game/ru/game/?region=global', ar: '../game/ar/game/?region=global', th: '../game/en/game/?region=global' },   // игра DPrice — копия на этом сайте (site/game)
-      calc: { en: '../calculator/?region=global&lang=en', ru: '../calculator/?region=global&lang=ru', ar: '../calculator/?region=global&lang=ar', th: '../calculator/?region=global&lang=th' }
+      game: { en: '../game/en/game/?region=global', ar: '../game/ar/game/?region=global', th: '../game/en/game/?region=global', hi: '../game/en/game/?region=global' },
+      calc: { en: '../calculator/?region=global&lang=en', ar: '../calculator/?region=global&lang=ar', th: '../calculator/?region=global&lang=th', hi: '../calculator/?region=global&lang=en' }
+    },
+    sa: {
+      name: { en: 'Saudi Arabia', ar: 'السعودية', th: 'ซาอุดีอาระเบีย', hi: 'सऊदी अरब' },
+      scenario: { en: '../apartments/?region=global&lang=en', ar: '../apartments/?region=global&lang=ar', th: '../apartments/?region=global&lang=th', hi: '../apartments/?region=global&lang=en' },
+      lang: 'ar',
+      game: { en: '../game/en/game/?region=global', ar: '../game/ar/game/?region=global', th: '../game/en/game/?region=global', hi: '../game/en/game/?region=global' },
+      calc: { en: '../calculator/?region=global&lang=en', ar: '../calculator/?region=global&lang=ar', th: '../calculator/?region=global&lang=th', hi: '../calculator/?region=global&lang=en' }
+    },
+    in: {
+      name: { en: 'India', ar: 'الهند', th: 'อินเดีย', hi: 'भारत' },
+      scenario: { en: '../apartments/?region=global&lang=en', ar: '../apartments/?region=global&lang=ar', th: '../apartments/?region=global&lang=th', hi: '../apartments/?region=global&lang=en' },
+      lang: 'hi',
+      game: { en: '../game/en/game/?region=global', ar: '../game/ar/game/?region=global', th: '../game/en/game/?region=global', hi: '../game/en/game/?region=global' },
+      calc: { en: '../calculator/?region=global&lang=en', ar: '../calculator/?region=global&lang=ar', th: '../calculator/?region=global&lang=th', hi: '../calculator/?region=global&lang=en' }
     },
     uae: {
-      name: { en: 'UAE', ru: 'ОАЭ', ar: 'الإمارات', th: 'ยูเออี' },
-      scenario: { en: '../apartments/?region=uae&lang=en', ru: '../apartments/?region=uae&lang=ru', ar: '../apartments/?region=uae&lang=ar', th: '../apartments/?region=uae&lang=th' },
+      name: { en: 'UAE', ar: 'الإمارات', th: 'ยูเออี', hi: 'UAE' },
+      scenario: { en: '../apartments/?region=uae&lang=en', ar: '../apartments/?region=uae&lang=ar', th: '../apartments/?region=uae&lang=th', hi: '../apartments/?region=uae&lang=en' },
       lang: 'en',
-      game: { en: '../game/en/game/?region=uae', ru: '../game/ru/game/?region=uae', ar: '../game/ar/game/?region=uae', th: '../game/en/game/?region=uae' },   // игра DPrice — копия на этом сайте (site/game)
-      calc: { en: '../calculator/?region=uae&lang=en', ru: '../calculator/?region=uae&lang=ru', ar: '../calculator/?region=uae&lang=ar', th: '../calculator/?region=uae&lang=th' }
+      game: { en: '../game/en/game/?region=uae', ar: '../game/ar/game/?region=uae', th: '../game/en/game/?region=uae', hi: '../game/en/game/?region=uae' },
+      calc: { en: '../calculator/?region=uae&lang=en', ar: '../calculator/?region=uae&lang=ar', th: '../calculator/?region=uae&lang=th', hi: '../calculator/?region=uae&lang=en' }
     },
     th: {
-      name: { en: 'Thailand', ru: 'Таиланд', ar: 'تايلاند', th: 'ประเทศไทย' },
-      scenario: { en: '../apartments/?region=th&lang=en', ru: '../apartments/?region=th&lang=ru', ar: '../apartments/?region=th&lang=ar', th: '../apartments/?region=th&lang=th' },
+      name: { en: 'Thailand', ar: 'تايلاند', th: 'ประเทศไทย', hi: 'थाईलैंड' },
+      scenario: { en: '../apartments/?region=th&lang=en', ar: '../apartments/?region=th&lang=ar', th: '../apartments/?region=th&lang=th', hi: '../apartments/?region=th&lang=en' },
       lang: 'th',
-      game: { en: '../game/en/game/?region=th', ru: '../game/ru/game/?region=th', ar: '../game/ar/game/?region=th', th: '../game/en/game/?region=th' },   // игра DPrice — копия на этом сайте (site/game)
-      calc: { en: '../calculator/?region=th&lang=en', ru: '../calculator/?region=th&lang=ru', ar: '../calculator/?region=th&lang=ar', th: '../calculator/?region=th&lang=th' }
-    },
-    ru: {
-      name: { en: 'Russia', ru: 'Россия', ar: 'روسيا', th: 'รัสเซีย' },
-      scenario: { en: '../apartments/?region=ru&lang=en', ru: '../apartments/?region=ru&lang=ru', ar: '../apartments/?region=ru&lang=ar', th: '../apartments/?region=ru&lang=th' },
-      lang: 'ru',
-      game: { en: '../game/en/game/?region=ru', ru: '../game/ru/game/?region=ru', ar: '../game/ar/game/?region=ru', th: '../game/en/game/?region=ru' },   // игра DPrice — копия на этом сайте (site/game)
-      calc: { en: '../calculator/?region=ru&lang=en', ru: '../calculator/?region=ru&lang=ru', ar: '../calculator/?region=ru&lang=ar', th: '../calculator/?region=ru&lang=th' }
+      game: { en: '../game/en/game/?region=th', ar: '../game/ar/game/?region=th', th: '../game/en/game/?region=th', hi: '../game/en/game/?region=th' },
+      calc: { en: '../calculator/?region=th&lang=en', ar: '../calculator/?region=th&lang=ar', th: '../calculator/?region=th&lang=th', hi: '../calculator/?region=th&lang=en' }
     }
   };
   const DEFAULT_REGION = 'global';
-  const TITLES = {
-    en: 'DPrice — optimal dynamic pricing for new-build real estate',
-    ru: 'DPrice — оптимальное динамическое ценообразование для новостроек',
+  const TITLES = { en: 'DPrice — optimal dynamic pricing for new-build real estate',
     ar: 'DPrice — التسعير الديناميكي الأمثل للعقارات الجديدة',
-    th: 'DPrice — การกำหนดราคาแบบไดนามิกที่เหมาะสมที่สุดสำหรับอสังหาฯ โครงการใหม่'
-  };
-  /* ===================================================== */
+    th: 'DPrice — การกำหนดราคาแบบไดนามิกที่เหมาะสมที่สุดสำหรับอสังหาฯ โครงการใหม่', hi: 'DPrice — नए निर्माणाधीन रियल एस्टेट के लिए इष्टतम डायनेमिक प्राइसिंग' };
 
-  const LANGS = ['en', 'ru', 'ar', 'th'];
+  const LANGS = ['en', 'ar', 'th', 'hi', 'ru'];
   const REGION_NAMES = {
-    global: { en: 'World', ru: 'Мир', ar: 'العالم', th: 'ทั่วโลก' },
-    uae: { en: 'UAE', ru: 'ОАЭ', ar: 'الإمارات', th: 'ยูเออี' },
-    th: { en: 'Thailand', ru: 'Таиланд', ar: 'تايلاند', th: 'ประเทศไทย' },
-    ru: { en: 'Russia', ru: 'Россия', ar: 'روسيا', th: 'รัสเซีย' }
+    global: { en: 'World', ar: 'العالم', th: 'ทั่วโลก', hi: 'विश्व' },
+    uae: { en: 'UAE', ar: 'الإمارات', th: 'ยูเออี', hi: 'UAE' },
+    sa: { en: 'Saudi Arabia', ar: 'السعودية', th: 'ซาอุดีอาระเบีย', hi: 'सऊदी अरब' },
+    in: { en: 'India', ar: 'الهند', th: 'อินเดีย', hi: 'भारत' },
+    th: { en: 'Thailand', ar: 'تايلاند', th: 'ประเทศไทย', hi: 'थाईलैंड' }
   };
-  const REGION_CUR = { global: 'USD', uae: 'AED', th: 'THB', ru: 'RUB' };
-  const SW_LABELS = { en: { lang: 'Language', region: 'Region' }, ru: { lang: 'Язык', region: 'Регион' }, ar: { lang: 'اللغة', region: 'المنطقة' }, th: { lang: 'ภาษา', region: 'ภูมิภาค' } };
+  const REGION_CUR = { global: 'USD', uae: 'AED', sa: 'SAR', th: 'THB', in: 'INR' };
+  const SW_LABELS = { en: { lang: 'Language', region: 'Region' },  ar: { lang: 'اللغة', region: 'المنطقة' }, th: { lang: 'ภาษา', region: 'ภูมิภาค' }, hi: { lang: 'भाषा', region: 'क्षेत्र' } };
   const root = document.documentElement;
   const pick = (v, lang) => (v && typeof v === 'object') ? (v[lang] || v.en) : v;
   let region, lang;
@@ -896,14 +835,13 @@
   const swLang = document.querySelector('[data-switch="lang"]');
   const swRegion = document.querySelector('[data-switch="region"]');
   swLang.addEventListener('change', () => { lang = swLang.value; apply(); });
-  // При смене региона язык переключается на основной язык региона; арабский сохраняется.
+
   swRegion.addEventListener('change', () => {
     region = swRegion.value;
     if (lang !== 'ar') lang = REGIONS[region].lang;
     apply();
   });
 
-  // Окно «Демо»
   const previewLinks = () => document.querySelectorAll('a[href^="../login/"],a[data-preview-login]').forEach(a => {
     a.dataset.previewLogin = 'true'; a.href = '../login/?region=' + region + '&lang=' + (lang === 'ru' ? 'ru' : 'en');
     a.removeAttribute('target');
@@ -911,30 +849,67 @@
   previewLinks();
   new MutationObserver(previewLinks).observe(document.documentElement, {attributes: true, attributeFilter: ['lang']});
   const demo = document.getElementById('demo');
-  document.querySelectorAll('[data-open-demo]').forEach(b => b.addEventListener('click', () => { location.href = '../demo/?region=' + region + '&lang=' + (lang === 'ru' ? 'ru' : 'en'); }));
+  document.querySelectorAll('[data-open-demo]').forEach(b => b.addEventListener('click', () => { location.href = '../app/?region=' + region + '&lang=' + (lang === 'ru' ? 'ru' : 'en'); }));
   document.querySelectorAll('[data-close-demo]').forEach(b => b.addEventListener('click', () => demo.classList.remove('open')));
   demo.addEventListener('click', e => { if (e.target === demo) demo.classList.remove('open'); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') demo.classList.remove('open'); });
 
-  // Форма заявки → письмо
   const MAIL = {
     en: { subj: 'DPrice demo request — ', name: 'Name: ', company: 'Company: ', phone: 'Phone: ', region: 'Region: ' },
-    ru: { subj: 'Запрос демо DPrice — ', name: 'Имя: ', company: 'Компания: ', phone: 'Телефон: ', region: 'Регион: ' },
+    
     ar: { subj: 'طلب عرض DPrice — ', name: 'الاسم: ', company: 'الشركة: ', phone: 'الهاتف: ', region: 'المنطقة: ' },
-    th: { subj: 'ขอดูเดโม DPrice — ', name: 'ชื่อ: ', company: 'บริษัท: ', phone: 'โทรศัพท์: ', region: 'ภูมิภาค: ' }
+    th: { subj: 'ขอดูเดโม DPrice — ', name: 'ชื่อ: ', company: 'บริษัท: ', phone: 'โทรศัพท์: ', region: 'ภูมิภาค: ' },
+    hi: { subj: 'DPrice डेमो अनुरोध — ', name: 'नाम: ', company: 'कंपनी: ', phone: 'फ़ोन: ', region: 'क्षेत्र: ' }
   };
-  document.getElementById('lead-form').addEventListener('submit', e => {
+
+  const SENDING = { en: 'Opening the demo…', ar: 'جارٍ فتح العرض التجريبي…', th: 'กำลังเปิดเดโม…', hi: 'डेमो खुल रहा है…' };
+  const REQUIRED = { en: 'Please fill in your name, company and work e-mail.', ar: 'يرجى إدخال الاسم والشركة والبريد الإلكتروني للعمل.', th: 'กรุณากรอกชื่อ บริษัท และอีเมลที่ทำงาน', hi: 'कृपया अपना नाम, कंपनी और ऑफ़िस ई-मेल भरें।' };
+  const EDITION = 'public';
+  document.getElementById('lead-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const f = new FormData(e.target), m = MAIL[lang];
-    const body = [
-      m.name + f.get('name'),
-      m.company + f.get('company'),
-      'E-mail: ' + f.get('email'),
-      m.phone + (f.get('phone') || '—'),
-      m.region + REGIONS[region].name[lang],
-      '', f.get('message') || ''
-    ].join('\n');
-    location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(m.subj + f.get('company')) + '&body=' + encodeURIComponent(body);
+    const form = e.target;
+    const f = new FormData(form), m = MAIL[lang] || MAIL.en;
+    const note = document.getElementById('lead-note');
+    if (!f.get('name') || !f.get('company') || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.get('email') || '')) {
+      note.textContent = REQUIRED[lang] || REQUIRED.en;
+      return;
+    }
+    const button = document.getElementById('lead-submit');
+    button.disabled = true;
+    note.textContent = SENDING[lang] || SENDING.en;
+    const now = new Date();
+    const test = EDITION === 'working' ? 'TEST / \u0422\u0415\u0421\u0422 \u00b7 ' : '';
+    const payload = {
+      access_key: WEB3FORMS_KEY,
+      subject: test + m.subj + f.get('company'),
+      from_name: 'DPrice ' + (EDITION === 'working' ? 'working version' : 'website'),
+      name: f.get('name'), company: f.get('company'), email: f.get('email'),
+      phone: f.get('phone') || '-', message: f.get('message') || '-',
+      language: lang, region: REGIONS[region].name.en + ' (' + region + ')',
+      version: EDITION === 'working' ? 'working (test)' : 'public',
+      submitted_local: now.toString(), submitted_utc: now.toISOString(),
+      page: location.href
+    };
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15000);
+      const web3 = !/^__/.test(WEB3FORMS_KEY);
+      const fields = { ...payload };
+      delete fields.access_key;
+      const body = web3 ? payload : { ...fields, _subject: payload.subject, _template: 'table', _captcha: 'false' };
+      const response = await fetch(web3 ? 'https://api.web3forms.com/submit' : 'https://formsubmit.co/ajax/' + LEAD_EMAIL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(body), signal: controller.signal
+      });
+      clearTimeout(timer);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || String(result.success) === 'false') throw new Error(result.message || ('HTTP ' + response.status));
+    } catch (error) {
+      console.warn('DPrice registration e-mail was not sent:', error);
+      try { localStorage.setItem('dprice-registration-error', now.toISOString() + ' ' + error); } catch (_) {}
+    }
+    const appLang = lang === 'ru' ? 'ru' : 'en';
+    location.href = '../app/?region=' + encodeURIComponent(region) + '&lang=' + appLang;
   });
 </script>
 </body>
