@@ -8872,10 +8872,13 @@ const REGION_STORAGE_KEY = 'dprice-console-region';
 export function mountApp(root, options) {
   const opts = options || {};
   const entryLang = LANGS.includes(opts.lang) ? opts.lang : (LANGS.includes('ru') ? 'ru' : LANGS[0]);
-  try {
-    api.setRegion(window.localStorage.getItem(REGION_STORAGE_KEY) || 'uae');
-  } catch {
-    api.setRegion('uae');
+
+  if (!OFFLINE) {
+    try {
+      api.setRegion(window.localStorage.getItem(REGION_STORAGE_KEY) || 'uae');
+    } catch {
+      api.setRegion('uae');
+    }
   }
   const state = {
     screen: 'login',
