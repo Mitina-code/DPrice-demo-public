@@ -702,7 +702,7 @@
         </div>
         <textarea class="input" name="message" data-ph-en="Project: city, number of units, current goal" data-ph-ar="المشروع: المدينة، وعدد الوحدات، والهدف الحالي" data-ph-th="โครงการ: เมือง จำนวนยูนิต เป้าหมายปัจจุบัน" data-ph-hi="प्रोजेक्ट: शहर, यूनिट्स की संख्या, मौजूदा लक्ष्य" placeholder="Project: city, number of units, current goal" aria-label="Message"></textarea>
         <button type="submit" class="btn btn-green btn-block" id="lead-submit"><span data-lang="en">Open the demo</span><span data-lang="ar">افتح العرض التجريبي</span><span data-lang="th">เปิดเดโม</span><span data-lang="hi">डेमो खोलें</span></button>
-        <p class="form-note" id="lead-note"><span data-lang="en">Your request goes to the DPrice team; the demo uses synthetic data only.</span><span data-lang="ar">يصل طلبك إلى فريق DPrice؛ يستخدم العرض التجريبي بيانات اصطناعية فقط.</span><span data-lang="th">คำขอของคุณจะส่งถึงทีม DPrice เดโมใช้ข้อมูลจำลองเท่านั้น</span><span data-lang="hi">आपका अनुरोध DPrice टीम तक पहुँचता है; डेमो में केवल सिंथेटिक डेटा है।</span></p>
+        <p class="form-note" id="lead-note"><span data-lang="en">The button opens your e-mail app with the request ready to send, and the demo opens right away.</span><span data-lang="ar">يفتح الزر بريدك الإلكتروني برسالة جاهزة للإرسال، ويُفتح العرض التجريبي فورًا.</span><span data-lang="th">ปุ่มนี้จะเปิดแอปอีเมลพร้อมคำขอที่พร้อมส่ง และเดโมจะเปิดขึ้นทันที</span><span data-lang="hi">बटन आपका ई-मेल ऐप तैयार अनुरोध के साथ खोलेगा, और डेमो तुरंत खुल जाएगा।</span></p>
       </form>
     </div>
   </div>
@@ -743,8 +743,7 @@
 
 <script>
 
-  const LEAD_EMAIL = 'dc408a47c661c9c7107ec6a0730a1472';
-  const WEB3FORMS_KEY = '__WEB3FORMS_KEY__';
+  const LEAD_EMAIL = 'inna.mitina@ramax.ru';
 
   const REGIONS = {
     global: {
@@ -879,35 +878,25 @@
     note.textContent = SENDING[lang] || SENDING.en;
     const now = new Date();
     const test = EDITION === 'working' ? 'TEST / \u0422\u0415\u0421\u0422 \u00b7 ' : '';
-    const payload = {
-      access_key: WEB3FORMS_KEY,
-      subject: test + m.subj + f.get('company'),
-      from_name: 'DPrice ' + (EDITION === 'working' ? 'working version' : 'website'),
-      name: f.get('name'), company: f.get('company'), email: f.get('email'),
-      phone: f.get('phone') || '-', message: f.get('message') || '-',
-      language: lang, region: REGIONS[region].name.en + ' (' + region + ')',
-      version: EDITION === 'working' ? 'working (test)' : 'public',
-      submitted_local: now.toString(), submitted_utc: now.toISOString(),
-      page: location.href
-    };
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 15000);
-      const web3 = !/^__/.test(WEB3FORMS_KEY);
-      const fields = { ...payload };
-      delete fields.access_key;
-      const body = web3 ? payload : { ...fields, _subject: payload.subject, _template: 'table', _captcha: 'false' };
-      const response = await fetch(web3 ? 'https://api.web3forms.com/submit' : 'https://formsubmit.co/ajax/' + LEAD_EMAIL, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(body), signal: controller.signal
-      });
-      clearTimeout(timer);
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || String(result.success) === 'false') throw new Error(result.message || ('HTTP ' + response.status));
-    } catch (error) {
-      console.warn('DPrice registration e-mail was not sent:', error);
-      try { localStorage.setItem('dprice-registration-error', now.toISOString() + ' ' + error); } catch (_) {}
-    }
+
+    const lines = [
+      m.name + f.get('name'),
+      m.company + f.get('company'),
+      'E-mail: ' + f.get('email'),
+      m.phone + (f.get('phone') || '-'),
+      m.region + REGIONS[region].name.en + ' (' + region + ')',
+      'Language: ' + lang,
+      'Version: ' + (EDITION === 'working' ? 'working (test)' : 'public'),
+      'Date: ' + now.toString() + ' / UTC ' + now.toISOString(),
+      '', f.get('message') || ''
+    ];
+    const mail = 'mailto:' + LEAD_EMAIL + '?subject=' + encodeURIComponent(test + m.subj + f.get('company')) + '&body=' + encodeURIComponent(lines.join('\n'));
+    const link = document.createElement('a');
+    link.href = mail;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    await new Promise(resolve => setTimeout(resolve, 1200));
 
     try { localStorage.setItem('dprice-demo:session', JSON.stringify({ login: 'registered:' + f.get('email'), at: now.toISOString() })); } catch (_) {}
     const appLang = lang === 'ru' ? 'ru' : 'en';
