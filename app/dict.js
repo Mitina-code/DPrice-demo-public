@@ -689,8 +689,20 @@ export const DICT = {
   algo_dco_revenue: ['Максимум скорости выручки', 'Maximum revenue rate'],
   algo_dco_uniform: ['Равномерное вымывание', 'Uniform washout'],
   algo_dco_d: [
-    'Динамическая оптимизация: путь цены, дающий максимум денег за вычетом процентов по кредиту на горизонте.',
-    'Dynamic optimization: the price path that leaves the most cash after loan interest over the horizon.',
+    'Путь цены, при котором проекту остаётся больше всего денег за вычетом стоимости финансирования на горизонте; на рынках с эскроу деньги покупателей учитываются, когда они доступны застройщику.',
+    'The price path that leaves the project the most cash after financing costs over the horizon; on escrow markets buyer money counts when it reaches the developer.',
+  ],
+  deal_cash_access_escrow_progress_uae: [
+    'ОАЭ: платежи покупателя идут на эскроу и выдаются застройщику по мере стройки, 5% — через год после передачи. «Отсрочка платежа» считается от этих дат.',
+    'UAE: buyer payments go to escrow and are released as construction advances, 5% a year after handover. The deferral is counted from those dates.',
+  ],
+  deal_cash_access_escrow_progress_wafi: [
+    'Саудовская Аравия: платежи покупателя идут на эскроу (Wafi) и выдаются застройщику по мере стройки. «Отсрочка платежа» считается от этих дат.',
+    'Saudi Arabia: buyer payments go to escrow (Wafi) and are released as construction advances. The deferral is counted from those dates.',
+  ],
+  deal_cash_access_escrow_progress_rera_70: [
+    'Индия: 70% платежей — на счёт проекта (RERA), выдаются по мере стройки; 30% доступны сразу. «Отсрочка платежа» считается от этих дат.',
+    'India: 70% of payments go to the project account (RERA) and are released with construction; 30% at once. The deferral is counted from those dates.',
   ],
   algo_dco_revenue_d: [
     'В каждом периоде — цена, при которой выручка приходит быстрее всего; остаток распродаётся с максимальной скоростью выручки.',
@@ -837,12 +849,40 @@ export const DICT = {
     'The calculation date differs from the grid origin',
   ],
   dco_committed_cash_before_step_zero_excluded: [
-    'Поступления до начала горизонта не учитывались',
-    'Receipts before the horizon start were excluded',
+    'Поступления до начала горизонта не учитывались (на рынках с эскроу — кроме части, которую эскроу ещё не выдало)',
+    'Receipts before the horizon start were excluded (on escrow markets, except the part escrow has not yet released)',
   ],
   dco_committed_payment_after_horizon_clamped: [
     'Поступления за горизонтом отнесены на последний шаг',
     'Receipts beyond the horizon were clamped to its last step',
+  ],
+  dco_cash_access_escrow_progress_uae: [
+    'Деньги покупателей идут на эскроу и доступны застройщику по мере стройки; 5% — через год после передачи (ОАЭ, закон № 8 от 2007)',
+    'Buyer money goes to escrow and reaches the developer as construction advances; 5% a year after handover (UAE, Law No. 8 of 2007)',
+  ],
+  dco_cash_access_escrow_progress_wafi: [
+    'Деньги покупателей идут на эскроу и доступны застройщику по мере стройки (Саудовская Аравия, программа Wafi)',
+    'Buyer money goes to escrow and reaches the developer as construction advances (Saudi Arabia, Wafi)',
+  ],
+  dco_cash_access_escrow_progress_rera_70: [
+    '70% денег покупателей — на счёт проекта, доступны по мере стройки; 30% — сразу (Индия, RERA)',
+    '70% of buyer money goes to the project account and is released with construction; 30% at once (India, RERA)',
+  ],
+  dco_cash_access_sales_start_assumed: [
+    'Дата старта продаж не указана: стройка считается от даты расчёта',
+    'No sales start date: construction is counted from the calculation date',
+  ],
+  dco_cash_access_released_at_horizon: [
+    'Горизонт заканчивается раньше, чем эскроу выдаст все деньги: остаток учтён на последнем шаге',
+    'The horizon ends before escrow releases everything: the remainder is counted on the last step',
+  ],
+  dco_cash_access_dates_invalid: [
+    'Даты проекта не читаются: эскроу не учтено',
+    'The project dates cannot be read: escrow is not applied',
+  ],
+  dco_cash_access_handover_missing: [
+    'Нет даты передачи ключей: эскроу не учтено',
+    'No handover date: escrow is not applied',
   ],
   dco_group_base_price: [
     'Базовая цена типологии',
@@ -958,6 +998,7 @@ export const DICT = {
   calculation_snapshot_hash_mismatch: ['Хэш расчётного снимка не совпадает', 'Calculation snapshot hash does not match'],
   calculation_snapshot_bytes_invalid: ['Байты расчётного снимка некорректны', 'Calculation snapshot bytes are invalid'],
   calculation_snapshot_contract_mismatch: ['Структура расчётного снимка не совпадает', 'Calculation snapshot structure does not match'],
+  calculation_snapshot_project_contract_mismatch: ['Данные проекта в расчётном снимке не совпадают с ожидаемыми', 'The project block of the calculation snapshot does not match'],
   calculation_snapshot_algorithm_contract_mismatch: ['Контракт алгоритма в снимке не совпадает', 'The snapshot algorithm contract does not match'],
   calculation_snapshot_lineage_contract_mismatch: ['Контракт происхождения снимка не совпадает', 'The snapshot lineage contract does not match'],
   calculation_snapshot_phi_contract_mismatch: ['Производный ряд φ не совпадает', 'The derived phi series does not match'],

@@ -8436,6 +8436,11 @@ function buildDealResultPanel(state, terms) {
       ]))),
     ]),
     el('div', { class: 'note', role: 'status' }, [t('operational_ladder_scope', lang)]),
+    // Escrow markets: the deferral is counted from when the escrow releases the
+    // money to the developer, not from the buyer's payment date.
+    terms.cash_access?.rule
+      ? el('div', { class: 'note', role: 'status' }, [t(`deal_cash_access_${terms.cash_access.rule}`, lang)])
+      : null,
   ]);
 }
 
