@@ -655,7 +655,7 @@ export const DICT = {
   inventory_snapshot_provenance: ['Расчётные снимки', 'Calculation snapshots'],
   inventory_snapshot_create: ['Создать снимок', 'Create snapshot'],
   inventory_snapshot_run: ['Проверить результат', 'Run evidence result'],
-  inventory_snapshot_run_baseline: ['Рассчитать «Оптимизация DCO»', 'Calculate «DCO optimization»'],
+  inventory_snapshot_run_baseline: ['Рассчитать «Повышение прибыли»', 'Calculate «Higher profit»'],
   inventory_snapshot_empty: ['Для этой версии снимков пока нет.', 'No snapshots exist for this version yet.'],
   inventory_snapshot_cutoff: ['Дата отсечения', 'Cutoff'],
   inventory_snapshot_source: ['Версия реестра · пакет источника', 'Inventory version · source batch'],
@@ -684,8 +684,8 @@ export const DICT = {
   // Short names, because they sit in pills beside each other. The long name of
   // each is its description, one line below. They name the policy, never a
   // commercial strategy (sg_*): a pill and a strategy with one name read as one.
-  algo_h: ['Алгоритм', 'Algorithm'],
-  algo_dco: ['Оптимизация DCO', 'DCO optimization'],
+  algo_h: ['Цель', 'Goal'],
+  algo_dco: ['Повышение прибыли', 'Higher profit'],
   algo_dco_revenue: ['Максимум скорости выручки', 'Maximum revenue rate'],
   algo_dco_uniform: ['Равномерное вымывание', 'Uniform washout'],
   algo_dco_d: [
