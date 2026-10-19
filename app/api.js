@@ -37,8 +37,9 @@ function recall(key, fallback) {
 }
 
 // --- region -------------------------------------------------------------
-// The landing passes its own region codes; map them onto the demo regions.
-const LANDING_REGION = { global: CONFIG.regions[0], ru: 'rf' };
+// The landing passes its own region codes; map them onto the demo regions
+// (older links still carry the former single-country codes).
+const LANDING_REGION = { global: 'world', uae: 'gulf', sa: 'gulf' };
 function initialRegion() {
   const asked = new URLSearchParams(window.location.search).get('region');
   const mapped = LANDING_REGION[asked] || asked;
@@ -91,8 +92,22 @@ function expand(file) {
   return resolve(file.root);
 }
 
-const loaded = new Map();
+// A demo region shows the captured data of one or more countries
+// (CONFIG.parts, e.g. Gulf = UAE + Saudi Arabia); project ids never repeat
+// across countries, so their projects simply sit side by side.
 function regionData(which = region) {
+  const parts = CONFIG.parts?.[which] || [which];
+  if (parts.length === 1) return countryData(parts[0]);
+  return Promise.all(parts.map(countryData)).then((all) => ({
+    ...all[0],
+    region: which,
+    active: { ...all[0].active, items: all.flatMap((data) => data.active.items) },
+    projects: Object.assign({}, ...all.map((data) => data.projects)),
+  }));
+}
+
+const loaded = new Map();
+function countryData(which) {
   if (!loaded.has(which)) {
     loaded.set(which, fetch(new URL(`./fixtures/${which}.json`, import.meta.url))
       .then((response) => {

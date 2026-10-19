@@ -1,4 +1,25 @@
+/*
+ * DPrice UI — the DESIGN.md token layer and the full component anatomy the
+ * frozen shell renders (Story 3.3, AD-14 / UX-DR13).
+ *
+ * The values below are extracted facts from the frozen reference prototype
+ * (interface/DPrice_три_страны.html, codified in DESIGN.md), not proposals — the
+ * UI is visually frozen (NFR-10). New surfaces compose from these tokens only;
+ * no new colors, radii or type styles are invented here. The only licensed
+ * additions are the login surface, the role badge (replacing the prototype's
+ * role <select>) and permission gating — everything else is a verbatim port.
+ *
+ * Fonts are self-hosted (UX-DR14): Onest 400/500/600/700 and JetBrains Mono
+ * 400/500/700 ship as woff2 under ui/fonts/ with their OFL licenses; no CDN
+ * reference survives. The prototype loaded JetBrains Mono 400/500/700 only, so
+ * CSS mono-600 (KPI values, big numbers, ladder values) resolves to the 700
+ * face — an explicit weight-600 @font-face below points at the 700 binaries so
+ * the rebuild reproduces that mapping (a true 600 face renders visibly lighter,
+ * a defect). Every numeric carries font-variant-numeric: tabular-nums and the
+ * body sets -webkit-font-smoothing: antialiased — both part of the rendered look.
+ */
 
+/* ---------- self-hosted faces (UX-DR14) ---------- */
 
 @font-face {
   font-family: 'Onest';
@@ -96,120 +117,131 @@
   src: url('./fonts/jetbrainsmono-500-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+/* mono-600 renders the JetBrains Mono 700 face — the UX-DR14 weight contract. */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/jetbrainsmono-700-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/jetbrainsmono-700-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/jetbrainsmono-700-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/jetbrainsmono-700-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('./fonts/jetbrainsmono-700-cyrillic.woff2') format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('./fonts/jetbrainsmono-700-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./fonts/jetbrainsmono-700-cyrillic.woff2') format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./fonts/jetbrainsmono-700-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
+/* ---------- the DESIGN.md token system ---------- */
 
 :root {
+  /* Root colors — prototype :root, exact hex (DESIGN.md » Colors). */
+  --green: #2FB84D;          /* primary accent — primary action, active, NEP */
+  --green-br: #3DD168;       /* rail active marker, wordmark slash */
+  --green-dk: #1E8A38;       /* positive text, primary-button hover, NEP number */
+  --ink: #2B3A34;            /* primary text */
+  --muted: #5C6B64;          /* secondary text, labels, axis labels */
+  --line: #E3EAE6;           /* primary border */
+  --line-s: #EFF4F1;         /* subtle border — rules, gridlines, tracks */
+  --bg: #F2F6F3;             /* page background */
+  --panel: #FFFFFF;          /* card/panel surface */
+  --rail: #10201A;           /* sidebar background */
+  --rail-2: #162C22;         /* sidebar hover/active item */
+  --rail-line: #22412F;      /* sidebar separators */
+  --rail-txt: #BFD6C7;       /* sidebar default text */
+  --amber: #D9962B;          /* warning accent */
+  --amber-s: #F5E4C4;        /* ladder concession segment */
+  --red: #CF4B45;            /* negative/error */
+  --red-s: #F7DEDC;          /* ladder discount segment, bad-tag bg */
+  --slate: #7C8E86;          /* neutral gray-green — arrows, neutral dots */
+  --slate-s: #DCE5E0;        /* ladder time-value segment */
 
-  --green: #2FB84D;
-  --green-br: #3DD168;
-  --green-dk: #1E8A38;
-  --ink: #2B3A34;
-  --muted: #5C6B64;
-  --line: #E3EAE6;
-  --line-s: #EFF4F1;
-  --bg: #F2F6F3;
-  --panel: #FFFFFF;
-  --rail: #10201A;
-  --rail-2: #162C22;
-  --rail-line: #22412F;
-  --rail-txt: #BFD6C7;
-  --amber: #D9962B;
-  --amber-s: #F5E4C4;
-  --red: #CF4B45;
-  --red-s: #F7DEDC;
-  --slate: #7C8E86;
-  --slate-s: #DCE5E0;
-
-  --tint-selected: #F5FBF6;
-  --tint-hover: #FAFCFB;
-  --tint-formula: #F7FAF8;
-  --tint-strategy: #F4F7F5;
-  --tint-chip: #EAF6EC;
+  /* Interaction tints (hardcoded in the prototype CSS). */
+  --tint-selected: #F5FBF6;  /* selected rows/levers, default note bg */
+  --tint-hover: #FAFCFB;     /* header bg, row/button hover */
+  --tint-formula: #F7FAF8;   /* formula block bg */
+  --tint-strategy: #F4F7F5;  /* strategy bar bg */
+  --tint-chip: #EAF6EC;      /* demo chip / role badge / ok-tag bg */
   --tint-chip-border: #CBE9D2;
   --tint-pill-active: #E8F6EC;
   --tint-pill-active-border: #BFE6C9;
   --hover-border: #C9D8CF;
 
+  /* Semantic tag colors (beyond the token pairs above). */
   --tag-warn-bg: #FBF1DE;
   --tag-warn-text: #9A6A12;
   --tag-bad-text: #A5342F;
   --tag-neutral-bg: #EEF2F0;
 
+  /* Note tints. */
   --note-warn-bg: #FDF8EE;
   --note-danger-bg: #FDF3F2;
   --note-info-bg: #F3F7FE;
   --note-info-border: #5B7FBF;
 
-  --blue: #5B7FBF;
-  --blue-ink: #3A5A8C;
+  /* Blue family — reserved for external/benchmark/enhancement data only. */
+  --blue: #5B7FBF;           /* competitor stroke, market-average line */
+  --blue-ink: #3A5A8C;       /* enhancement badge / plus-mode text */
 
+  /* Chart categorical palette (CPAL; series 1 = --green). */
   --chart-blue: #2B6FB8;
   --chart-rust: #B8632F;
   --chart-purple: #7A4FB8;
   --chart-magenta: #B82F6B;
 
-  --rail-tagline: #6F8B7B;
-  --rail-seclabel: #59775F;
-  --rail-ix: #4E7A5C;
-  --rail-scroll: #294A36;
-  --rail-av-bg: #24422F;
-  --rail-av-txt: #CFE7D7;
-  --rail-pnm: #E8F3EB;
-  --rail-psub: #7FA08C;
-  --rail-all-av-bg: #1D3B2A;
-  --rail-all-av-txt: #8FD6A6;
-  --rail-foot-b: #D8EADD;
-  --ops-badge-txt: #3A2A08;
+  /* Rail micro-palette — rail-only shades, used nowhere else. */
+  --rail-tagline: #6F8B7B;   /* brand tagline, rail footer text */
+  --rail-seclabel: #59775F;  /* rail section label */
+  --rail-ix: #4E7A5C;        /* nav index digits */
+  --rail-scroll: #294A36;    /* rail scrollbar thumb */
+  --rail-av-bg: #24422F;     /* project avatar bg */
+  --rail-av-txt: #CFE7D7;    /* project avatar letter */
+  --rail-pnm: #E8F3EB;       /* project name */
+  --rail-psub: #7FA08C;      /* project subline */
+  --rail-all-av-bg: #1D3B2A; /* all-projects avatar bg */
+  --rail-all-av-txt: #8FD6A6;/* all-projects ∑ glyph */
+  --rail-foot-b: #D8EADD;    /* rail footer bold */
+  --ops-badge-txt: #3A2A08;  /* text on the amber ops badge */
 
-  --lad-tvm-tx: #3E5349;
-  --lad-cut-tx: #8E322D;
-  --lad-c-tx: #8A6316;
-  --lad-c2-bg: #F9EDD6;
-  --lad-ch-bg: #E4EDF6;
-  --lad-ch-tx: #3B5A75;
-  --lad-esc-bg: #CFE0EE;
-  --lad-esc-tx: #274A66;
-  --lad-cx-bg: #F3DCDB;
+  /* Ladder segment palette (segments beyond the token pairs above). */
+  --lad-tvm-tx: #3E5349;     /* time-value text */
+  --lad-cut-tx: #8E322D;     /* discount text (also cancellations) */
+  --lad-c-tx: #8A6316;       /* concession text */
+  --lad-c2-bg: #F9EDD6;      /* concession B bg */
+  --lad-ch-bg: #E4EDF6;      /* channel bg */
+  --lad-ch-tx: #3B5A75;      /* channel text */
+  --lad-esc-bg: #CFE0EE;     /* escrow bg */
+  --lad-esc-tx: #274A66;     /* escrow text */
+  --lad-cx-bg: #F3DCDB;      /* cancellations bg */
 
-  --r-xs: 4px;
-  --r-sm: 7px;
-  --r-md: 8px;
-  --r: 9px;
-  --r-xl: 12px;
-  --r-full: 999px;
+  /* Radius scale (DESIGN.md » Shapes). --r is the prototype's default. */
+  --r-xs: 4px;               /* tags, progress bars */
+  --r-sm: 7px;               /* buttons, selects, switch containers, ladder */
+  --r-md: 8px;               /* rail project items and avatars */
+  --r: 9px;                  /* panels, KPI tiles — the default */
+  --r-xl: 12px;              /* modal */
+  --r-full: 999px;           /* strategy pills */
 
+  /* Spacing tokens (DESIGN.md » Layout & Spacing). */
   --sp-1: 2px;
   --sp-2: 4px;
   --sp-3: 6px;
@@ -218,12 +250,13 @@
   --sp-6: 14px;
   --sp-7: 18px;
   --sp-8: 22px;
-  --module: 14px;
+  --module: 14px;            /* grid gap + panel margin — the layout module */
   --content-pad: 18px;
   --content-max: 1420px;
   --rail-width: 268px;
   --topbar-h: 54px;
 
+  /* Family stacks — self-hosted faces first, then the platform fallbacks. */
   --font: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -258,6 +291,8 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- shell (rail + main column) ---------- */
+
 .shell {
   display: flex;
   min-height: 100vh;
@@ -275,6 +310,8 @@ select {
   height: 100vh;
 }
 
+/* The rail brand block — scoped to .rail so it never touches the login
+ * surface, which reuses the .brand / .wordmark component on a light ground. */
 .rail .brand {
   padding: 16px 16px 14px;
   border-bottom: 1px solid var(--rail-line);
@@ -521,6 +558,8 @@ select {
   flex-direction: column;
 }
 
+/* ---------- top bar ---------- */
+
 .top {
   height: var(--topbar-h);
   background: var(--panel);
@@ -622,6 +661,9 @@ select {
   outline-offset: -2px;
 }
 
+/* Role badge — the licensed replacement for the prototype's role <select>; the
+ * demo-chip family so identity reads as an environment fact, with one licensed
+ * affordance: click opens the single-item sign-out popover (UX-DR2). */
 .role-badge {
   all: unset;
   cursor: pointer;
@@ -641,6 +683,7 @@ select {
   outline-offset: 1px;
 }
 
+/* The sign-out popover — flat (no shadow), above the top bar, one item only. */
 .rolemenu {
   position: absolute;
   top: calc(var(--topbar-h) - 6px);
@@ -683,6 +726,7 @@ select {
   outline-offset: -2px;
 }
 
+/* Enhancement badge (blue family — external/benchmark content only). */
 .ebadge {
   all: unset;
   display: inline-flex;
@@ -730,7 +774,10 @@ select {
 }
 
 .burger {
-
+  /* `all: unset` must come first: it resets every property, so a `display: none`
+     declared before it is wiped back to the initial `inline` and the burger shows
+     on desktop. Declared after, `display: none` stands — the burger is hidden until
+     the ≤820 rule flips it to `inline-flex` (the ≤820-only burger contract). */
   all: unset;
   display: none;
   cursor: pointer;
@@ -743,6 +790,8 @@ select {
   outline: 2px solid var(--green);
   outline-offset: -2px;
 }
+
+/* ---------- strategy bar, tabs, mode bar ---------- */
 
 .tabs {
   display: flex;
@@ -792,6 +841,9 @@ select {
   border-bottom: 1px solid var(--line);
 }
 
+/* The strategy label overrides the base `.mini-lb` `margin-bottom:4px` — the
+   prototype's stratbar label carries `style="margin:0 4px 0 0"`, so it centers
+   in the flex row (no bottom margin) with a 4px right gap (verbatim, UX-DR13). */
 .stratbar .mini-lb {
   margin: 0 4px 0 0;
 }
@@ -840,6 +892,10 @@ select {
   min-width: 200px;
 }
 
+/* The algorithm switch on the operational shell. Structurally the prototype's
+   strategy bar — same pills, same label, same note — so it reads as one
+   established control rather than a new kind of thing. Its run button sits
+   between the pills and the note, which is why the note stops stretching. */
 .algobar .stratnote {
   flex: 0 1 auto;
 }
@@ -849,6 +905,8 @@ select {
   font-size: 13px;
 }
 
+/* An algorithm with no result yet is still offered — dashed, because the pill
+   names something that can be had rather than something already computed. */
 .pill-uncomputed {
   border-style: dashed;
 }
@@ -897,6 +955,8 @@ select {
     transform: none;
   }
 }
+
+/* ---------- primitives ---------- */
 
 .h {
   display: flex;
@@ -1031,6 +1091,8 @@ select {
   color: var(--amber);
 }
 
+/* ---------- table ---------- */
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -1100,6 +1162,8 @@ th.num {
   color: var(--muted);
 }
 
+/* ---------- buttons ---------- */
+
 .btn {
   all: unset;
   box-sizing: border-box;
@@ -1148,6 +1212,8 @@ th.num {
   cursor: default;
 }
 
+/* ---------- slider ---------- */
+
 .sl {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -1178,6 +1244,8 @@ th.num {
   height: 18px;
   margin: 0;
 }
+
+/* ---------- lever card (toggle) ---------- */
 
 .tg {
   display: flex;
@@ -1241,6 +1309,8 @@ th.num {
   font-family: var(--font);
 }
 
+/* ---------- notes ---------- */
+
 .note {
   border-left: 3px solid var(--green);
   background: var(--tint-selected);
@@ -1261,12 +1331,17 @@ th.num {
   background: var(--note-danger-bg);
 }
 
+/* info/enhancement note — blue family, external content only. */
 .note.e,
 .note.info {
   border-color: var(--note-info-border);
   background: var(--note-info-bg);
 }
 
+/* The market-preview warn banner (FR-6, UX-DR11): the warn note rendered
+   full-width under the strategy bar on RF/KZ. It keeps the warn tint but drops
+   the note's left-bar/radius for the flat 1px-border separation the bars above
+   it use, so the preview reads as chrome, not an inline callout. */
 .preview-banner {
   border-left: 0;
   border-bottom: 1px solid var(--line);
@@ -1289,6 +1364,8 @@ th.num {
   color: var(--muted);
   margin-bottom: 4px;
 }
+
+/* ---------- signature: leakage ladder ---------- */
 
 .ladwrap {
   margin: 6px 0 4px;
@@ -1432,6 +1509,8 @@ th.num {
   font-weight: 600;
 }
 
+/* ---------- big-result strip ---------- */
+
 .bigres {
   display: flex;
   gap: 22px;
@@ -1470,6 +1549,8 @@ th.num {
   color: var(--slate);
   padding-bottom: 6px;
 }
+
+/* ---------- progress bars ---------- */
 
 .bar {
   height: 7px;
@@ -1516,6 +1597,8 @@ th.num {
   background: var(--tint-selected) !important;
   box-shadow: inset 2px 0 0 var(--green);
 }
+
+/* ---------- modal (single reusable; the only shadow in the system) ---------- */
 
 .modal-mask {
   position: fixed;
@@ -1631,6 +1714,8 @@ th.num {
   outline-offset: -2px;
 }
 
+/* ---------- journal log, formula, lists ---------- */
+
 .log {
   font-size: 12px;
   color: var(--muted);
@@ -1688,6 +1773,9 @@ ul.tight li {
   margin-bottom: 3px;
 }
 
+/* ---------- login screen (UX-DR1, licensed surface) ---------- */
+
+/* Centered single column on the page background. */
 .login {
   min-height: 100vh;
   display: flex;
@@ -1698,12 +1786,15 @@ ul.tight li {
   gap: var(--module);
 }
 
+/* Language switcher sits top-right, working pre-auth (UX-DR1). */
 .login-top {
   position: absolute;
   top: 18px;
   right: 18px;
 }
 
+/* Wordmark + tagline above the card — the .brand/.wordmark component on the
+ * light login ground (the rail scopes its own dark-ground overrides). */
 .brand {
   text-align: center;
 }
@@ -1721,6 +1812,7 @@ ul.tight li {
   margin-top: 3px;
 }
 
+/* The card — a panel-style container, width per UX-DR1. */
 .card {
   width: min(380px, 100% - 36px);
   background: var(--panel);
@@ -1729,11 +1821,13 @@ ul.tight li {
   padding: var(--sp-8) var(--sp-7);
 }
 
+/* Fields stack; the form owns the intra-card rhythm. */
 .field {
   display: block;
   margin-bottom: var(--sp-6);
 }
 
+/* Uppercase micro-label above each field. */
 .field > .label {
   display: block;
   font-size: 11px;
@@ -1743,6 +1837,8 @@ ul.tight li {
   margin-bottom: var(--sp-3);
 }
 
+/* Text inputs styled as the prototype's select control (no text-input
+ * precedent exists, so they inherit the select/button anatomy). */
 .input {
   width: 100%;
   background: #fff;
@@ -1763,6 +1859,8 @@ ul.tight li {
   opacity: 1;
 }
 
+/* Full-width primary button «Войти / Sign in» (the licensed login/landing
+ * primary; the shell's white/green buttons are .btn / .btn.pri). */
 .btn-primary {
   width: 100%;
   display: inline-block;
@@ -1792,6 +1890,7 @@ ul.tight li {
   cursor: default;
 }
 
+/* Spacing helpers for the notes above/below the fields. */
 .note-error {
   margin-bottom: var(--sp-6);
 }
@@ -1800,12 +1899,18 @@ ul.tight li {
   margin-top: var(--sp-2);
 }
 
+/* ---------- role landings & notice page (UX-DR4) ---------- */
+
+/* The post-auth landing header row — role badge, market chip, language
+ * switcher — sits top-right like the login switcher. The real top bar/rail/tabs
+ * are the shell above; a landing renders only its frame and title. */
 .landing-head {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
 }
 
+/* The landing/notice title — the page heading (reuses the wordmark scale). */
 .surface-title {
   margin: 0 0 var(--sp-6);
   font-size: 19px;
@@ -1814,11 +1919,13 @@ ul.tight li {
   color: var(--ink);
 }
 
+/* Space the logout button below the notice/title inside the card. */
 .card .note + .btn-primary,
 .surface-title + .btn-primary {
   margin-top: var(--sp-6);
 }
 
+/* The updating dim/status line (UX-DR7) and the retry control spacing. */
 .status-updating {
   font-size: 12px;
   color: var(--muted);
@@ -1831,6 +1938,7 @@ ul.tight li {
   width: auto;
 }
 
+/* Footer — "DPrice by RAMAX" + synthetic-data disclaimer, muted. */
 .footer {
   text-align: center;
   font-size: 11px;
@@ -1842,6 +1950,8 @@ ul.tight li {
   display: block;
   margin-top: 2px;
 }
+
+/* ---------- Data workspace (Story 5.1) ---------- */
 
 .data-workspace {
   min-height: 100vh;
@@ -2379,6 +2489,8 @@ ul.tight li {
   outline-offset: 2px;
 }
 
+/* ---------- Story 5.4 operational apartment Table/detail ---------- */
+
 .operational-desk {
   display: grid;
   gap: var(--sp-5);
@@ -2587,6 +2699,7 @@ ul.tight li {
   gap: var(--sp-3);
 }
 
+/* «Переоценка»: the status line, the typology table and the service block. */
 .repricing-status {
   margin: 0;
 }
@@ -2801,6 +2914,8 @@ ul.tight li {
 .inventory-unavailable {
   border-left: 3px solid var(--amber);
 }
+
+/* ---------- Story 5.5 building/section Chessboard ---------- */
 
 .inventory-mode-switch,
 .inventory-chessboard-controls {
@@ -3106,6 +3221,8 @@ ul.tight li {
   border-radius: inherit;
 }
 
+/* ---------- QF-003 feedback intake + product-change workbench ---------- */
+
 .feedback-launcher {
   position: fixed;
   right: var(--sp-5);
@@ -3377,6 +3494,8 @@ ul.tight li {
   grid-column: 1 / -1;
 }
 
+/* What the failing tool said: bounded, de-pathed, wrapped, never truncated
+   by the grid cell. */
 .product-loop-execution-events .loop-event-excerpt {
   grid-column: 1 / -1;
   margin: 2px 0 0;
@@ -3502,6 +3621,8 @@ ul.tight li {
   outline: 3px solid var(--tint-pill-active-border);
   outline-offset: 2px;
 }
+
+/* ---------- responsive contract (UX-DR17) ---------- */
 
 @media (max-width: 1400px) {
   .g5 {
@@ -3686,6 +3807,7 @@ ul.tight li {
   }
 }
 
+/* Honor reduced-motion (DESIGN.md » Do's and Don'ts). */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
@@ -3693,6 +3815,9 @@ ul.tight li {
   }
 }
 
+/* Public login landing (LP-29). The page geometry and color styles live in
+ * self-hosted brand/public-login.css; these rules scope local auth, language
+ * and accessibility behavior to that page alone. */
 .auth_authPage__jVv48 {
   font-size: 16px;
   line-height: 1;
@@ -3775,6 +3900,7 @@ ul.tight li {
   font-size: 12px;
 }
 
+/* LP-33 supplied logo and downloadable synthetic workbook samples. */
 .console-logo {
   display: block;
   width: auto;
@@ -3805,6 +3931,7 @@ ul.tight li {
 .import-upload input[type=file] { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
 .import-upload .btn-primary { white-space: normal; }
 
+/* Project/data entry points stay visible in both rail and narrow top bar. */
 .project-data-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .project-data-actions button { white-space: normal; overflow-wrap: anywhere; }
 .operational-rail .project-data-actions { padding: 0 12px; }
@@ -3839,18 +3966,20 @@ ul.tight li {
 .inventory-snapshot-workflow, .inventory-snapshot-inspection { min-width: 0; }
 .inventory-snapshot-workflow :is(dd, li, button) { overflow-wrap: anywhere; }
 .inventory-snapshot-workflow pre { max-width: 100%; overflow: auto; }
-
+/* Bound intrinsic table widths to the console; table regions scroll locally. */
 .operational-desk, .operational-management-surface {
   min-width: 0;
   grid-template-columns: minmax(0, 1fr);
 }
 .operational-desk > *, .operational-management-surface > * { min-width: 0; }
-
+/* The unit detail and its history are grids inside that column; bound them the
+   same way, or a history table's width becomes the whole card's on a phone. */
 .inventory-detail, .inventory-history { grid-template-columns: minmax(0, 1fr); }
 .inventory-detail > *, .inventory-history > * { min-width: 0; }
 .operational-desk .h { flex-wrap: wrap; }
 .inventory-context { overflow-wrap: anywhere; }
 
+/* New projects disclose review and continuation only after an upload. */
 .new-project-workspace .new-project-upload { max-width: 720px; padding: 28px; }
 .new-project-workspace .workbook-drop-target { border: 0; padding: 0; }
 .new-project-workspace .workbook-drop-target > label,
@@ -3889,6 +4018,7 @@ ul.tight li {
   .new-project-workspace .data-header .landing-head { order: 3; flex-basis: 100%; justify-content: flex-start; flex-wrap: wrap; }
 }
 
+/* Region filter above the project list. */
 .region-picker {
   display: block;
   padding: 0 12px 4px;
@@ -3922,6 +4052,7 @@ ul.tight li {
   color: var(--rail-tagline);
 }
 
+/* Demo-account data preparation notice. */
 .demo-seed-banner {
   position: fixed;
   left: 50%;
@@ -3937,6 +4068,7 @@ ul.tight li {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
 }
 
+/* The public landing as the entry page before sign-in. */
 .landing-frame {
   position: fixed;
   inset: 0;
@@ -3947,6 +4079,7 @@ ul.tight li {
   background: #0b0c10;
 }
 
+/* Demo build: hide or show the demo projects. */
 .demo-toggle {
   margin: 4px 12px 8px;
   padding: 7px 10px;
@@ -3968,6 +4101,7 @@ ul.tight li {
   padding: 32px;
 }
 
+/* Sign-in of the offline demo. */
 .offline-login {
   min-height: 100vh;
   display: flex;

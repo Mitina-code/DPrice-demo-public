@@ -1,4 +1,4 @@
-# DPrice — public edition
+# DPrice — demo site
 
 Landing page and serverless demo product of DPrice (dynamic pricing for new-build real estate).
 All demo projects, companies and figures are synthetic.

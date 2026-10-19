@@ -1,17 +1,34 @@
 export const CONFIG = {
-  "edition": "public",
+  "edition": "site",
   "regions": [
-    "uae",
-    "sa",
+    "world",
+    "gulf",
     "th",
     "in"
   ],
+  "parts": {
+    "world": [
+      "uae",
+      "sa",
+      "th",
+      "in"
+    ],
+    "gulf": [
+      "uae",
+      "sa"
+    ],
+    "th": [
+      "th"
+    ],
+    "in": [
+      "in"
+    ]
+  },
   "landing": "../landing/",
   "landingRegion": {
-    "uae": "uae",
-    "sa": "sa",
+    "world": "global",
+    "gulf": "gulf",
     "th": "th",
-    "in": "in",
-    "rf": "ru"
+    "in": "in"
   }
 };

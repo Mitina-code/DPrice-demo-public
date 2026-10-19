@@ -1,4 +1,10 @@
-
+// The render layer — pure view builders plus the «Вход» controller.
+//
+// Render functions are pure: state in, DOM out, no side effects and — the hard
+// rule — no pricing logic anywhere in the UI layer (NFR-10). The client renders
+// the login/landing shell and the live product surfaces from server payloads:
+// every number is formatted here, while all pricing and recommendations stay in
+// Python view-models and the kernel.
 
 import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo26-r4';
 import * as api from './api.js?v=demo26-r4';
@@ -49,7 +55,12 @@ const {
   view,
 } = api;
 
+// The serverless demo build ships an offline api.js (OFFLINE = true): it opens
+// straight into the product, lists only demo regions and can hide the demo
+// projects. The server build keeps every behaviour below unchanged.
 const OFFLINE = Boolean(api.OFFLINE);
+
+// --- small DOM helpers ------------------------------------------------------
 
 function el(tag, attrs, children) {
   const node = document.createElement(tag);
@@ -74,6 +85,13 @@ function el(tag, attrs, children) {
   return node;
 }
 
+// The SVG namespace an inline SVG element must be created in — a plain
+// `createElement('svg'|'path'|…)` yields an inert HTMLUnknownElement that never
+// renders, so the hand-rolled charts (UX-DR15: the Release MC fan) build through
+// `createElementNS`. Every attribute — `class` included, since an SVG element's
+// `className` is a read-only SVGAnimatedString — is set via `setAttribute`. The
+// fake DOM the render tests drive implements `createElementNS`, so the SVG tree is
+// introspectable there too.
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 function svgEl(tag, attrs, children) {
@@ -97,6 +115,9 @@ function svgEl(tag, attrs, children) {
   return node;
 }
 
+// --- pure view builders -----------------------------------------------------
+
+// The supplied brand asset is shared by the authenticated workspaces.
 function buildBrand(lang) {
   const wordmark = el('img', {
     class: 'console-logo',
@@ -109,6 +130,7 @@ function buildBrand(lang) {
   ]);
 }
 
+// The RU/EN switcher — working pre-auth (UX-DR1). Active = solid ink + white.
 function buildLangSwitcher(lang, onLang) {
   const buttons = LANGS.map((code) =>
     el(
@@ -132,6 +154,7 @@ function buildLangSwitcher(lang, onLang) {
   return box;
 }
 
+// One labelled field — a <label>-wrapped input with an uppercase micro-label.
 function buildField(id, labelKey, type, lang) {
   return el('label', { class: 'field', for: id }, [
     el('span', { class: 'label' }, [t(labelKey, lang)]),
@@ -147,6 +170,7 @@ function buildField(id, labelKey, type, lang) {
   ]);
 }
 
+// The footer — "DPrice by RAMAX" + the synthetic-data disclaimer (UX-DR1).
 function buildFooter(lang) {
   return el('footer', { class: 'footer' }, [
     t('rf_title', lang),
@@ -154,11 +178,15 @@ function buildFooter(lang) {
   ]);
 }
 
+// A danger note carrying a message key, or a held `{ key, params }` failure —
+// the server never sends the prose.
 function buildErrorNote(error, lang) {
   const text = typeof error === 'string' ? t(error, lang) : keyedErrorText(error, lang);
   return el('div', { class: 'note danger note-error' }, [text]);
 }
 
+// Public destinations are absolute: this page is served from the local demo,
+// while its navigation still points to the original public platform.
 const PUBLIC_PLATFORM = 'https://platform.dprice.ru';
 const PUBLIC_LOGIN = `${PUBLIC_PLATFORM}/en/account/login?returnUrl=%2Fen`;
 
@@ -203,6 +231,8 @@ function publicCta(icon, flavor, titleKey, bodyKey, actionKey, href, lang, exter
   ]);
 }
 
+// The modal mirrors the public registration prompt. Its only action leaves for
+// the public platform; entered credentials are never collected or transmitted.
 function publicDemoModal(lang, close) {
   const previewFields = [
     ['x_public_username', 'text'],
@@ -243,6 +273,7 @@ function publicDemoModal(lang, close) {
   return overlay;
 }
 
+// Build the public login landing; only the form calls the local auth handler.
 export function renderLogin(state, handlers) {
   const { lang, error, sessionBusy } = state;
   const errorSlot = el('div', { class: 'error-slot', 'aria-live': 'polite', 'aria-atomic': 'true' }, error ? [buildErrorNote(error, lang)] : []);
@@ -345,6 +376,12 @@ export function renderLogin(state, handlers) {
   return root;
 }
 
+// --- role landings (UX-DR4) --------------------------------------------------
+
+// Landing surface id → its title key. Names verbatim from the frozen prototype
+// dictionary; the loop admin has no product surface (landing null) and gets the
+// notice page instead. Manager → «Сегодня», director → «Переоценка», analyst →
+// «Динамика и прогноз».
 const LANDING_TITLE = {
   today: 'nav_today',
   desk: 'nav_desk',
@@ -352,6 +389,10 @@ const LANDING_TITLE = {
   data: 'nav_data',
 };
 
+// The post-auth header: role badge, the session-scoped market chip (UAE), the
+// still-working language switcher and the logout button. Composed strictly from
+// the existing token components (chip, langsw, primary button) — the real top
+// bar, rail and tabs are Story 3.3's.
 function buildLandingHeader(state, handlers) {
   const { lang, role } = state;
   return el('div', { class: 'landing-head' }, [
@@ -361,6 +402,7 @@ function buildLandingHeader(state, handlers) {
   ]);
 }
 
+// The logout control — returns to «Вход» (UX-DR7). Reuses the primary button.
 function buildLogout(lang, onLogout) {
   const btn = el('button', { type: 'button', class: 'btn-primary' }, [
     t('sess_logout', lang),
@@ -369,10 +411,15 @@ function buildLogout(lang, onLogout) {
   return btn;
 }
 
+// The title key for a landing, defaulting to the login title if unknown.
 function landingTitleKey(landing) {
   return LANDING_TITLE[landing] || 'login_title';
 }
 
+// Render an authenticated landing from `state` ({ lang, role, landing }). Pure:
+// the role landings render their frame and title only; the loop admin (landing
+// null, FR-3) gets the minimal notice page — no product surface, sign-out the
+// only action. Payloads arrive with Story 3.3/Epic 4.
 export function renderLanding(state, handlers) {
   const { lang, landing } = state;
 
@@ -396,6 +443,8 @@ export function renderLanding(state, handlers) {
     buildFooter(lang),
   ]);
 }
+
+// --- QF-003 product-change workbench --------------------------------------
 
 function emptyFeedbackState() {
   return {
@@ -434,7 +483,8 @@ function emptyProductLoopState() {
     progressStale: false,
     pollDelay: 2000,
     activeAutomationCount: 0,
-
+    // Set once the server refuses a command because only the dev worker runs
+    // it (product_loop_worker_dev_only): no worker here would ever take it.
     workerDevOnly: false,
   };
 }
@@ -444,7 +494,9 @@ function splitWorkbenchLines(value) {
 }
 
 function splitWorkbenchIds(value) {
-
+  // Operational identifiers arrive as decimal strings so values above 2^53
+  // remain exact. Keep user-entered IDs as strings too; Pydantic validates and
+  // converts valid decimal identifiers server-side without a lossy JS Number.
   return String(value || '').split(',').map((item) => item.trim()).filter(Boolean);
 }
 
@@ -709,7 +761,8 @@ function productLoopStaticSignature(loopState) {
     detailPlanOffset: loopState.detailPlanOffset,
     detail: staticDetail,
     plans: (loopState.plans || []).map(productLoopStaticPlan),
-
+    // A finished preparation fills the new-plan draft during a background
+    // poll; the form is static, so a filled draft must repaint the page.
     planDraft: loopState.planDraft,
   });
 }
@@ -835,7 +888,8 @@ function buildPlanForm(detail, loopState, state, handlers) {
 }
 
 function preparationSourceIds(detail, loopState) {
-
+  // The plan form below is the one place where related feedback is named;
+  // a new-plan draft there decides what the model may cite.
   const draft = loopState.planDraft;
   const ids = draft && !draft.planId ? splitWorkbenchIds(draft.sourceIds || '') : [];
   return ids.length ? ids : [String(detail.id)];
@@ -858,7 +912,7 @@ function buildPreparationPanel(detail, loopState, state, handlers) {
     handlers.onPreparationHint(detail.id, event.target.value);
   });
   const inFlight = preparation?.state === 'queued' || preparation?.state === 'running';
-
+  // Outside dev the server refuses preparation: nothing here would run it.
   const devOnly = loopState.workerDevOnly === true;
   const request = el('button', {
     type: 'button', class: preparation?.state === 'completed' ? 'btn-secondary' : 'btn-primary',
@@ -1229,6 +1283,8 @@ export function renderProductLoopWorkspace(state, handlers) {
     ]),
   ]);
 }
+
+// --- Data workspace (Story 5.1) -------------------------------------------
 
 function importStatusLabel(status, lang) {
   return t(`import_status_${status}`, lang);
@@ -2124,6 +2180,7 @@ function historyPageButton(label, disabled, onClick) {
   return button;
 }
 
+/** Last-wins state seam for the future Story 5.4 history placement. */
 export function createInventoryHistoryState(lang = 'ru') {
   let generation = 0;
   const state = { lang, loading: false, error: null, data: null };
@@ -2157,6 +2214,7 @@ export function createInventoryHistoryState(lang = 'ru') {
   };
 }
 
+/** Reusable Story 5.3 history sections; Story 5.4 owns their eventual surface. */
 export function renderInventoryHistory(state, handlers = {}) {
   const lang = state.lang || 'ru';
   const heading = el('h2', { id: 'inventory-history-title', tabindex: '-1' }, [
@@ -2312,6 +2370,23 @@ export function renderInventoryHistory(state, handlers = {}) {
   }, [heading, facets, commercial, prices, pager]);
 }
 
+// --- the live shell: rail, top bar, tabs, strategy bar (Story 3.3, AC1/AC2) --
+//
+// The console stops being a placeholder: the chrome renders live from the view
+// payload's `chrome` block (assembled server-side in viewmodels/chrome.py). The
+// DOM structure and class names are the frozen prototype's, verbatim (AD-14,
+// UX-DR13) — the token CSS in styles.css already styles them. The three licensed
+// changes carry through: the role badge replaces the prototype's role <select>
+// (UX-DR2), permission gating disables the strategy pills for non-directors
+// (UX-DR3), and the login surface is separate. The current product surfaces now
+// render live bodies when their payload data is present.
+
+// The project tabs in fixed order (UX-DR18): the eight project surfaces, each
+// mapped to its nav title key — the prototype's `PROJVIEWS`. The portfolio `all`
+// surface is NOT a tab: it is reached only through the rail «По всем проектам»
+// entry, and portfolio scope hides the tab strip entirely (prototype `renderShell`
+// — `if(S.scope==='all'){tb.style.display='none'}`). A tab switch is instant (no
+// fetch gate on the frame) and scrolls the content to the top.
 const TAB_ORDER = [
   'today',
   'nep',
@@ -2323,6 +2398,13 @@ const TAB_ORDER = [
   'retro',
 ];
 
+// QF-008 restores the management navigation over active operational data. The
+// unfinished Release and Retrospective surfaces remain unreachable.
+// The operational shell now carries the frozen prototype's full project tab set
+// (`PROJVIEWS`, prototype line 2817) so nothing the prototype offered silently
+// disappears on real data. A tab whose inputs the v1 import contract never
+// carries renders its prototype header and an explicit «not in the loaded data»
+// note — never a synthetic number.
 const OPERATIONAL_TAB_ORDER = [
   'today',
   'nep',
@@ -2335,13 +2417,28 @@ const OPERATIONAL_TAB_ORDER = [
 ];
 const OPERATIONAL_SURFACES = new Set(OPERATIONAL_TAB_ORDER);
 
+// The market → demo-chip key and switcher label. The three demo markets in the
+// frozen prototype's switcher order `rf uae kz` (UX-DR13, spine naming row); the
+// chip reads as an environment fact, the switcher swaps the dataset (Task 4).
 const MARKETS = ['rf', 'uae', 'kz'];
 const DEMO_CHIP = { uae: 'demo_uae', rf: 'demo_rf', kz: 'demo_kz' };
 const MARKET_LABEL = { uae: 'mk_uae', rf: 'mk_rf', kz: 'mk_kz' };
 
+// The «По всем проектам» portfolio scope/surface id (server `RAIL_ALL_ID`); it is
+// both a rail scope and the `all` analytics surface. The first project tab a switch
+// falls back to when leaving portfolio scope (the prototype's `openProject` guard).
 const PORTFOLIO_ID = 'all';
 const FIRST_TAB = 'today';
 
+// The term-set fields a project switch drops so the server re-resolves them to
+// their defaults and echoes them back (AD-2 switch-reset: the client resets by
+// dropping fields, the server owns the reset values). A project switch resets the
+// NEP what-if terms plus release size and window — verbatim from the prototype's
+// `openProject` (`resetTerms(); S.relWin=9; S.relSize=defRelSize(...)`), which
+// leaves the buyer `segment` untouched. Only the market switch resets segment (it
+// drops the whole set, state.termSet = {}). The reset *values* become project-aware
+// in Epic 4 (projTerms / defRelSize); here they resolve to the static catalog
+// defaults.
 const PROJECT_SWITCH_RESET_FIELDS = [
   'plan',
   'escrow_coverage',
@@ -2352,6 +2449,8 @@ const PROJECT_SWITCH_RESET_FIELDS = [
   'release_window',
 ];
 
+// A shallow copy of `termSet` with `fields` removed — the client-side half of a
+// switch-reset (AD-2): the dropped fields resolve server-side to their defaults.
 function withoutFields(termSet, fields) {
   const next = { ...(termSet || {}) };
   for (const field of fields) {
@@ -2375,6 +2474,9 @@ function sectionFromFilters(filters, options) {
   return byValue?.id ?? null;
 }
 
+// Pick the active-language leaf of a bilingual `[ru, en]` value (project names,
+// areas). A plain string passes through unchanged. Names are proper-noun data,
+// not prose — the payload carries both forms and the client selects (AD-3).
 function pick(value, lang) {
   if (Array.isArray(value)) {
     return value[lang === 'en' ? 1 : 0];
@@ -2382,10 +2484,16 @@ function pick(value, lang) {
   return value;
 }
 
+// The avatar glyph for the rail `.pav`: the display name's first character,
+// verbatim from the prototype (`pname(pr).slice(0,1)`, UX-DR13) — not a two-letter
+// monogram.
 function initial(name) {
   return String(name).slice(0, 1);
 }
 
+// One rail project row (`.pitem`): avatar, name, status sub-label, ops badge.
+// The badge count comes straight from the payload (recounted from the kernel task
+// feed on every render, AR-17); it renders only when non-zero.
 function buildRailProject(item, lang, onProject) {
   const name = pick(item.name, lang);
   const children = [
@@ -2413,13 +2521,18 @@ function buildRailProject(item, lang, onProject) {
   return btn;
 }
 
+// The rail: brand, the project list with ops badges, the «По всем проектам»
+// portfolio entry, and the footer. Off-canvas behind the burger at ≤820 px is a
+// CSS/responsive concern (Task 4); the markup is the same.
 function buildRail(chrome, state, handlers) {
   const { lang } = state;
   const projects = (chrome.rail || []).map((item) =>
     buildRailProject(item, lang, handlers.onProject),
   );
   const railAll = chrome.rail_all || {};
-
+  // The portfolio entry: `∑` icon, the «По всем проектам» name and its sub-label,
+  // and — matching the prototype — no ops badge (only the per-project rows carry
+  // one). `nav_all` names it; `rail_all` is the sub-label (verbatim, UX-DR13).
   const allChildren = [
     el('span', { class: 'pav ico' }, ['∑']),
     el('span', { class: 'pmid' }, [
@@ -2450,6 +2563,8 @@ function buildRail(chrome, state, handlers) {
   ]);
 }
 
+// The market switcher (`.mksw`) — a `role="group"` of the three markets; the
+// active market is solid green. Switching swaps the dataset server-side (Task 4).
 function buildMarketSwitcher(state, handlers) {
   const buttons = MARKETS.map((mk) =>
     el(
@@ -2477,6 +2592,10 @@ function buildMarketSwitcher(state, handlers) {
   return box;
 }
 
+// The role badge + its single-item «Выйти» popover (UX-DR2): the badge's only
+// interactivity is opening the popover — no role switching. Click toggles it;
+// the one item signs out. This is the licensed replacement for the prototype's
+// free role <select>.
 function buildRoleBadge(state, handlers) {
   const { lang, role } = state;
   const badge = el(
@@ -2501,18 +2620,26 @@ function buildRoleBadge(state, handlers) {
   return el('div', { class: 'rolewrap' }, children);
 }
 
+// The top bar (`.top`): burger (mobile rail toggle), breadcrumbs `проект /
+// вкладка` (with the neutral «предпросмотр» tag beside them on a preview market),
+// the market switcher, demo chip, role badge and language switcher. The demo
+// chip and preview tag come from the payload's `format`/`preview` blocks — the
+// per-market variant is named server-side, so the client never branches on the
+// market key (AD-9).
 function buildTopBar(state, chrome, handlers) {
   const { lang } = state;
   const crumb = chrome.breadcrumb || {};
   const format = chrome.format || {};
   const preview = chrome.preview || null;
   const projectName = crumb.project ? pick(crumb.project, lang) : null;
-
+  // `проект / вкладка`, with the active tab bold — verbatim from the prototype
+  // (`pname / <b>tab</b>`, UX-DR13); a portfolio scope (no project) shows just the
+  // bold «По всем проектам» tab.
   const crumbs = el('div', { class: 'crumbs' }, [
     projectName ? projectName : null,
     projectName ? ' / ' : null,
     el('b', null, [t(`nav_${crumb.tab || state.surface}`, lang)]),
-
+    // The neutral preview tag sits beside the breadcrumbs on RF/KZ (UX-DR11).
     preview
       ? el('span', { class: 'tag t-nt preview-tag' }, [t(preview.tag_key, lang)])
       : null,
@@ -2536,6 +2663,11 @@ function buildTopBar(state, chrome, handlers) {
   ]);
 }
 
+// The market-preview warn banner (FR-6, UX-DR11): a warn note under the tabs on
+// RF/KZ that states, honestly, that the market is outside the demo contour (RF:
+// full math; KZ: additionally naming its preserved wiring gaps). `null` on UAE
+// and whenever the payload carries no preview block. The `role="status"` keeps
+// it announced without stealing focus.
 function buildPreviewBanner(chrome, lang) {
   const preview = chrome.preview || null;
   if (!preview) {
@@ -2546,6 +2678,10 @@ function buildPreviewBanner(chrome, lang) {
   ]);
 }
 
+// The tab strip (`.tabs`): the eight project surfaces in fixed order, the active
+// one underlined. Portfolio is a rail scope, not a tab. Switching is instant — it
+// re-issues the view for the same scope, keeping the session-local what-if terms,
+// and scrolls the content to the top.
 function buildTabs(state, handlers) {
   const buttons = TAB_ORDER.map((surface) =>
     el(
@@ -2569,6 +2705,11 @@ function buildTabs(state, handlers) {
   return box;
 }
 
+// The strategy bar (`.stratbar`): the org's active strategy shown as three pills,
+// the active one lit. The pills are visible but disabled for every role but the
+// director (UX-DR3), carrying the «Требуется роль» tooltip — presentation only,
+// from the same permission block the command guard enforces (AD-8). The switch
+// command itself is Epic 4's; here the pills render their state.
 function buildStrategyBar(chrome, state) {
   const strat = chrome.strategy || {};
   const canSwitch = !!strat.can_switch;
@@ -2590,13 +2731,19 @@ function buildStrategyBar(chrome, state) {
   });
   const noteKey = strat.key ? `sg_${strat.key}_d` : null;
   return el('div', { class: 'stratbar', role: 'group', 'aria-label': t('st_h', state.lang) }, [
-
+    // The strategy label is a `.mini-lb`, verbatim from the prototype (UX-DR13) —
+    // not a `.chip`. The ≤1080 breakpoint hides only the demo `.chip` (UX-DR17); a
+    // `.chip` here would wrongly vanish the strategy label at that width.
     el('span', { class: 'mini-lb' }, [t('st_h', state.lang)]),
     ...pills,
     noteKey ? el('span', { class: 'stratnote' }, [t(noteKey, state.lang)]) : null,
   ]);
 }
 
+// The surface content frame. Known surfaces render live bodies when their `data`
+// block is held; the title-only panel is the fallback for absent payloads. A
+// `status` slot carries the loading/error affordances (UX-DR7), announced via
+// aria-live.
 function buildSurfaceFrame(state) {
   const renderer = SURFACE_RENDERERS[state.surface];
   const operationalDesk = state.operationalDesk && state.operationalDesk.enabled;
@@ -2616,8 +2763,15 @@ function buildSurfaceFrame(state) {
   ]);
 }
 
+// Render the whole authenticated shell from `state` and the payload `chrome`
+// block: the rail, then the main column (top bar, tabs, strategy bar, content
+// frame). Pure — it wires only the callbacks passed in.
 export function renderShell(state, chrome, handlers) {
-
+  // Portfolio scope («По всем проектам») hides the tab strip and shows only the
+  // analytics surface — verbatim from the prototype (`if(S.scope==='all'){tb.
+  // style.display='none'}`, UX-DR18/EXPERIENCE: "portfolio scope, tabs hidden,
+  // breadcrumb «Аналитика»"). Every project scope renders the eight tabs. The
+  // strategy bar stays in both scopes (the prototype's `stratBar` is unconditional).
   const inPortfolioScope = state.surface === PORTFOLIO_ID;
   const inOperationalDesk = state.operationalDesk && state.operationalDesk.enabled;
   if (inOperationalDesk) {
@@ -2644,18 +2798,46 @@ export function renderShell(state, chrome, handlers) {
   ]);
 }
 
+// --- «Цена сделки» / NEP surface (Story 4.1, Task 2) -------------------------
+//
+// The first kernel-served surface renders live from the view payload's `data`
+// block (assembled by viewmodels/nep.py). The DOM structure and class names are
+// the frozen prototype's `vNep` (AD-14, UX-DR13); the token CSS in styles.css
+// already styles them. Every number is formatted client-side through the `Intl`
+// helpers (AD-3) — the payload carries raw values and message keys only — and
+// renders mono, right-aligned, with units as muted sub-labels (UX-DR14). A value
+// the payload marks not-applicable renders «—» (UX-DR8), never blank, never zero.
+//
+// Charts (UX-DR15, AC4): these two surfaces carry no inline SVG in the frozen
+// prototype (`vNep`/`vShelf` have none — the SVG chart vocabulary of dual-lines,
+// fans and bubble maps lives in the release/trend/comp/retro surfaces). Their
+// UX-DR15 chart is the hand-rolled render-only visualization the prototype does
+// use: the additive waterfall **leakage ladder** here and the **efficiency bars**
+// on the Shelf — no library, no build step, and no hover/zoom/click interaction,
+// with the values duplicated in an HTML legend/table below as the accessible path.
+// Adding an SVG the prototype lacks would break the visual freeze (NFR-10, FR-40).
+
+// The em-dash the not-applicable / empty states render (UX-DR8), never a blank
+// cell and never a literal zero.
 const EM_DASH = '—';
 
+// The market's price-per-area unit label, resolved from the chrome `format`
+// block's message key (AD-9) — the same key the shell's number formatting reads,
+// so the NEP surface never branches on the market. Empty when no chrome is held.
 function priceUnitLabel(state) {
   const fmt = (state.chrome && state.chrome.format) || {};
   return fmt.price_unit_key ? t(fmt.price_unit_key, state.lang) : '';
 }
 
+// The market's area unit label (м² / ft²), from the chrome `format` block.
 function areaUnitLabel(state) {
   const fmt = (state.chrome && state.chrome.format) || {};
   return fmt.area_unit_key ? t(fmt.area_unit_key, state.lang) : '';
 }
 
+// An absolute money amount formatted with the market currency symbol and its
+// placement (prefix/suffix), both from the chrome `format` block (AD-9). The
+// number itself is formatted through `Intl` in the active language (AD-3).
 function fmtMoney(state, value) {
   const fmt = (state.chrome && state.chrome.format) || {};
   const symbol = fmt.currency || '';
@@ -2666,6 +2848,9 @@ function fmtMoney(state, value) {
   return fmt.placement === 'prefix' ? `${symbol} ${number}` : `${number} ${symbol}`;
 }
 
+// One KPI tile (`.kpi`): uppercase label, the mono value (optionally tinted
+// pos/neg), a muted unit and a small detail line — verbatim from the prototype's
+// `kpi()` helper. Empty unit/detail slots are simply omitted.
 function buildKpi(label, value, unit, detail, valueClass) {
   return el('div', { class: 'kpi' }, [
     el('div', { class: 'lb' }, [label]),
@@ -2675,6 +2860,8 @@ function buildKpi(label, value, unit, detail, valueClass) {
   ]);
 }
 
+// One big-result column (`.bigres .b`): micro-label, the big mono number, and a
+// muted sub-label. `numClass`/`subClass` tint the number/sub-label pos/neg/warn.
 function buildBigCol(label, number, sub, numClass, subClass) {
   return el('div', { class: 'b' }, [
     el('div', { class: 'l' }, [label]),
@@ -2682,6 +2869,15 @@ function buildBigCol(label, number, sub, numClass, subClass) {
     sub != null ? el('div', { class: subClass ? `s ${subClass}` : 's' }, [sub]) : null,
   ]);
 }
+
+// --- «Сегодня» / Today surface (Story 4.4, Task 1) --------------------------
+//
+// The daily brief renders live from viewmodels/today.py: KPIs, the shared
+// task-feed ops/think lists and the typology price strip + chart. The feed rows
+// carry raw message args; this renderer formats them through the same Intl
+// helpers the rest of the UI uses (AD-3). The «Открыть» buttons are pure
+// navigation: data-open-surface points at the owning project tab, and the shared
+// click wiring calls loadSurface(), which already scrolls to top (UX-DR18).
 
 function todayTaskArgs(state, item) {
   const { lang } = state;
@@ -2886,6 +3082,9 @@ export function renderTodaySurface(state, data) {
   ]);
 }
 
+// The big-result strip: list price → NEP (green), the discount gap (warn), and
+// the peer benchmark with the signed delta tinted pos/neg (UX-DR15/prototype
+// `bigres`). Numbers are mono; units are muted sub-labels (UX-DR14).
 function buildNepBigRes(state, result) {
   const { lang } = state;
   const unit = priceUnitLabel(state);
@@ -2906,6 +3105,11 @@ function buildNepBigRes(state, result) {
   ]);
 }
 
+// The additive waterfall ladder (FR-11, UX-DR15): the NEP block plus every
+// deduction component in ladder order, the grouped sub-threshold bucket rendered
+// honestly as its own segment (never dropped), the peer benchmark marker, and an
+// HTML legend below. Widths are `psf / total`; the total extends past the list
+// price by any payment-form premium (a negative cut), exactly as the prototype.
 function buildNepLadder(state, waterfall) {
   const { lang } = state;
   const unit = priceUnitLabel(state);
@@ -2916,7 +3120,8 @@ function buildNepLadder(state, waterfall) {
     segs.push({ cls: comp.class, psf: comp.psf, label: t(comp.seg_key, lang) });
   }
   if (waterfall.grouped) {
-
+    // The grouped bucket carries its own itemization so nothing becomes invisible
+    // (FR-11); the items ride in the legend entry's title as `label value` pairs.
     const items = waterfall.grouped.items
       .map((it) => `${t(it.seg_key, lang)} ${nf(it.psf, lang, 0)}`)
       .join(' · ');
@@ -2930,7 +3135,13 @@ function buildNepLadder(state, waterfall) {
   const cut = waterfall.components.find((c) => c.key === 'cut');
   const premium = cut ? Math.max(0, -cut.psf) : 0;
   const total = waterfall.list_psf + premium;
-
+  // Only positive components ladder as bars (prototype filter `x[1] > listPsf*0.002`,
+  // line 1728): a negative component is a payment-form premium (e.g. the default
+  // UAE `ph3` cut), already carried by the `premium` extension of `total`, and a
+  // signed psf used as a width would emit an invalid negative CSS width. The payload
+  // still carries it (the zero-residue sum holds); it just does not draw a bar. The
+  // sub-threshold bucket is grouped by the view-model (FR-11), so nothing positive is
+  // dropped here.
   const drawn = segs.filter((s) => s.psf > 0);
   const bars = drawn.map((s) => {
     const width = total ? (s.psf / total) * 100 : 0;
@@ -2976,6 +3187,9 @@ function buildNepLadder(state, waterfall) {
   ]);
 }
 
+// The committee note (AD-3, NFR-1): a message key with the raw NEP / delta params
+// the client formats and localizes — never prose from the server. `n_note_ok`
+// (result at or above the reference) renders neutral; `n_note_wr` renders warn.
 function buildCommitteeNote(state, data) {
   const { lang } = state;
   const note = data.committee_note;
@@ -2988,6 +3202,9 @@ function buildCommitteeNote(state, data) {
   ]);
 }
 
+// The break-even discount-rate note «Точка равновесия по ставке» (FR-14): the
+// crossing rate against the current rate where it exists (UAE), «—» otherwise
+// (RF/KZ, UX-DR8) — always rendered, never blank.
 function buildBreakEvenNote(state, data) {
   const { lang } = state;
   const be = data.break_even;
@@ -3005,6 +3222,9 @@ function buildBreakEvenNote(state, data) {
   ]);
 }
 
+// The result panel (`.panel`): the big-result strip, the additive waterfall
+// ladder with its legend and benchmark marker, the committee note and the
+// break-even note.
 function buildNepResult(state, data) {
   return el('div', { class: 'panel' }, [
     el('h2', null, [t('n_res', state.lang)]),
@@ -3015,6 +3235,9 @@ function buildNepResult(state, data) {
   ]);
 }
 
+// The plan `<select>` (`.projsel`): the market's payment plans as options, the
+// current effective plan selected. `data-control="plan"` marks it for the live
+// what-if wiring (Task 4).
 function buildPlanSelect(state, data) {
   const { lang } = state;
   const selected = data.controls.plan;
@@ -3032,6 +3255,9 @@ function buildPlanSelect(state, data) {
   );
 }
 
+// One labelled range slider (`.sl`): the label, the current value read-out, and
+// the `<input type=range>` carrying its contractual min/max/step (UX-DR5).
+// `data-control` marks it for the live what-if wiring (Task 4).
 function buildSlider(control, label, valueText, min, max, step, value) {
   const id = `slider-${control}`;
   return el('div', { class: 'sl' }, [
@@ -3053,6 +3279,11 @@ function buildSlider(control, label, valueText, min, max, step, value) {
   ]);
 }
 
+// The lever toggles (`.tg`): one `.tgi` per lever, each showing its per-lever
+// discounted cost (FR-10). An inapplicable lever (marked `disabled` because its
+// marginal cost is zero — an unfurnished project, a below-threshold visa) renders
+// dimmed and disabled with «—» for its cost (UX-DR8). Cost numbers are mono; the
+// unit is a muted sub-label (UX-DR14). `data-lever` marks each for Task 4's wiring.
 function buildLevers(state, levers, unit) {
   const { lang } = state;
   const rows = levers.map((lv) => {
@@ -3062,7 +3293,10 @@ function buildLevers(state, levers, unit) {
       attrs.style = 'opacity:.5';
     }
     const inputAttrs = { type: 'checkbox', 'data-lever': lv.flag };
-
+    // The server carries each lever's real on-magnitude (2 for the two-year `sc`
+    // holiday, 1 otherwise) so the client submits the same on-value without
+    // duplicating the magnitude policy — it is the one source (AD-3). Default 1 for
+    // an older payload that omits it.
     inputAttrs['data-on-magnitude'] = lv.on_magnitude == null ? 1 : lv.on_magnitude;
     if (on) {
       inputAttrs.checked = 'checked';
@@ -3085,6 +3319,9 @@ function buildLevers(state, levers, unit) {
   return el('div', { class: 'tg' }, rows);
 }
 
+// The controls panel (`.panel`): the fixed unit line, the plan select, the market
+// rate control (coverage on escrow markets, developer rate elsewhere — UX-DR5's
+// contractual ranges), the cut slider, and the lever toggles.
 function buildNepControls(state, data) {
   const { lang } = state;
   const controls = data.controls;
@@ -3133,6 +3370,12 @@ function buildNepControls(state, data) {
   return el('div', { class: 'panel' }, children);
 }
 
+// The market financing panel (FR-12), selected by the payload's `financing.kind`
+// (AD-9), never a market `if`: `escrow` (RF) shows the base/special/effective
+// escrow rates, `scheme` (KZ) the sales scheme with its cost, and `flat` (UAE) the
+// flat cost of capital (the effective discount rate — no escrow, no scheme, just
+// the developer's own money). Not-applicable rates within a panel render «—»
+// (UX-DR8).
 function buildNepFinancing(state, data) {
   const { lang } = state;
   const financing = data.financing;
@@ -3154,7 +3397,8 @@ function buildNepFinancing(state, data) {
         buildKpi(t('n_esc_spec', lang), pf ? pct(pf.spec, lang, 2) : EM_DASH, '', ''),
         buildKpi(t('n_esc_eff', lang), pf ? pct(pf.eff, lang, 2) : EM_DASH, '', bump, 'pos'),
       ]),
-
+      // The formula + discounting notes below the KPIs (prototype `vNep`, NFR-10):
+      // the effective-rate formula and the "cost of money not counted twice" note.
       el('div', { class: 'fx', style: 'margin-top:10px' }, [t('n_esc_fx', lang)]),
       el('div', { class: 'src' }, [t('n_esc_note', lang)]),
     ]);
@@ -3195,7 +3439,8 @@ function buildNepFinancing(state, data) {
     ]);
   }
   if (financing.kind === 'flat') {
-
+    // UAE: no escrow and no scheme — the flat cost of capital is the effective
+    // discount rate the deal is priced at (FR-12). One KPI, the flat rate.
     return el('div', { class: 'panel' }, [
       el('h2', null, [t('n_fin_uae', lang)]),
       el('div', { class: 'grid g3', style: 'gap:9px' }, [
@@ -3206,6 +3451,11 @@ function buildNepFinancing(state, data) {
   return null;
 }
 
+// The RF pace-yield panel (FR-13): present only where the payload carries a
+// `pace` block (escrow markets); the client shows nothing here otherwise, and the
+// break-even note above already renders «—» for the non-applicable UAE/KZ case.
+// The `full` case (pace already fully collected) is a plain note; otherwise the
+// saved-capital / share KPIs and the interpreting note render.
 function buildNepPace(state, data) {
   const pace = data.pace;
   if (!pace) {
@@ -3239,6 +3489,10 @@ function buildNepPace(state, data) {
   return el('div', { class: 'panel', style: 'border-left:3px solid var(--green)' }, header);
 }
 
+// Render the whole «Цена сделки» surface from `state` and the surface `data`
+// block: a header, then a `g32` two-column grid — controls + financing on the
+// left, result + pace on the right (prototype `vNep` layout, UX-DR13). Pure:
+// state in, DOM out; the live what-if wiring is Task 4's.
 export function renderNepSurface(state, data) {
   const { lang } = state;
   return el('div', null, [
@@ -3250,18 +3504,27 @@ export function renderNepSurface(state, data) {
   ]);
 }
 
+// --- «Формы оплаты и акции» (Shelf) surface (Story 4.1, Task 3) --------------
+
+// A raw money amount rendered in millions with the market currency and a
+// language-appropriate «млн»/«m» token (prototype `mio`, line 1139). The number is
+// formatted client-side (AD-3); the payload carries the raw absolute money.
 function fmtMillions(state, value) {
   const fmt = (state.chrome && state.chrome.format) || {};
   const symbol = fmt.currency || '';
   const number = nf(value / 1e6, state.lang, 1);
-  const token = 'm';
+  const token = state.lang === 'ru' ? 'млн' : 'm';
   if (!symbol) {
     return `${number} ${token}`;
   }
-
+  // Russian trails the currency after «млн» (`1,2 млн AED`); English prefixes the
+  // symbol and glues the token to the number (`AED 1.2m`) — the prototype's split.
   return state.lang === 'ru' ? `${number} ${token} ${symbol}` : `${symbol} ${number}${token}`;
 }
 
+// One efficiency bar (`.bar`): a filled `<i>` whose width is the efficiency
+// relative to the segment's top efficiency (prototype `bar()`, line 1551). The
+// class tints it by tier (bright / `s` neutral / `w` weak); width is clamped 2..100.
 function buildBar(fraction, cls) {
   const width = Math.max(2, Math.min(100, fraction * 100));
   return el('div', { class: 'bar' }, [
@@ -3269,6 +3532,12 @@ function buildBar(fraction, cls) {
   ]);
 }
 
+// The payment-form table (FR-15): one row per plan with its down payment, markup,
+// cancellation, the NEP it brings the project and the delta versus the reference
+// form. The reference row is highlighted with its tag; a zero markup and the
+// reference's own delta render «—» (UX-DR8). Numbers are mono/right-aligned and
+// formatted client-side (AD-3, UX-DR14). Below, the worst-form warning renders from
+// its message keys with the mix-weighted params the payload carries.
 function buildShelfForms(state, forms) {
   const { lang } = state;
   const unit = priceUnitLabel(state);
@@ -3318,6 +3587,9 @@ function buildShelfForms(state, forms) {
   ]);
 }
 
+// The buyer-segment switcher (FR-16): one pill per market segment, the active one
+// highlighted. `data-control="segment"` marks the discrete control for Task 4's
+// live-recalc wiring; `data-segment` carries the key the client submits.
 function buildShelfSegments(state, segments) {
   const { lang } = state;
   const pills = segments.map((s) =>
@@ -3338,6 +3610,8 @@ function buildShelfSegments(state, segments) {
   );
 }
 
+// The verdict tag class + label key per verdict (prototype `vShelf`, line 1826):
+// give-first is positive, neutral, give-last is warn, n-a is neutral-muted.
 const SHELF_VERDICT = {
   first: ['t-ok', 'v_first'],
   ok: ['t-nt', 'v_ok'],
@@ -3345,6 +3619,11 @@ const SHELF_VERDICT = {
   na: ['t-nt', 'v_na'],
 };
 
+// The efficiency-ranked lever table (FR-16): each lever with its discounted cost,
+// buyer value, the efficiency bar, the efficiency number and its verdict. An
+// inapplicable lever (`na` — kernel zero-cost or the KZ cataloged inert lever, AR-9)
+// dims and renders «—» for cost and value (parity/UX-DR8); every row's efficiency
+// still shows. Numbers are mono, formatted client-side (AD-3, UX-DR14).
 function buildShelfLevers(state, levers) {
   const { lang } = state;
   const head = el('tr', null, [
@@ -3381,6 +3660,11 @@ function buildShelfLevers(state, levers) {
   ]);
 }
 
+// The recommended concession package (FR-17): the greedily-filled levers for the
+// active segment, and its savings-equivalence — the accumulated buyer value and
+// cost as KPIs and the savings note rendered from its message key with the raw
+// per-lot / inventory-wide params the payload carries. Numbers formatted
+// client-side (AD-3); the note is a key, never prose (NFR-1).
 function buildShelfPackage(state, pkg) {
   const { lang } = state;
   const unit = priceUnitLabel(state);
@@ -3408,6 +3692,10 @@ function buildShelfPackage(state, pkg) {
   return el('div', { class: 'grid g2' }, [left, right]);
 }
 
+// Render the whole «Формы оплаты и акции» surface from `state` and the surface
+// `data` block: a header, the payment-form table with its worst-form warning, the
+// segment switcher, the ranked lever table, and the recommended package. Pure:
+// state in, DOM out; the live what-if wiring is Task 4's.
 export function renderShelfSurface(state, data) {
   const { lang } = state;
   return el('div', null, [
@@ -3422,10 +3710,29 @@ export function renderShelfSurface(state, data) {
   ]);
 }
 
+// --- «Переоценка» (Desk) surface (Story 4.2) --------------------------------
+//
+// The console's first decision surface renders live from the desk payload
+// (viewmodels/desk.py): the regulatory-threshold panel, the 26-unit reprice table
+// with each unit's fired-rule reason and its accept/decline verdict, the typology
+// price groups with the five-factor reasoning modal, and the append-only decision
+// journal (UX-DR10). Every number is formatted client-side (AD-3) from the raw
+// payload; the fired-rule reason is a message key rendered as human text, never an
+// internal identifier (NFR-1). The manager decides units; the director approves
+// groups and switches strategy — the controls the caller's role may not invoke are
+// simply absent, and the server enforces regardless (AD-8). No pricing logic here
+// (NFR-10): a decision carries only the verdict, and the surface re-renders from the
+// server's fresh post-commit payload (AR-7).
+
+// The regulatory-threshold panel (FR-21): the market's play (Golden-Visa / family
+// mortgage) with its threshold, count, value and the interpreting note — rendered
+// from the payload's message keys and raw values, or the verbatim none-text when no
+// unit qualifies (UX-DR8). The value is shown in millions (prototype `mio`).
 function buildDeskThreshold(state, panel) {
   const { lang } = state;
   const noteParams = (panel.note_params || []).map((p, i) => {
-
+    // The fm note interleaves money (threshold/target/cost) and a plain count; the gv
+    // note is (count, value). Format the money params as millions, counts as plain.
     if (panel.kind === 'fm') {
       return i === 1 ? nf(p, lang, 0) : fmtMillions(state, p);
     }
@@ -3445,6 +3752,20 @@ function buildDeskThreshold(state, panel) {
   ]);
 }
 
+// One reprice-table row: the unit's attributes, its current (baseline+overlay) price,
+// the strategy optimal and deviation, days-on-market, the fired-rule reason as human
+// text, and the action cell — a pending unit shows its raise/lower target (with
+// accept/decline for the manager, and the same buttons disabled + «Требуется роль»
+// tooltipped for every other role, AC5/UX-DR3), a decided one its «Принять»/«Отклонить»
+// chip, a manual unit the «Ручная цена» tag, and a hold the «Держать» chip.
+// `unitPerm` is the payload's `unit_decision` permission entry ({allowed, requires}).
+// `canonical` marks the one same-id pending row a decision may be taken on: the overlay
+// keys by unit id (AR-5), so same-id pending rows collapse to a single decision the
+// server resolves on the *first* decidable match — the row the confirm modal previews.
+// A later same-id pending row is not `canonical` and shows its recommendation without
+// accept/decline controls, so the UI never offers a decision the store cannot record
+// separately (a raise and a lower under one id would otherwise both look actionable
+// yet both resolve to the first).
 function buildDeskRow(state, row, unitPerm, canonical = true) {
   const { lang } = state;
   const canDecide = !!(unitPerm && unitPerm.allowed);
@@ -3458,14 +3779,17 @@ function buildDeskRow(state, row, unitPerm, canonical = true) {
       t(row.decided === 'accepted' ? 'w_accept' : 'w_reject', lang),
     ]);
   } else if (row.pending) {
-
+    // The raise/lower recommendation with its recomputed target (AC2) — shown to
+    // every viewer; the accept/decline controls follow only for the manager.
     const raise = row.act === 'raise';
     const recoTag = el('span', { class: `tag ${raise ? 't-ok' : 't-wr'}` }, [
       `${t(raise ? 'w_raise' : 'w_lower', lang)} → ${nf(row.target, lang, 0)}`,
     ]);
     const children = [recoTag];
     if (!canonical) {
-
+      // A non-canonical same-id pending row (the seeded world can collide two
+      // actionable ids): show the recommendation, but no accept/decline — the one
+      // decision this id can carry is taken on the canonical row above (AR-5).
     } else if (canDecide) {
       children.push(
         el(
@@ -3480,7 +3804,11 @@ function buildDeskRow(state, row, unitPerm, canonical = true) {
         ),
       );
     } else {
-
+      // AC5 / UX-DR3: a non-manager (the analyst, the director) sees the same
+      // accept/decline pair, but disabled + dimmed and carrying the «Требуется
+      // роль: {role}» tooltip — presentation only, never enforcement (the server
+      // guard 403s regardless). The disabled buttons omit `data-decision`, so the
+      // click delegation can never fire them.
       const requires = unitPerm && unitPerm.requires;
       const tip = requires
         ? tp('x_requires_role_tip', lang, { role: tlc(`role_${requires}`, lang) })
@@ -3494,7 +3822,7 @@ function buildDeskRow(state, row, unitPerm, canonical = true) {
     }
     action = el('div', { class: 'fx wrap', style: 'gap:6px;background:none;border:0;padding:0' }, children);
   } else {
-
+    // A hold recommendation — no action to take (prototype's `w_hold` chip).
     action = el('span', { class: 'tag t-nt' }, [t('w_hold', lang)]);
   }
   return el('tr', null, [
@@ -3513,6 +3841,9 @@ function buildDeskRow(state, row, unitPerm, canonical = true) {
   ]);
 }
 
+// The 26-unit reprice table (FR-22, FR-25). The header names the columns; each row
+// carries the unit and its action. `unit` unit-label suffixes ppsf/optimal via the
+// column headers, so the cells stay bare numbers (UX-DR14).
 function buildDeskTable(state, data, unitPerm) {
   const { lang } = state;
   const head = el('tr', null, [
@@ -3529,7 +3860,10 @@ function buildDeskTable(state, data, unitPerm) {
     el('th', null, [t('th_reason', lang)]),
     el('th', null, [t('th_act', lang)]),
   ]);
-
+  // One decision per unit id (AR-5): where the seeded world collides two actionable
+  // ids, only the first pending row is decidable — the row the confirm modal previews
+  // and the command resolves. Mark it canonical; later same-id pending rows render
+  // their recommendation without independently-clickable controls.
   const seenPending = new Set();
   const rows = data.table.rows.map((row) => {
     let canonical = true;
@@ -3547,6 +3881,13 @@ function buildDeskTable(state, data, unitPerm) {
   ]);
 }
 
+// The typology price-group cards (FR-23): each group's count/free/averages/deviation
+// and a «Обоснование» button opening the five-factor reasoning modal (openReasoning).
+// Every role sees the per-group «Согласовать группу» control (one of the four command
+// controls, UX-DR3): the director's is enabled only where the group still has pending
+// recommendations; a manager/analyst sees it visible-but-disabled with the «Требуется
+// роль» tooltip — presentation only, never enforcement. `groupPerm` is the payload's
+// `group_approval` permission entry ({allowed, requires}).
 function buildDeskGroups(state, data, groupPerm, pendingByType) {
   const { lang } = state;
   const unit = priceUnitLabel(state);
@@ -3557,7 +3898,9 @@ function buildDeskGroups(state, data, groupPerm, pendingByType) {
     : null;
   const cards = data.groups.map((g) => {
     const pending = pendingByType[g.type] || 0;
-
+    // AC4 / FR-23: the group carries count, available (free), its average price
+    // against the computed optimal, and the deviation — the full stats the committee
+    // approves on, not price alone.
     const stats = [
       `${t('th_pgcnt', lang)}: ${nf(g.count, lang)}`,
       `${t('th_pgfree', lang)}: ${nf(g.free, lang)}`,
@@ -3583,12 +3926,13 @@ function buildDeskGroups(state, data, groupPerm, pendingByType) {
       'data-approve-group': g.type,
     };
     if (!canApprove) {
-
+      // AC5 / UX-DR3: the manager/analyst sees the control disabled + dimmed with the
+      // «Требуется роль: {role}» tooltip (the click delegation guards on `disabled`).
       approveAttrs.disabled = 'disabled';
       approveAttrs['aria-disabled'] = 'true';
       if (roleTip) approveAttrs.title = roleTip;
     } else if (!pending) {
-
+      // The director, but this group has nothing left pending (UX-DR6).
       approveAttrs.disabled = 'disabled';
       approveAttrs['aria-disabled'] = 'true';
     }
@@ -3601,11 +3945,18 @@ function buildDeskGroups(state, data, groupPerm, pendingByType) {
   ]);
 }
 
+// The append-only decision journal (UX-DR10): a 2px left-border `.log` list, each
+// entry a `<b>HH:MM text</b>` line with the actor subline, in the verbatim formats
+// for unit / group / strategy decisions — market-scoped and never cleared. The empty
+// state renders the verbatim «Решений пока нет…» text (UX-DR8).
 function buildJournalEntry(state, entry) {
   const { lang } = state;
   const p = entry.params || {};
-  const time = String(entry.utc || '').slice(11, 16);
-
+  const time = String(entry.utc || '').slice(11, 16); // HH:MM from the ISO capture
+  // The unit-decision money params are per-area `money_psf` values (the journal
+  // shape's semantic type, prototype `pu(u.lpsf) → pu(rc.target)`): render each as
+  // the number plus the market's price-per-area label, exactly as the prototype's
+  // `pu()` does — never a bare or absolute number.
   const puf = (value) => `${nf(value, lang, 0)} ${priceUnitLabel(state)}`.trim();
   let text;
   if (entry.kind === 'd_appr') {
@@ -3615,14 +3966,18 @@ function buildJournalEntry(state, entry) {
   } else if (entry.kind === 'd_strat') {
     text = tf('d_strat', lang, t(`sg_${p.old}`, lang), t(`sg_${p.new}`, lang));
   } else if (entry.kind === 'd_scen') {
-
+    // The committed release scenario (Story 4.3, FR-20): its inputs — the size (лоты),
+    // the window (мес) and the signed price index (%) — each formatted client-side from
+    // the raw params, exactly as the release controls render them (AD-3, NFR-1).
     text = tf(
       'd_scen', lang, nf(p.size, lang), nf(p.win, lang), `${sgn(p.index, lang, 1)}%`,
     );
   } else {
     text = t(entry.kind, lang);
   }
-
+  // The actor subline (UX-DR10, NFR-3): the acting account and its localized role, both
+  // resolved server-side from the entry's user id — the real attribution, never a static
+  // name. Absent only for a legacy row whose user has since been removed.
   const roleLabel = entry.role ? t(`role_${entry.role}`, lang) : null;
   const actor = [entry.by, roleLabel].filter(Boolean).join(' · ');
   return el('div', null, [
@@ -3646,12 +4001,18 @@ export function buildJournal(state, entries) {
   ]);
 }
 
+// The «Согласовать все» control (one of the four command controls, UX-DR3): approves
+// every pending recommendation. Shown to every role — the director's is disabled only
+// at zero pending (UX-DR6); a manager/analyst sees it visible-but-disabled with the
+// «Требуется роль» tooltip (presentation only). The command failure/pending note slot
+// rides beside it. `groupPerm` is the payload's `group_approval` permission entry.
 function buildApproveAll(state, data, groupPerm) {
   const { lang } = state;
   const canApprove = !!(groupPerm && groupPerm.allowed);
   const attrs = { type: 'button', class: 'btn-primary', 'data-approve-all': '1' };
   if (!canApprove) {
-
+    // AC5 / UX-DR3: disabled + tooltip for the non-director; the click delegation
+    // guards on `disabled` so the hook never fires.
     attrs.disabled = 'disabled';
     attrs['aria-disabled'] = 'true';
     const requires = groupPerm && groupPerm.requires;
@@ -3670,12 +4031,18 @@ function buildApproveAll(state, data, groupPerm) {
   ]);
 }
 
+// The per-type pending counts, read off the table rows — the recommendation count the
+// group-approval confirm modal shows and the enablement of each group control.
 function deskPendingByType(data) {
   const counts = {};
   const seen = new Set();
   for (const row of data.table.rows) {
     if (!row.pending) continue;
-
+    // The overlay's natural key is the unit id, so an id is owned by its first pending
+    // row — the canonical row the table decides on and `group_approval` keys off. Dedup
+    // globally, not per type: a later same-id row of another typology must not add a
+    // second count, or that group's confirm modal would promise a recommendation the
+    // transaction refuses to move (the id belongs to the first row's group) (AR-5/FR-24).
     if (seen.has(row.id)) continue;
     seen.add(row.id);
     counts[row.type] = (counts[row.type] || 0) + 1;
@@ -3921,7 +4288,8 @@ function buildOperationalDecisionControls(
     ? el('p', { class: 'danger', role: 'alert' }, [
         keyedErrorText(operational.decisionError, state.lang),
       ]) : null;
-
+  // In the unit table the «price stays put» note is said once above the
+  // rows; each row keeps only what differs — a role tip or a state tip.
   const compact = surfaceKey === 'table' && allowed && ready;
   return el('div', { class: 'inventory-decision-controls' }, [
     el('div', { class: 'actions', role: 'group',
@@ -3961,6 +4329,8 @@ function buildProjectDataActions(state, handlers) {
   }, [data, create]);
 }
 
+// Region filter above the project list: only the chosen region's projects are
+// listed and opened. The choice is a per-browser convenience.
 function buildRegionPicker(state, handlers) {
   const current = api.currentRegion();
   const select = el('select', {
@@ -3975,6 +4345,8 @@ function buildRegionPicker(state, handlers) {
   ]);
 }
 
+// Sign-in of the offline demo: the adapter checks the login and password
+// against its list of issued demo accounts.
 function buildOfflineLogin(state, handlers) {
   const { lang } = state;
   const email = el('input', {
@@ -4005,6 +4377,8 @@ function buildOfflineLogin(state, handlers) {
   return el('div', { class: 'offline-login' }, [form]);
 }
 
+// «Disable demo projects» (offline demo build only): the choice is kept in the
+// visitor's browser by the offline adapter.
 function buildDemoToggle(state, handlers) {
   if (!OFFLINE || !api.demoEnabled) return null;
   const enabled = api.demoEnabled();
@@ -4080,6 +4454,9 @@ function buildOperationalRail(state, handlers) {
   ]);
 }
 
+// Active inventory keeps the original shell anatomy while every label and
+// project row comes from active, org-scoped operational data. Unsupported
+// synthetic market, portfolio and strategy controls remain absent.
 function buildOperationalTopBar(state, handlers) {
   const selected = (state.operationalDesk?.projects || []).find(
     (item) => String(item.project_id) === String(state.operationalDesk?.projectId),
@@ -4131,6 +4508,17 @@ function buildOperationalTabs(state, handlers) {
   return box;
 }
 
+// The algorithm switch. Every surface on this shell renders one algorithm's
+// result, and this is where the operator picks which — the prototype's own
+// `.stratbar` pills, reused because the gesture is the same one: a row of named
+// alternatives with the live one lit and its description beside it.
+//
+// The keys are the server's implementation ids, so a pill names exactly one
+// stored result; `label`/`note` are dictionary keys because a pill has to stay
+// short in both languages while the long form reads underneath.
+// The first entry is only the pill the console selects first. Nothing here
+// runs unasked: a calculation can take long, so every one of them — this one
+// included — starts on the operator's explicit command and never otherwise.
 const OPERATIONAL_ALGORITHMS = [
   { key: 'dco-neutral', label: 'algo_dco', note: 'algo_dco_d', policy: 'neutral' },
   {
@@ -4153,6 +4541,9 @@ function operationalAlgorithm(key) {
     || OPERATIONAL_ALGORITHMS[0];
 }
 
+// The `calculation` view the server puts on every operational read. Whichever
+// of them the shell is currently holding says the same thing about the snapshot
+// and the algorithms, so the first one held is as good as any.
 function operationalCalculationView(operational) {
   const projection = operational.surfaceProjection || {};
   return projection.deal_price?.calculation
@@ -4161,6 +4552,7 @@ function operationalCalculationView(operational) {
     || {};
 }
 
+// Which algorithm produced these numbers, and which ones have a stored result.
 function operationalAlgorithmBlock(operational) {
   return operationalCalculationView(operational).algorithms || {};
 }
@@ -4187,7 +4579,8 @@ function buildOperationalAlgorithmBar(state, handlers) {
     if (busyKey === item.key) {
       attrs['aria-busy'] = 'true';
     }
-
+    // A pill whose algorithm has not been run is offered, not hidden: choosing
+    // it is how an operator asks for the run.
     if (!computed[item.key]) attrs.class += ' pill-uncomputed';
     return el('button', attrs, [t(item.label, lang)]);
   });
@@ -4211,7 +4604,9 @@ function buildOperationalAlgorithmBar(state, handlers) {
     el('span', { class: 'mini-lb' }, [t('algo_h', lang)]),
     ...pills,
   ];
-
+  // The run control appears only when it can do something: an algorithm that
+  // has no result yet, a snapshot to run it against, and the role to ask for
+  // it. There is no exception for the first pill — nothing runs by itself.
   if (missing && snapshotId != null && canRun) {
     children.push(el('button', {
       type: 'button',
@@ -4250,6 +4645,10 @@ function buildOperationalAlgorithmBar(state, handlers) {
   return box;
 }
 
+// The input contract a snapshot must be stamped with for today's algorithms to
+// run on it. A snapshot built under an earlier stamp is still a valid record —
+// its old result stays readable — but nothing current can be run against it,
+// and the console says so instead of offering a run that the server refuses.
 const CURRENT_SNAPSHOT_STAMP = {
   algorithm_version: 'linear-typology-demand-v2',
   policy_version: 'elasticity-minus-4-stock-buffer-110-v2',
@@ -4261,12 +4660,17 @@ function operationalSnapshotStampCurrent(snapshot) {
     && snapshot.policy_version === CURRENT_SNAPSHOT_STAMP.policy_version;
 }
 
+// The snapshot the surfaces are reading is outdated when it is current for its
+// version but carries an earlier stamp — the one case where «not calculated»
+// would be the wrong thing to say.
 function operationalSnapshotOutdated(operational) {
   const snapshot = operationalCalculationView(operational).snapshot;
   return !!snapshot && snapshot.current_state === 'current'
     && !operationalSnapshotStampCurrent(snapshot);
 }
 
+// The snapshot an algorithm run would target: the one the surfaces are already
+// reading, only while it is the current one, and only under today's stamp.
 function operationalSnapshotIdForAlgorithms(operational) {
   const snapshot = operationalCalculationView(operational).snapshot;
   if (!snapshot || snapshot.current_state !== 'current') return null;
@@ -4280,6 +4684,8 @@ function operationalArea(value, areaUnit, lang) {
     operationalAreaUnitLabel(areaUnit, lang)}`.trim();
 }
 
+// Whole-currency money for the repricing tables: the kopecks a fixed-scale
+// price carries are rounding residue, not a fact anyone prices on.
 function operationalMoneyWhole(value, currency, lang) {
   if (value == null) return '—';
   return `${formatScaledOperational(value, 2, 0, lang)}${currency ? ` ${currency}` : ''}`;
@@ -4291,6 +4697,7 @@ function operationalAreaUnitLabel(areaUnit, lang) {
   return DICT[key] ? t(key, lang) : String(areaUnit);
 }
 
+// Area to one decimal with a localized unit: «61,4 м²», not «61,4100 sqm».
 function operationalAreaShort(value, areaUnit, lang) {
   if (value == null) return '—';
   return `${formatScaledOperational(value, 4, 1, lang)} ${
@@ -4303,6 +4710,8 @@ function operationalPropertyType(propertyType, lang) {
   return DICT[key] ? t(key, lang) : String(propertyType);
 }
 
+// The typology a unit row is priced under: its price group by name, or the
+// source's own type and room count when the row carries no group.
 function operationalUnitTypology(row, groupNames, lang) {
   const group = (row.pricing_inputs?.groups || [])[0];
   if (group?.name) return group.name;
@@ -4314,6 +4723,9 @@ function operationalUnitTypology(row, groupNames, lang) {
   return [type, rooms].filter(Boolean).join(' · ') || '—';
 }
 
+// Relative change between two fixed-scale values of one scale, or null when a
+// side is missing or the base is zero. Basis points keep the division in
+// integers; the ratio is only for display.
 function operationalDeltaRatio(current, recommended) {
   if (current == null || recommended == null) return null;
   let base;
@@ -4340,6 +4752,10 @@ function operationalDeltaNode(current, recommended, lang) {
   ]);
 }
 
+// A group's current base price per area, on the same footing as the
+// recommended one: the deal-terms category base (before modifiers) when the
+// projection carries it, else the current average price divided back through
+// the group's average modifier.
 function operationalGroupCurrentBase(group, categories) {
   const category = categories.get(String(group.group_id));
   if (category?.base_price_per_area_scaled != null) {
@@ -4424,7 +4840,9 @@ function localizedOperationalMissingInputs(keys, lang) {
       baseline_horizon_zero: 'time_grid',
       baseline_price_non_positive: 'demand_solution',
       baseline_absolute_price_non_positive: 'demand_solution',
-
+      // On the wire this key names the selected algorithm's result (it kept
+      // its name from when the baseline was the only algorithm), not the
+      // snapshot, which may well exist.
       baseline_result: 'algorithm_result',
       baseline_model_result: 'baseline_model_result',
       inventory: 'inventory',
@@ -4478,7 +4896,8 @@ function buildOperationalFilters(state, operational) {
       'data-inventory-filter': key, 'data-filter-scale-digits': scaleDigits,
     }, []),
   ]);
-
+  // The few filters a repricing pass actually reaches for stay in view; the
+  // rest of the registry's facets fold away until one of them is in use.
   const advancedKeys = [
     'phase', 'section', 'property_type', 'rooms_value', 'area_min_scaled',
     'area_max_scaled', 'price_min_scaled', 'price_max_scaled',
@@ -4752,7 +5171,8 @@ function buildOperationalDetail(state, operational) {
       t(`inventory_readiness_${inventoryReadiness.state}`, lang)}`]),
     el('p', null, [`${t('inventory_calculation_readiness', lang)}: ${
       t(`inventory_readiness_${calculation.state}`, lang)}`]),
-
+    // The recommendation's lineage already names this snapshot; the block
+    // below is for units that have readiness but no recommendation to cite it.
     calculation.snapshot && !recommendation.lineage
       ? el('dl', { class: 'inventory-detail-facts inventory-snapshot-lineage' }, [
           el('dt', null, [t('inventory_snapshot_id', lang)]),
@@ -4904,7 +5324,8 @@ function buildOperationalChessboard(state, operational) {
             }, [el('span', { 'aria-hidden': 'true' }, ['—'])]);
           }
           if (cell.type === 'filtered') {
-
+            // The sentence is the cell's name and tooltip; the cell itself shows
+            // a short label, so the column stays as narrow as its neighbours.
             return el('td', {
               class: `chessboard-filtered ${stackIndex === 0 ? 'entrance-start' : ''}`.trim(),
               'data-chessboard-filtered': '1',
@@ -5118,6 +5539,11 @@ function buildOperationalChessboard(state, operational) {
   ]);
 }
 
+// A snapshot issue names its remedy by a JSON API path. In the console that path
+// is a place to go, so it becomes the control that already goes there: the Data
+// workspace, or this project's unit detail. A path with no such control — the
+// unit list and the snapshot list, both already on this surface — renders none
+// rather than a link out of the app into raw JSON.
 function snapshotRemedyControl(state, operational, remedyLink) {
   const path = String(remedyLink || '');
   const unit = /^\/api\/inventory\/projects\/([^/?#]+)\/units\/([^/?#]+)$/.exec(path);
@@ -5291,6 +5717,7 @@ function buildSnapshotWorkflow(state, operational) {
   ]);
 }
 
+
 export function renderOperationalDeskSurface(state, operational) {
   const { lang } = state;
   const projects = operational.projects || [];
@@ -5403,7 +5830,8 @@ export function renderOperationalDeskSurface(state, operational) {
   } else if (!rows.length) {
     const versionUnits = Number(reconciliation.version_units || 0);
     const total = Number(table.total || 0);
-
+    // The desk opens on «units with a recommendation»; when that alone empties
+    // the list, the message says there are none yet, not that filters hid them.
     const onlyDefaultFilter = Object.keys(filters).length === 1
       && filters.recommendation_state === 'any';
     const emptyKey = versionUnits === 0
@@ -5422,7 +5850,8 @@ export function renderOperationalDeskSurface(state, operational) {
       columnSort.includes(operational.sort)
         ? (operational.direction === 'desc' ? 'descending' : 'ascending') : null
     );
-
+    // Eight columns that answer «which unit, priced how, changed to what»;
+    // readiness, manual control and lineage moved to the detail panel.
     const columns = [
       ['inventory_unit', ['unit_number']],
       ['inventory_location', ['building', 'section', 'floor']],
@@ -5454,7 +5883,9 @@ export function renderOperationalDeskSurface(state, operational) {
           ...(hierarchy.floors || []).map((floor) => floor.floor_label ?? floor.floor_number),
         ].filter((v) => v != null && v !== '').join(' · ') || '—';
         const stateLabel = t(`inventory_recommendation_${recommendation.state || 'unavailable'}`, lang);
-
+        // A priced row's rationale is the algorithm's, the same for every row
+        // and already named on the typology table; it stays for the rows that
+        // need explaining — why there is no target.
         const explained = ['ready', 'accepted', 'declined'].includes(recommendation.state);
         const rationale = explained ? []
           : (recommendation.rationale_codes || []).map((key) => t(key, lang));
@@ -5549,7 +5980,8 @@ export function renderOperationalDeskSurface(state, operational) {
     readinessCard('inventory_inventory_readiness', readiness.inventory),
     readinessCard('inventory_calculation_readiness', readiness.calculation),
   ]);
-
+  // Readiness stays in front only while something is not ready; once both
+  // sides are green it lives with the snapshots, where the provenance is.
   const readinessOk = (readiness.inventory?.state || readiness.state) === 'ready'
     && readiness.calculation?.state === 'ready';
   const serviceOpen = !!operational.inspectedSnapshot || !!operational.snapshotError
@@ -5628,6 +6060,13 @@ export function renderOperationalDeskSurface(state, operational) {
   ]);
 }
 
+// Render the whole «Переоценка» surface. Every role sees all four command controls
+// (accept/decline, group approval, «Согласовать все», strategy pills): the enabled
+// ones for the role that owns them, the rest visible-but-disabled with the «Требуется
+// роль» tooltip (UX-DR3). The command note slot carries the pessimistic-lifecycle /
+// failure affordances (UX-DR6/UX-DR7). Pure: state in, DOM out; the wiring
+// (invokeDecision / group approval / strategy switch) is attached by
+// wireSurfaceControls after each paint.
 export function renderDeskSurface(state, data) {
   if (state.operationalDesk && state.operationalDesk.enabled) {
     return renderOperationalDeskSurface(state, state.operationalDesk);
@@ -5642,10 +6081,11 @@ export function renderDeskSurface(state, data) {
       el('h1', null, [t('d_h1', lang)]),
       el('p', { class: 'sub' }, [t('d_sub', lang)]),
     ]),
-
+    // The command note slot: the pessimistic-lifecycle danger/pending notes land here.
     el('div', { class: 'cmd-note', 'aria-live': 'polite', 'aria-atomic': 'true' }, []),
     buildDeskThreshold(state, data.threshold),
-
+    // «Согласовать все» renders for every role (UX-DR3, visible-but-disabled for a
+    // non-director) — the command control is always present, never hidden by role.
     buildApproveAll(state, data, groupPerm),
     buildDeskGroups(state, data, groupPerm, pendingByType),
     buildDeskTable(state, data, unitPerm),
@@ -5653,6 +6093,28 @@ export function renderDeskSurface(state, data) {
   ]);
 }
 
+// --- «Релиз» (Release) surface (Story 4.3, Task 2) ---------------------------
+//
+// The seeded simulator renders live from the release payload (viewmodels/
+// release.py): the configuration controls with their contractual ranges (UX-DR5),
+// the Monte-Carlo fan of cumulative sell-through as hand-rolled inline SVG
+// (UX-DR15) with its stock and target reference lines, and the big-result readouts
+// — the hit-probability tag with its severity colour, the P50 revenue, the NEP-vs-
+// benchmark delta, and (RF only) the coverage → escrow-rate improvement note. The
+// DOM structure and class names are the frozen prototype's `vRelease` (AD-14,
+// UX-DR13); every number is formatted client-side through the `Intl` helpers (AD-3)
+// — the payload carries raw values and message keys only. A project with fewer than
+// 10 free units returns its verbatim empty state pointing at «Ретроспектива»
+// (UX-DR8) — a state, not an error. The live-recalc wiring (discrete radio
+// immediate, sliders debounced, sequence-token last-wins) is attached by
+// wireSurfaceControls after each paint; the `scenario_save` command is Task 3's.
+
+// The Release fan's chart palette — the frozen prototype's literal hex vocabulary
+// (`vRelease`, lines 1905-1913): the green median line and its translucent P10–P90
+// band, the dark dashed stock line, the amber dashed target line, and the muted
+// grid/axis ink. Inline SVG needs explicit stroke/fill values, so these are named
+// here once rather than reaching for a CSS variable per element (the prototype's
+// SVG uses the same literals, so this preserves the visual freeze, NFR-10).
 const FAN_COLORS = {
   band: 'rgba(47,184,77,.16)',
   median: '#2FB84D',
@@ -5662,6 +6124,13 @@ const FAN_COLORS = {
   axis: '#5C6B64',
 };
 
+// The controls panel (`.panel`): the size / window / index sliders with their
+// contractual ranges (UX-DR5), the market discount-rate slider where the market
+// reads one (UAE/KZ — RF drives its rate from escrow, so the payload carries no
+// rate control and none renders), the concession-package radio group, and the
+// coverage-plan context note under the coverage stance. Each slider carries its
+// `data-control` marker for the live-recalc wiring; the number read-outs format
+// client-side (AD-3, UX-DR14).
 function buildReleaseControls(state, data) {
   const { lang } = state;
   const c = data.controls;
@@ -5680,13 +6149,19 @@ function buildReleaseControls(state, data) {
       c.index.min, c.index.max, c.index.step, c.index.value,
     ),
   ];
-
+  // The discount-rate slider renders only where the payload carries a rate control
+  // (UAE/KZ); RF omits it (escrow drives the rate). The slider carries a percent in
+  // half-steps (5..16) matching the NEP surface, so it reuses the `rate` control
+  // wiring — the value is the payload fraction scaled to a percent (UX-DR5).
   if (c.rate) {
     children.push(
       buildSlider('rate', t('w_rate', lang), pct(c.rate.value, lang, 1), 5, 16, 0.5, c.rate.value * 100),
     );
   }
-
+  // The concession-package radio group (UX-DR5): one radio per none/base/full option,
+  // the selected one lit, each carrying its per-market label key (never a localized
+  // label, AD-3) and the `data-control="release_pack"` marker for the discrete-control
+  // wiring that fires an immediate recalc.
   const radios = c.package.options.map((opt) => {
     const on = opt.key === c.package.selected;
     return el('label', { class: on ? 'tgi on' : 'tgi' }, [
@@ -5704,7 +6179,9 @@ function buildReleaseControls(state, data) {
     el('div', { class: 'mini-lb', style: 'margin-top:12px' }, [t('r_pack', lang)]),
     el('div', { class: 'tg' }, radios),
   );
-
+  // The coverage-plan context note (prototype `r_plan_d`, line 1890): the target
+  // revenue (in millions) and its month, shown only under the coverage stance with a
+  // covTarget. The months value renders «—» where the payload leaves it null (UX-DR8).
   if (data.cov_plan) {
     const cp = data.cov_plan;
     children.push(
@@ -5720,6 +6197,16 @@ function buildReleaseControls(state, data) {
   return el('div', { class: 'panel' }, children);
 }
 
+// The MC fan as hand-rolled inline SVG (UX-DR15): the P10–P90 band as a filled
+// area, the P50 median as a green line, and the stock and target reference lines
+// in the documented dashed vocabulary (dark `4 3` for stock, amber `2 3` for
+// target). No hover, zoom or click — the accessible path is the P10/P50/P90/hit
+// KPIs above and the HTML legend below (both carrying the same values). The
+// geometry is the prototype's `vRelease` verbatim (W 640 × H 210, pad 34, the band
+// upper/lower/median paths and the four-line grid), so the fan matches the frozen
+// visual. The hit-probability tag carries its severity colour (pos/warn/neg from
+// the payload) and its strategy-derived target; the committee note renders from its
+// message key with the client-formatted hit percent (AD-3, NFR-1).
 function buildReleaseFan(state, data) {
   const { lang } = state;
   const fan = data.fan;
@@ -5733,7 +6220,8 @@ function buildReleaseFan(state, data) {
   const my = Math.max(fan.stock, fan.p90) * 1.05 || 1;
   const X = (i) => pad + ((W - pad - 10) * i) / mx;
   const Y = (v) => Hh - 24 - ((Hh - 40) * v) / my;
-
+  // The band's upper (P90) edge left-to-right, its lower (P10) edge right-to-left,
+  // and the P50 median — the prototype's three SVG path strings, verbatim.
   let up = '';
   let dn = '';
   let mid = '';
@@ -5747,7 +6235,7 @@ function buildReleaseFan(state, data) {
     mid += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(b[1]).toFixed(1);
   });
   const kids = [];
-
+  // The four-line grid with its right-aligned mono value labels.
   for (let g = 0; g <= 4; g += 1) {
     const v = (my * g) / 4;
     kids.push(
@@ -5759,12 +6247,13 @@ function buildReleaseFan(state, data) {
       ),
     );
   }
-
+  // The filled band, then the median line over it.
   kids.push(
     svgEl('path', { d: up + dn + 'Z', fill: FAN_COLORS.band }, []),
     svgEl('path', { d: mid, fill: 'none', stroke: FAN_COLORS.median, 'stroke-width': 2 }, []),
   );
-
+  // The stock reference line (dark dashed) with its right-anchored label, then the
+  // target reference line (amber dashed) — the documented dashed vocabulary.
   kids.push(
     svgEl(
       'line',
@@ -5782,7 +6271,7 @@ function buildReleaseFan(state, data) {
       [],
     ),
   );
-
+  // The x-axis month ticks and the axis title.
   const stepX = Math.max(1, Math.round(mx / 6));
   for (let g = 0; g <= mx; g += stepX) {
     kids.push(
@@ -5806,6 +6295,8 @@ function buildReleaseFan(state, data) {
     kids,
   );
 
+  // The strategy-derived target label — the coverage stance names its plan target,
+  // every other stance its per-strategy sell-through target (prototype line 1904).
   const targetLabel =
     result.target_kind === 'cov' ? t('r_plan', lang) : t(`r_tgt_${result.target_kind}`, lang);
   const kpis = el('div', { class: 'grid g4', style: 'gap:9px;margin-bottom:12px' }, [
@@ -5820,7 +6311,8 @@ function buildReleaseFan(state, data) {
       result.severity,
     ),
   ]);
-
+  // The HTML legend below the SVG (UX-DR15): the four chart marks named with their
+  // values, the accessible non-interactive path to the same data the fan draws.
   const legend = el('div', { class: 'legend' }, [
     el('div', null, [
       el('i', { style: `background:${FAN_COLORS.band};border:1px solid ${FAN_COLORS.median}` }, []),
@@ -5838,7 +6330,9 @@ function buildReleaseFan(state, data) {
       el('b', null, [nf(fan.target, lang)]),
     ]),
   ]);
-
+  // The committee note (AD-3, NFR-1): a message key with the raw hit fraction the
+  // client formats as a whole-percent «cases out of a hundred» count — never prose.
+  // A sub-55% hit renders the warn class the payload marks (`note_warn`).
   const committee = el(
     'div',
     { class: result.note_warn ? 'note w' : 'note', style: 'margin-top:10px' },
@@ -5856,6 +6350,11 @@ function buildReleaseFan(state, data) {
   ]);
 }
 
+// The big-result readouts (UX-DR15): the P50 present-value revenue in millions and
+// the NEP-vs-benchmark comparison — the signed fraction tinted pos/neg, with the raw
+// NEP / benchmark per-area pair as its detail. Numbers are mono and formatted
+// client-side (AD-3, UX-DR14); the fraction renders «—» where the payload has no
+// benchmark to compare against (UX-DR8).
 function buildReleaseBigRes(state, data) {
   const { lang } = state;
   const result = data.result;
@@ -5873,6 +6372,11 @@ function buildReleaseBigRes(state, data) {
   ]);
 }
 
+// The RF coverage → escrow-rate improvement note (FR-19): committing the P50 revenue
+// lifts escrow coverage, and the effective project-financing rate follows — the note
+// reports both coverages and both effective rates, formatted client-side from the raw
+// payload values. Present only where the payload carries an `escrow_note` (RF); UAE/KZ
+// have none and this panel does not render (the «—» is the note's absence, UX-DR8).
 function buildReleaseEscrow(state, note) {
   const { lang } = state;
   return el('div', { class: 'panel', style: 'margin-top:14px' }, [
@@ -5889,6 +6393,13 @@ function buildReleaseEscrow(state, note) {
   ]);
 }
 
+// The «Зафиксировать сценарий для комитета» save control (Story 4.3, FR-20, UX-DR3).
+// The manager's commit of the current scenario, gated exactly like the desk command
+// controls: allowed → a live primary button carrying the `data-save-scenario` marker
+// the click wiring dispatches on; disallowed → the same button visible-but-disabled
+// with the «Требуется роль: {роль}» tooltip (presentation only — the server's guard
+// enforces, AC2). The `.cmd-note` slot beside it carries the pessimistic-lifecycle
+// failure/pending affordances (UX-DR6/UX-DR7), the mirror of the desk's slot.
 function buildReleaseSave(state) {
   const { lang } = state;
   const perm = (state.permissions || {}).scenario_save || {};
@@ -5904,7 +6415,7 @@ function buildReleaseSave(state) {
     }
   }
   return el('div', { class: 'panel', style: 'margin-top:14px' }, [
-
+    // The command note slot: the pessimistic-lifecycle danger/pending notes land here.
     el('div', { class: 'cmd-note', 'aria-live': 'polite', 'aria-atomic': 'true' }, []),
     el('div', { class: 'fx wrap', style: 'gap:10px;background:none;border:0;padding:0' }, [
       el('button', attrs, [t('r_save', lang)]),
@@ -5912,6 +6423,13 @@ function buildReleaseSave(state) {
   ]);
 }
 
+// Render the whole «Релиз» surface from `state` and the surface `data` block. A
+// sold-out project (<10 free units) renders its verbatim empty state pointing at
+// «Ретроспектива» (UX-DR8) — a state, not an error. Otherwise a header and a `g32`
+// two-column grid: the controls on the left, the fan + big-result readouts + the RF
+// escrow note + the committee save control on the right (prototype `vRelease` layout,
+// UX-DR13). Pure: state in, DOM out; the live-recalc and save wiring is attached by
+// wireSurfaceControls after paint.
 export function renderReleaseSurface(state, data) {
   const { lang } = state;
   const header = el('div', { class: 'h' }, [
@@ -5919,7 +6437,9 @@ export function renderReleaseSurface(state, data) {
     el('p', { class: 'sub' }, [t('r_sub', lang)]),
   ]);
   if (data.state === 'empty') {
-
+    // The verbatim <10-free-units empty state (UX-DR8): a warn note with the
+    // «Ретроспектива» pointer text, never a fan or a big-result block — and no save
+    // control, since there is no scenario to commit.
     return el('div', null, [
       header,
       el('div', { class: 'panel' }, [el('div', { class: 'note w' }, [t(data.note_key, lang)])]),
@@ -5940,8 +6460,11 @@ export function renderReleaseSurface(state, data) {
   ]);
 }
 
+// The «Динамика и прогноз» chart palette (prototype `CPAL`, line 2331) — the
+// per-typology price-line colours, indexed by the line's size rank.
 const TREND_PALETTE = ['#2FB84D', '#2B6FB8', '#B8632F', '#7A4FB8', '#B82F6B'];
-
+// The forecast chart marks (UX-DR15): the cumulative-sold line, the total-stock
+// dashed reference, the escrow-coverage line and the project-financing-rate line.
 const TREND_COLORS = {
   sold: '#2FB84D',
   all: '#2B3A34',
@@ -5953,10 +6476,18 @@ const TREND_COLORS = {
   split: '#C9D8CF',
 };
 
+// The Russian / English month-name triples the month-axis labels read from — the
+// prototype's `mlabel` names (line 2376). A label is `«мес 'YY»` for the month
+// `offset` columns from today (offset 0 = the fact/forecast split «now»).
 const TREND_MONTHS = {
+  ru: ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 };
 
+// A month-axis label for the column `offset` months from today — the prototype's
+// `mlabel(pr, i, back)` (line 2374): the calendar month/year, `offset` months from
+// the current one (negative into the fact past, positive into the forecast). The
+// current date is the client's, exactly as the prototype reads `new Date()`.
 function trendMonthLabel(lang, offset) {
   const now = new Date();
   const names = TREND_MONTHS[lang] || TREND_MONTHS.en;
@@ -5983,6 +6514,15 @@ function monthPointLabel(lang, point) {
   return `${names[month]} ${year}`;
 }
 
+// A hand-rolled inline line chart (UX-DR15): grid, an optional fact/forecast split
+// marker, an optional ±band area, the series polylines (each carrying its own colour,
+// width and dash), a month axis, and an HTML legend below. Values that are `null`
+// break the line into subpaths (the sales band is drawn only over the forecast). No
+// hover, no zoom — the accessible path to the data is the legend and the tables. The
+// `connectGaps` is reserved for a two-endpoint reference segment such as a constant
+// horizon target; ordinary null facts still break their series. The mirror of the
+// prototype's `lineChart` (line 2291) is built with `svgEl` so the fake DOM in the
+// render harness walks the same tree a browser builds.
 function buildTrendChart(state, opts) {
   const { lang } = state;
   const W = 660;
@@ -5993,7 +6533,8 @@ function buildTrendChart(state, opts) {
   const padB = 28;
   const n = opts.months;
   const split = opts.split;
-
+  // The value range: every series point plus any band edge, then a 10% pad unless a
+  // fixed min/max is given; `floor0` puts the floor at zero for count charts.
   const all = [];
   opts.series.forEach((s) => s.values.forEach((v) => {
     if (v !== null && v !== undefined) all.push(v);
@@ -6011,7 +6552,8 @@ function buildTrendChart(state, opts) {
     mx += pad;
   }
   if (opts.floor0) {
-
+    // A count axis starts at zero and steps in whole 1/2/5 × 10ⁿ units, so each
+    // of the four grid lines carries its own label and sits on that count.
     mn = 0;
     if (opts.max === undefined) {
       const rawStep = Math.max(1, mx / 4);
@@ -6031,7 +6573,7 @@ function buildTrendChart(state, opts) {
   );
   const Y = (v) => H - padB - ((H - padT - padB) * (v - mn)) / (mx - mn);
   const kids = [];
-
+  // The four-line grid with its right-aligned mono value labels.
   for (let g = 0; g <= 4; g += 1) {
     const v = mn + ((mx - mn) * g) / 4;
     kids.push(
@@ -6043,7 +6585,7 @@ function buildTrendChart(state, opts) {
       ),
     );
   }
-
+  // The fact/forecast split marker: a dashed vertical with «факт» / «прогноз» labels.
   if (split !== undefined && split > 0) {
     kids.push(
       svgEl('line', { x1: X(split), x2: X(split), y1: padT, y2: H - padB, stroke: TREND_COLORS.split, 'stroke-dasharray': '3 3' }, []),
@@ -6051,7 +6593,8 @@ function buildTrendChart(state, opts) {
       svgEl('text', { x: X(split) + 4, y: padT + 8, 'font-size': 9, fill: TREND_COLORS.axis }, [t('w_fcst', lang)]),
     );
   }
-
+  // The ±band area (the sales P10–P90 envelope): its upper edge left-to-right, its
+  // lower edge right-to-left, closed — drawn only where both edges are present.
   if (opts.band) {
     const { lo, hi } = opts.band;
     let up = '';
@@ -6066,7 +6609,9 @@ function buildTrendChart(state, opts) {
     }
     if (up) kids.push(svgEl('path', { d: up + dn + 'Z', fill: opts.band.color || TREND_COLORS.band }, []));
   }
-
+  // The series polylines: a `null` fact ends the current subpath (a gap). A series
+  // explicitly marked `connectGaps` joins only its supplied endpoints, which lets a
+  // constant reference span the horizon without manufacturing intermediate points.
   opts.series.forEach((s) => {
     let d = '';
     let started = false;
@@ -6082,7 +6627,7 @@ function buildTrendChart(state, opts) {
     if (s.dash) attrs['stroke-dasharray'] = s.dash;
     kids.push(svgEl('path', attrs, []));
   });
-
+  // The month axis: a label every ~sixth column, at the calendar month it stands for.
   const step = Math.max(1, Math.round(n / 6));
   const tickIndexes = new Set([0, Math.max(0, n - 1)]);
   for (let i = 0; i < n; i += step) tickIndexes.add(i);
@@ -6092,7 +6637,7 @@ function buildTrendChart(state, opts) {
     const axisLabel = Array.isArray(opts.labels) && opts.labels[i] != null
       ? String(opts.labels[i])
       : split !== undefined ? trendMonthLabel(lang, i - split) : String(i);
-
+    // A label on the right edge ends there instead of centring past the viewBox.
     const anchor = n > 1 && X(i) >= W - padR - 0.5 ? 'end' : 'middle';
     kids.push(
       svgEl(
@@ -6107,7 +6652,11 @@ function buildTrendChart(state, opts) {
     { viewBox: `0 0 ${W} ${H}`, style: 'width:100%;height:auto;display:block', role: 'img', 'aria-label': t(opts.title_key, lang) },
     kids,
   );
-
+  // The HTML legend below the SVG (UX-DR15): the named marks, the non-interactive
+  // path to the same series the chart draws. Unnamed marks (the split, and the
+  // dashed continuation of an already-named line) are skipped. A series marked
+  // `legendSolid` keeps the solid swatch even where the drawn line is dashed —
+  // one typology is one legend row, exactly as the prototype's legend reads.
   const legend = el(
     'div',
     { class: 'legend', style: 'margin-top:2px' },
@@ -6129,6 +6678,8 @@ function buildTrendChart(state, opts) {
   return el('div', { class: 'panel' }, [el('h2', null, [t(opts.title_key, lang)]), svg, legend]);
 }
 
+// The per-typology price panel (FR-26): one fact-plus-forecast line per typology with
+// the split marker, coloured by the size-rank palette.
 function buildTrendPrice(state, data) {
   const price = data.price;
   return buildTrendChart(state, {
@@ -6143,6 +6694,8 @@ function buildTrendPrice(state, data) {
   });
 }
 
+// The cumulative-sales panel (FR-26): the sold line with its ±1.28σ forecast band and
+// the total-stock dashed reference, floored at zero.
 function buildTrendSales(state, data) {
   const { lang } = state;
   const sales = data.sales;
@@ -6166,6 +6719,10 @@ function buildTrendSales(state, data) {
   });
 }
 
+// The washout table (FR-27): free stock, pace and months-to-clear per typology with
+// the «Успевает» / «Впритык» / «Не успевает» verdict tag; numbers client-formatted,
+// «—» where the clear time is past the display ceiling (UX-DR8). The horizon note reads
+// its message key with the client-formatted build horizon (AD-3).
 function buildTrendWashout(state, data) {
   const { lang } = state;
   const washout = data.washout;
@@ -6202,6 +6759,10 @@ function buildTrendWashout(state, data) {
   ]);
 }
 
+// The three-strategy comparison table (FR-28): NEP, gap, raise/lower counts, release
+// target and hit probability per strategy, the active stance's row highlighted. Every
+// number is client-formatted from the raw payload (AD-3); the strategy label reads its
+// `sg_*` message key.
 function buildTrendComparison(state, data) {
   const { lang } = state;
   const cmp = data.comparison;
@@ -6237,6 +6798,9 @@ function buildTrendComparison(state, data) {
   ]);
 }
 
+// The RF escrow → rate forecast panel (FR-28): escrow coverage and the effective
+// project-financing rate over the forecast, floored at zero with a headroom ceiling.
+// Present only where the payload carries an `escrow` block (RF); UAE/KZ have none.
 function buildTrendEscrow(state, data) {
   const { lang } = state;
   const esc = data.escrow;
@@ -6257,6 +6821,12 @@ function buildTrendEscrow(state, data) {
   return chart;
 }
 
+// Render the whole «Динамика и прогноз» surface from `state` and the surface `data`
+// block (prototype `vTrend`, line 2384): a header, the per-typology price panel, a
+// two-column row of the cumulative-sales chart and the washout table, the RF escrow →
+// rate chart where it applies, and the three-strategy comparison table. Pure: state in,
+// DOM out; the surface is read-only (no live-recalc controls of its own), so nothing is
+// wired after paint beyond the shared tab navigation.
 export function renderTrendSurface(state, data) {
   const { lang } = state;
   const header = el('div', { class: 'h' }, [
@@ -6275,6 +6845,14 @@ export function renderTrendSurface(state, data) {
     buildTrendComparison(state, data),
   ].filter(Boolean));
 }
+
+// --- «Аналитика» / Portfolio surface (Story 4.4, Task 2) -------------------
+//
+// The all-project scope renders from viewmodels/portfolio.py: four KPIs, the
+// project table, the portfolio loss ladder and the strategy comparison. Portfolio
+// rows are navigation only: data-open-project carries the project id, and the shared
+// click/keyboard wiring below switches to that project's «Сегодня» and scrolls to
+// top (UX-DR18).
 
 function portfolioFinancingText(state, financing) {
   const { lang } = state;
@@ -6494,6 +7072,8 @@ export function renderPortfolioSurface(state, data) {
     ]),
   ]);
 }
+
+// --- «Конкуренты» surface (Story 4.4, Task 3) ------------------------------
 
 function buildCompModeControl(state, mode) {
   const { lang } = state;
@@ -6767,6 +7347,8 @@ export function renderCompetitorsSurface(state, data) {
   ]);
 }
 
+// --- «Ретроспектива» surface (Story 4.4, Task 3) ---------------------------
+
 function buildRetroControl(state, control) {
   return el('div', { class: 'panel' }, [
     el('div', { class: 'lb' }, [t(control.label_key, state.lang)]),
@@ -6893,6 +7475,10 @@ export function renderRetroSurface(state, data) {
   ]);
 }
 
+// The project a surface stands on is chosen in the rail, so the surface itself
+// carries no project picker and no version line — only what the rail cannot say:
+// the stale-version warning and the steward's way back to the data workspace.
+// Nothing to say means no context strip at all.
 function buildOperationalSurfaceContext(state, operational) {
   const projectionContext = operational.surfaceProjection?.context || {};
   if (!projectionContext.version_changed && state.role !== 'data_steward') {
@@ -6977,6 +7563,9 @@ function operationalTask(state, text, surface, tone = '') {
   ]);
 }
 
+// The repricing desk's one-line answer to «what am I looking at»: when the
+// calculation was made, by which algorithm, and whether the snapshot is still
+// current — or what to do while there is nothing to look at yet.
 function buildRepricingStatusLine(state, operational, deal) {
   const { lang } = state;
   if (!deal) return null;
@@ -7013,6 +7602,9 @@ function operationalDealCategories(deal) {
   ]));
 }
 
+// One row per price group — the level the algorithm actually prices. Current
+// and recommended base are the same quantity (per area, before modifiers), so
+// the change between them is the change the algorithm proposes.
 function buildRepricingGroupsTable(state, operational, deal) {
   const { lang } = state;
   if (!deal) return null;
@@ -7052,7 +7644,8 @@ function buildRepricingGroupsTable(state, operational, deal) {
       ?? category.available_units ?? group.current?.available_units ?? null;
     const counts = group.decision_counts || {};
     const active = activeGroupId != null && String(activeGroupId) === groupId;
-
+    // A recommended row also says which demand curve its price stands on — in
+    // v1 the fixed-elasticity one (ADR-002 D6) — not only the snapshot block.
     const curveNotes = (baseline?.rationale_codes || [])
       .filter((code) => String(code).startsWith('dco_estimation_'))
       .map((code) => el('span', { class: 'sub' }, [` ${t(code, lang)}`]));
@@ -7107,7 +7700,8 @@ function buildOperationalRepricingSummary(state, operational) {
   const { lang } = state;
   const recommendation = deal.recommendation || { state: 'missing' };
   const counts = recommendation.decision_counts || {};
-
+  // The base-price change over the whole project, weighted by what each
+  // group still has to sell: the ratio of the two weighted sums.
   const categories = operationalDealCategories(deal);
   let currentSum = 0n;
   let recommendedSum = 0n;
@@ -7128,7 +7722,7 @@ function buildOperationalRepricingSummary(state, operational) {
       currency = currency || group.baseline?.currency || null;
       areaUnit = areaUnit || group.baseline?.area_unit || null;
     } catch {
-
+      // A malformed scaled value drops out of the average rather than breaking it.
     }
   });
   const weighted = weight > 0n;
@@ -7189,9 +7783,14 @@ function operationalTableRegion(labelKey, lang, table) {
 function operationalTypologyPriceChart(state, projection) {
   const facts = projection.trend?.facts || { price_periods: [] };
   const periods = facts.price_periods || [];
-
+  // The imported deals, month by month and typology by typology. A source that
+  // prices its stock once (the single-project workbook) has no price-list
+  // history to draw, but every deal it records carries a price: those are the
+  // typology's facts then, and they are the level the algorithms start from.
   const salePeriods = facts.completed_sales || [];
-
+  // A recorded price history — two or more priced price-list periods — is the
+  // fact and is drawn as it was recorded. Deals stand in only when the source
+  // priced its stock once and nothing else describes how prices moved.
   const priceListHistoryUsable = periods.filter((period) => (period.groups || []).some(
     (group) => group.average_price_per_area_scaled != null,
   )).length >= 2;
@@ -7233,7 +7832,11 @@ function operationalTypologyPriceChart(state, projection) {
           lineage: `${period.price_list_id || '—'} · ${period.version_label || '—'}`,
         };
       });
-
+      // The deal-based fact is one continuous line from the first month to the
+      // as-of split: a month without a deal in this typology keeps the last
+      // observed price (the months before the first deal take the first one),
+      // and the last price holds until the as-of date, where the algorithm's
+      // path takes over.
       const saleHistory = priceListHistoryUsable ? [] : salePeriods.map((period) => {
         const value = (period.groups || []).find(
           (candidate) => String(candidate.group_id) === groupId,
@@ -7328,7 +7931,10 @@ function operationalTypologyPriceChart(state, projection) {
     rows.forEach((row) => {
       const points = partition.facts.get(row.groupId) || [];
       const color = TREND_PALETTE[row.index % TREND_PALETTE.length];
-
+      // One legend row per typology (the prototype's legend): the fact line carries
+      // the name, and the algorithm path that continues it stays unnamed. A typology
+      // the import prices nowhere still earns its legend row from the path alone —
+      // drawn dashed, but with the solid swatch every other row shows.
       let named = false;
       if (points.length) {
         const values = dates.map(() => null);
@@ -7355,7 +7961,10 @@ function operationalTypologyPriceChart(state, projection) {
         });
       }
     });
-
+    // The «факт | прогноз» split sits on the last axis date at or before the
+    // snapshot's as-of: left of it the lines are the imported history, right of it
+    // the algorithm's path. An as-of that is the first date leaves the chart
+    // unsplit — there is no fact side to name.
     const splitDate = asOfDate ? String(asOfDate).slice(0, 10) : null;
     const split = splitDate
       ? dates.filter((date) => date <= splitDate).length - 1 : -1;
@@ -7436,7 +8045,10 @@ function renderOperationalTodaySurface(state) {
   const recommendationCounts = today.actions?.recommendation_counts || {};
   const firstPrice = flow.first || {};
   const currentPrice = flow.current || {};
-
+  // The KPI averages the units its caption counts — available, sellable and
+  // priced — which is the deal-price facts' current summary. The price-list
+  // period above averages every listed unit, sold ones included; it stays the
+  // «История прайса» number.
   const availablePrice = projection.deal_price?.facts?.current || {};
   const actions = today.actions || {};
   const tasks = [];
@@ -7576,6 +8188,20 @@ function operationalGroupOutcome(baseline, lang) {
   return [stateLabel, rationale.length ? ` · ${rationale.join(' · ')}` : ''];
 }
 
+// --- «Цена сделки»: the deal terms and what reaches the project --------------
+//
+// The surface is the frozen prototype's `vNep` (line 1625) rebuilt on imported
+// data: the controls panel on the left, the leakage ladder on the right. What
+// changed from the prototype is the top control — the prototype priced one named
+// apartment, this prices a whole *price category*, whose current base price is
+// the average of its units' base prices before modifiers.
+//
+// Every control writes to the acting user's own retained «Условия сделки» row;
+// the server clamps, resolves and re-prices them, so the client never computes a
+// price of its own and never keeps a value the server did not confirm.
+
+// One `<select>` in the prototype's own `.projsel` shape, marked for the
+// deal-terms delegation on `#content` and named by the caption above it.
 function buildDealTermSelect(term, options, selected, labelId) {
   return el('select', {
     class: 'projsel', style: 'width:100%;margin-bottom:12px', 'data-deal-term': term,
@@ -7586,9 +8212,15 @@ function buildDealTermSelect(term, options, selected, labelId) {
   }, [option.label])));
 }
 
+// One horizontal slider (`.sl`) over a 1e9-scaled value: the label, the read-out
+// and the range input over the contract's own min/max/step, expressed in percent
+// so the control grid stays the prototype's. Both deal rates — the cut the
+// project gives away and the rate the money left is worth — are this one control.
 function buildDealTermPercentSlider(term, label, bounds, lang) {
   const toPercent = (value) => String(Number(value) / 1e7);
-
+  // Deliberately not `buildSlider`: that one stamps `data-control`, which is the
+  // session-local what-if wiring. A deal term is retained, not session-local, so
+  // it carries its own `data-deal-term` marker and never reaches that handler.
   const id = `deal-term-${term}`;
   const valueText = pct(Number(bounds.value_scaled) / 1e9, lang, 1);
   return el('div', { class: 'sl' }, [
@@ -7607,6 +8239,11 @@ function buildDealTermPercentSlider(term, label, bounds, lang) {
   ]);
 }
 
+// The promotion toggles (`.tg`), the prototype's own set for the imported
+// currency (`vNep` line 1664/1670): name, description and the concession's
+// discounted cost per unit of area. A promotion the v1 import contract cannot
+// price renders dimmed and disabled with «—», exactly as the prototype rendered
+// an inapplicable one.
 function buildDealLevers(state, levers, unit) {
   const { lang } = state;
   return el('div', { class: 'tg' }, levers.map((lever) => {
@@ -7634,6 +8271,8 @@ function buildDealLevers(state, levers, unit) {
   }));
 }
 
+// The «Условия сделки» panel: the price category and its current base price, the
+// imported payment form, the direct cut, and the promotions handed over.
 function buildDealTermsPanel(state, terms) {
   const { lang } = state;
   const selected = (terms.categories || []).find(
@@ -7680,7 +8319,8 @@ function buildDealTermsPanel(state, terms) {
     ) : el('div', { class: 'note info', role: 'status' }, [
       tf('inventory_missing_inputs', lang, dealFactLabels(['dco.PaymentPlans'], lang)),
     ]),
-
+    // The deal's two rates stand together, in the prototype's own order: the
+    // rate the money is discounted at, then the cut taken off the price.
     buildDealTermPercentSlider('discount_rate', t('w_rate', lang), terms.rate, lang),
     buildDealTermPercentSlider('cut', t('w_cut', lang), terms.cut, lang),
     el('div', { class: 'mini-lb', style: 'margin-top:14px' }, [t('n_lev', lang)]),
@@ -7697,6 +8337,10 @@ function buildDealTermsPanel(state, terms) {
   return el('div', { class: 'panel' }, children);
 }
 
+// The ladder segment colours are the prototype's own map (`vNep` line 1735), so
+// an enabled promotion draws the bar it has always drawn.
+// The import-contract fact names a deal-terms note cites, in words; a name not
+// listed here is shown as sent.
 const DEAL_FACT_LABELS = {
   'dco.ServiceChargeRate': 'deal_fact_service_charge_rate',
   'dco.FurniturePackage': 'deal_fact_furniture_package',
@@ -7728,6 +8372,9 @@ const DEAL_SEGMENT_CLASS = {
   n_seg_other: 'lad-c2',
 };
 
+// The prototype's leakage ladder («Цена сделки», `vNep` line 1730) drawn for the
+// deal the user has set: the category's base price on the left, what reaches the
+// project on the right, and one bar per leak between them.
 function buildDealResultPanel(state, terms) {
   const { lang } = state;
   const result = terms.result;
@@ -7995,7 +8642,10 @@ function renderOperationalTrendSurface(state) {
   const facts = trend.facts || { state: 'missing', price_periods: [], completed_sales: [] };
   const forecast = trend.forecast || { state: 'missing', points: [] };
   const deal = operational.surfaceProjection?.deal_price || {};
-
+  // The server builds this forecast from the baseline demand model's results
+  // only, whichever algorithm the bar selects, and the console never runs that
+  // model. The panel is titled by the model its points came from, and its
+  // `baseline_result` gap names that model, not the selected algorithm.
   const algorithm = operationalAlgorithm(operational.algorithm || DEFAULT_OPERATIONAL_ALGORITHM);
   const forecastIsSelected = (forecast.points || []).length > 0
     && forecast.points.every((point) => point.implementation_id === algorithm.key);
@@ -8103,6 +8753,19 @@ function renderOperationalTrendSurface(state) {
   ]);
 }
 
+// --- «Формы оплаты и акции» / operational Shelf -----------------------------
+//
+// The frozen prototype's `vShelf` vocabulary (the payment-form table with its
+// reference row, the ranked bars, the package panels) rendered from the imported
+// workbook instead of the prototype's own numbers. What the v1 import contract
+// carries — the payment plans, their schedules, their discount, their share of
+// sales, and the project's financing rate — drives every number here. What it
+// does not carry (cancellation rates, price-list premiums, buyer segments, the
+// promotions themselves) renders as an explicit «not in the loaded data» note,
+// never as a synthetic value.
+
+// One payment plan's schedule as «60% · шаг 0 / 40% · шаг 6», the shape that
+// decides how much of the contract the target function ever discounts.
 function operationalScheduleLabel(plan, lang) {
   const items = plan.schedule || [];
   if (!items.length) return '—';
@@ -8111,6 +8774,9 @@ function operationalScheduleLabel(plan, lang) {
   }% · ${t('operational_plan_step', lang)} ${item.offset_steps}`).join(' / ');
 }
 
+// The «Формы оплаты» table: one row per imported plan, the reference row (the
+// one with the largest share of sales) highlighted the way the prototype does,
+// and a bar per row showing how its target function stands against the best.
 function buildOperationalPaymentFormTable(state, forms) {
   const { lang } = state;
   const plans = forms.plans || [];
@@ -8141,7 +8807,8 @@ function buildOperationalPaymentFormTable(state, forms) {
         isRef ? el('span', {
           class: 'tag t-ok', style: 'margin-left:6px',
         }, [t('fm_ref', lang)]) : null,
-
+        // The schedule rides under the name the way the prototype's lever
+        // description does, so the widest fact does not own a column.
         el('div', { class: 'schedule' }, [
           `${operationalScheduleLabel(plan, lang)} · ${
             t('operational_plan_npv_short', lang)} ${
@@ -8182,6 +8849,9 @@ function buildOperationalPaymentFormTable(state, forms) {
   ]);
 }
 
+// The target function itself: what the algorithms will maximize, stated in the
+// prototype's big-result vocabulary. The undiscounted revenue is the ceiling; the
+// reference form's value is what the current sales mix actually delivers.
 function buildOperationalTargetFunction(state, forms) {
   const { lang } = state;
   const target = forms.target_function;
@@ -8283,6 +8953,14 @@ function renderOperationalShelfSurface(state) {
   ]);
 }
 
+// --- «Релиз» / operational Release -------------------------------------------
+//
+// The prototype's release console sizes the next tranche against a Monte-Carlo
+// sell-through fan. The placeholder algorithm is deterministic — it produces one
+// expected-sales path, no scenario spread — so this surface shows the facts that
+// path does support (the stock it starts from, the sales it expects, the base
+// price it recommends) and says plainly that the fan needs an algorithm that
+// does not exist yet.
 function renderOperationalReleaseSurface(state) {
   const operational = state.operationalDesk;
   const early = buildOperationalSurfaceState(state, operational, 'nav_release');
@@ -8341,6 +9019,12 @@ function renderOperationalReleaseSurface(state) {
   ]);
 }
 
+// --- «Ретроспектива» / operational Retrospective -----------------------------
+//
+// The prototype replays a finished project against what the calculation would
+// have advised. Only half of that is in the data: the completed sales are real
+// imported facts and are drawn; the counterfactual «optimal» curve needs a
+// retrospective run no algorithm makes yet, so it is named absent, not drawn.
 function renderOperationalRetroSurface(state) {
   const operational = state.operationalDesk;
   const early = buildOperationalSurfaceState(state, operational, 'nav_retro');
@@ -8393,6 +9077,10 @@ function renderOperationalPlaceholderSurface(state, titleKey, bodyKey) {
   ]);
 }
 
+// The registry of surface body renderers keyed by surface id. A surface with an
+// entry and a held `data` block renders its live body; otherwise the content
+// frame falls back to its neutral title panel. Function declarations hoist, so
+// the map may name renderers defined above without ordering hazard.
 const SURFACE_RENDERERS = {
   today: (state, data) => state.operationalDesk?.enabled
     ? renderOperationalTodaySurface(state) : renderTodaySurface(state, data),
@@ -8414,10 +9102,33 @@ const SURFACE_RENDERERS = {
   all: renderPortfolioSurface,
 };
 
+// --- the seam state patterns (UX-DR7) & the view fetch loop (AR-15) ----------
+//
+// The full shell that drives these per what-if change is Story 3.3 / Epic 4; the
+// state machine UX-DR7 mandates lives here now so the seam story pins it. The
+// patterns: nothing under 300 ms, then the content dims to a muted «Обновляем…»
+// (a dim, never an animated placeholder) with chrome live; a view-model failure
+// swaps the surface content for a danger banner + «Повторить», chrome still
+// live; a command failure drops a danger note near the control, re-enables it,
+// changes no state.
+
+// Below this threshold (ms) a view refresh shows nothing at all; only a refresh
+// that outlasts it earns the loading affordance. One named constant so the
+// timing is a single edit and the test can pin it.
 export const LOADING_DELAY_MS = 300;
 
+// The trailing debounce a continuous control (a slider) applies before it fires
+// its single view refresh (UX-DR5): a burst of `input` events during a drag
+// collapses to exactly one refresh ~150 ms after the last movement. Discrete
+// controls (select, checkbox, radio, segment pill) never debounce — they fire at
+// once. One named constant so the window is a single edit and a test can pin it.
 export const SLIDER_DEBOUNCE_MS = 150;
 
+// A trailing debounce (UX-DR5): the returned function reschedules a single timer
+// on every call and runs `fn` with the latest arguments once `ms` elapses with no
+// further call — so a rapid burst collapses to one trailing invocation, never many.
+// `timers` is injectable ({ set, clear }) so a test drives the window without a
+// real clock; it defaults to setTimeout/clearTimeout.
 export function debounce(fn, ms, timers) {
   const setT = (timers && timers.set) || ((f, d) => setTimeout(f, d));
   const clearT = (timers && timers.clear) || ((id) => clearTimeout(id));
@@ -8438,6 +9149,11 @@ export function debounce(fn, ms, timers) {
   return debounced;
 }
 
+// Resolve one term-set field from a control's raw value (UX-DR5, AR-2). Sliders
+// carry a percent in whole/half steps (rate 5..16, coverage 0..110, cut 0..10);
+// the kernel-read fields are fractions, so the percent controls divide by 100.
+// Plan and segment carry their key verbatim. Returns a fresh term-set (the
+// adopt-on-echo cycle stays side-effect free); an unknown control is a no-op.
 export function termFromControl(termSet, control, rawValue) {
   if (control === 'rate') {
     return { ...termSet, rate: Number(rawValue) / 100 };
@@ -8454,7 +9170,11 @@ export function termFromControl(termSet, control, rawValue) {
   if (control === 'segment') {
     return { ...termSet, segment: rawValue };
   }
-
+  // The Release surface's own controls (Story 4.3, UX-DR5). Size and window carry
+  // whole counts; the price index carries a signed percent the server reads
+  // as-is (it applies `listPsf · (1 + index/100)`, so no /100 here); the package
+  // radio carries its none/base/full key. The server clamps each into its slider
+  // contract and re-resolves the release defaults it echoes back (AR-2).
   if (control === 'release_size') {
     return { ...termSet, release_size: Number(rawValue) };
   }
@@ -8476,18 +9196,33 @@ export function termFromControl(termSet, control, rawValue) {
   return termSet;
 }
 
+// Toggle one lever flag in the term-set's `levers` map (the client submits the
+// whole map; the server keeps only pack-legal flags, AR-9). The on-value is the
+// lever's real magnitude — carried by the payload (`on_magnitude`) so a multi-unit
+// concession (the UAE `sc` service-charge holiday = 2 years) is not flattened to 1
+// on toggle; the magnitude policy lives on the server, not duplicated here (the
+// prototype's `toggleLever`, line 2900). `magnitude` defaults to 1 (a plain 0/1
+// flag). Off is always 0. Returns a fresh set.
 export function leverToggle(termSet, flag, checked, magnitude = 1) {
   const levers = { ...(termSet.levers || {}) };
   levers[flag] = checked ? magnitude : 0;
   return { ...termSet, levers };
 }
 
+// The muted status line «Обновляем…» shown while a view refresh is in flight
+// past the threshold. Only the surface content dims; chrome stays operable.
 function buildUpdatingNote(lang) {
   return el('div', { class: 'status-updating', 'aria-live': 'polite' }, [
     t('x_updating', lang),
   ]);
 }
 
+// Start the loading affordance for a view refresh (UX-DR7): nothing under 300 ms,
+// then the `content` dims to opacity .6 and the «Обновляем…» line renders into
+// `statusSlot` while the chrome stays live — a plain dim, no animated placeholder.
+// Returns a `settle()` the caller runs when the fetch resolves; it cancels a
+// not-yet-fired timer and clears any dim already applied. `timers` is injectable
+// so a test can drive the threshold without a real clock.
 export function beginUpdating(content, statusSlot, lang, timers) {
   const setT = (timers && timers.set) || ((fn, ms) => setTimeout(fn, ms));
   const clearT = (timers && timers.clear) || ((id) => clearTimeout(id));
@@ -8510,6 +9245,10 @@ export function beginUpdating(content, statusSlot, lang, timers) {
   };
 }
 
+// A view-model failure (UX-DR7): the surface content is replaced by a danger
+// banner naming a plain-language cause (the server's message key, resolved
+// through the dictionary) plus a «Повторить» control; the chrome stays live.
+// `onRetry` re-issues the view.
 export function buildViewFailure(errorKey, lang, onRetry) {
   const retry = el(
     'button',
@@ -8526,6 +9265,11 @@ export function buildViewFailure(errorKey, lang, onRetry) {
   );
 }
 
+// A command failure (UX-DR7): a danger note rendered near the invoking control.
+// A 403 carries x_requires_role with a `role` param — the note names the
+// required role (UX-DR3 defense-in-depth), mapped to its localized label; any
+// other failure renders its plain cause. Caller re-enables the control and
+// leaves state unchanged.
 export function buildCommandFailure(errorKey, params, lang) {
   const role = params && params.role;
   const text = role
@@ -8538,6 +9282,10 @@ export function buildCommandFailure(errorKey, params, lang) {
   );
 }
 
+// A keyed failure held in view state (`{ key, params }`), as text. The server
+// sends the key and its params (AD-15); x_requires_role's `role` is a role key,
+// shown by its label. A role failure whose params were not kept is said without
+// the role rather than with a bare «{role}».
 function keyedErrorText(error, lang, fallbackKey = 'x_internal_error') {
   const key = error?.key || fallbackKey;
   const params = { ...(error?.params || {}) };
@@ -8549,6 +9297,9 @@ function keyedErrorText(error, lang, fallbackKey = 'x_internal_error') {
   return tp(key, lang, params);
 }
 
+// The documented placeholder a future guarded command can return before its
+// effect exists (x_command_pending): an info note acknowledging the accepted
+// command without implying a state change.
 export function buildCommandPending(lang) {
   return el(
     'div',
@@ -8557,6 +9308,14 @@ export function buildCommandPending(lang) {
   );
 }
 
+// Refresh a surface's content in place (UX-DR7, AR-15): dim + «Обновляем…» past
+// 300 ms while chrome stays live, drop a stale (superseded) payload silently
+// (last-wins), and on a view-model failure swap the content for the danger
+// banner + «Повторить». On a fresh (non-stale) payload runs `onAdopt(data)` —
+// the caller's adopt-state-and-repaint step — so a successful «Повторить» retry
+// restores the surface exactly as the primary refresh would (the retry re-issues
+// this same call, `onAdopt` included). Returns the fresh payload, or `null` when
+// the response was stale or failed. `targets` is `{ content, status }` hosts.
 export async function refreshSurface(surface, targets, state, termSet, onAdopt) {
   const { content, status } = targets || {};
   const settle = beginUpdating(content, status, state.lang);
@@ -8580,7 +9339,8 @@ export async function refreshSurface(surface, targets, state, termSet, onAdopt) 
     return null;
   }
   settle();
-
+  // A stale response the last-wins guard already dropped: leave the newer
+  // content in place and change nothing (AR-15).
   if (data === null) {
     return null;
   }
@@ -8590,6 +9350,10 @@ export async function refreshSurface(surface, targets, state, termSet, onAdopt) 
   return data;
 }
 
+// Invoke a product command from its control (UX-DR7 command-failure pattern).
+// Disables the control while in flight; on failure renders a danger note near it
+// and re-enables it, leaving state unchanged; on success shows the documented
+// fallback placeholder. A 401 x_session_expired still redirects via the api.js hook.
 export async function invokeCommand(name, controlEl, noteSlot, state, body) {
   if (controlEl) {
     controlEl.disabled = true;
@@ -8607,18 +9371,36 @@ export async function invokeCommand(name, controlEl, noteSlot, state, body) {
     }
   } finally {
     if (controlEl) {
-      controlEl.disabled = false;
+      controlEl.disabled = false; // re-enable; state unchanged (UX-DR7)
     }
   }
 }
 
+// --- the confirm modal + the pessimistic decision lifecycle (UX-DR9/UX-DR6) --
+//
+// A decision is never applied on the client: the manager confirms in a modal, the
+// control disables with a pending label while the request is in flight, and the
+// surface re-renders only from the server's fresh post-commit payload (AR-7). A
+// failure leaves the surface unchanged and drops a danger note near the control
+// (UX-DR7). The confirm copy promises what the server guarantees — the price
+// change is written and journaled — so presentation and effect never diverge.
+
+// Open the single reusable confirm modal (UX-DR9): one level deep, a title, a body
+// line, and Cancel / Confirm. Closes on × / Cancel / mask click / Escape, restoring
+// focus to the invoking control. `onConfirm` runs on confirm (after the modal is
+// torn down, so a re-render replaces the surface cleanly). Returns the modal node.
 export function openConfirmModal(state, opts) {
   const options = opts || {};
-
+  // One level deep (UX-DR9): never stack a second modal over an already-open one.
+  // The desk command guard (`deskCommandInFlight`) is only set on *confirm*, so a
+  // rapid double-click on a command control would otherwise open two overlays before
+  // the lock engages, and confirming both would dispatch duplicate decisions and
+  // append duplicate journal rows. Refuse to mount a second modal while one is live —
+  // enforcing the single-modal invariant at the one place every modal is created.
   if (typeof document !== 'undefined' && document.querySelector('.modal-mask')) {
     return null;
   }
-
+  // Remember the invoking control so focus returns to it on close (UX-DR9).
   const invoker =
     typeof document !== 'undefined' ? document.activeElement : null;
   const lang = (state && state.lang) || 'ru';
@@ -8671,6 +9453,10 @@ export function openConfirmModal(state, opts) {
   );
   closeX.addEventListener('click', close);
 
+  // The body is either a pre-resolved string (`options.body`, e.g. a positional-`{0}`
+  // format resolved through `tf` by the caller) or a named-param key `options.bodyKey`
+  // interpolated here — so both the ported `{0}` copy (cf_b) and `{name}` copy render
+  // through the one reusable modal (UX-DR9).
   const body =
     options.body != null
       ? options.body
@@ -8701,13 +9487,15 @@ export function openConfirmModal(state, opts) {
     ],
   );
   const overlay = el('div', { class: 'modal-mask' }, [dialog]);
-
+  // A click on the mask itself (not the dialog) closes — mask-click dismissal.
   overlay.addEventListener('click', (event) => {
     if (event.target === overlay) {
       close();
     }
   });
-
+  // The modal's focusable controls, in tab order — used to trap focus (UX-DR9): Tab
+  // from the last wraps to the first and Shift+Tab from the first wraps to the last,
+  // so focus never leaves the open dialog.
   const focusable = [closeX, cancelBtn, confirmBtn];
   onKeydown = (event) => {
     if (event.key === 'Escape') {
@@ -8730,20 +9518,26 @@ export function openConfirmModal(state, opts) {
   document.addEventListener('keydown', onKeydown);
 
   document.body.append(overlay);
-  confirmBtn.focus();
+  confirmBtn.focus(); // focus enters the modal; close() restores it to the invoker
   return overlay;
 }
 
+// The pessimistic lifecycle for a unit accept/decline (UX-DR6, AR-7). Disables the
+// invoking control and shows a pending label while the request is in flight; on
+// success hands the server's fresh desk payload to `onFresh` (the surface re-render
+// — nothing changed client-side until this point); on failure drops a danger note
+// near the control and re-enables it with state unchanged (UX-DR7). `body` is the
+// { unit, decision, market, project } the command carries — never a price (AR-7).
 export async function invokeDecision(controlEl, noteSlot, state, body, onFresh) {
   const priorLabel = controlEl ? controlEl.textContent : null;
   if (controlEl) {
     controlEl.disabled = true;
     controlEl.classList.add('is-pending');
-    controlEl.textContent = t('ap_pending', state.lang);
+    controlEl.textContent = t('ap_pending', state.lang); // «На согласовании»
   }
   try {
     const fresh = await unitDecision(body);
-
+    // The re-render comes from the fresh payload alone (AR-7): no optimistic edit.
     if (onFresh) {
       onFresh(fresh);
     }
@@ -8757,7 +9551,7 @@ export async function invokeDecision(controlEl, noteSlot, state, body, onFresh) 
     if (noteSlot) {
       noteSlot.replaceChildren(buildCommandFailure(key, params, state.lang));
     }
-
+    // State unchanged (UX-DR7): re-enable the control and restore its label.
     if (controlEl) {
       controlEl.disabled = false;
       controlEl.classList.remove('is-pending');
@@ -8769,6 +9563,21 @@ export async function invokeDecision(controlEl, noteSlot, state, body, onFresh) 
   }
 }
 
+// --- permission gating in the UI (UX-DR3, AC2) -------------------------------
+//
+// The view payload's `permissions` block {command: {allowed, requires}} renders
+// here as command controls, and it is presentation only: a command the caller's
+// role may not invoke shows visible but disabled (opacity .45 via the shared
+// `.btn-primary:disabled` token) carrying the «Требуется роль: {роль}» tooltip
+// that names the role it needs. The disabled state never enforces — the server
+// 403s regardless of what the UI shows (AC2). Because the block is the very
+// table the command guard reads (AD-8), the controls rendered disabled are
+// exactly the commands the server denies; test_permission_gating.py pins that
+// the two layers agree, per role.
+
+// Each product command's stub control label ([ASSUMPTION] — the real controls
+// and their frozen prototype labels arrive with Epic 4; these name the seam's
+// four commands so the disabled-state affordance is demonstrable now).
 const COMMAND_LABEL = {
   unit_decision: 'cmd_unit_decision',
   group_approval: 'cmd_group_approval',
@@ -8776,6 +9585,11 @@ const COMMAND_LABEL = {
   scenario_save: 'cmd_scenario_save',
 };
 
+// Build one command control from its permission entry ({allowed, requires}).
+// Allowed → a live primary button; disallowed → the same button rendered
+// visible but disabled and dimmed, with the «Требуется роль: {роль}» tooltip
+// naming the required role (UX-DR3). Presentation only: the `disabled` attribute
+// here never gates the command — the server's permission guard does (AC2).
 export function buildCommandControl(command, perm, lang) {
   const allowed = !!(perm && perm.allowed);
   const requires = perm && perm.requires;
@@ -8796,6 +9610,11 @@ export function buildCommandControl(command, perm, lang) {
   return el('button', attrs, [t(COMMAND_LABEL[command] || command, lang)]);
 }
 
+// Render the command controls from a payload's `permissions` block (UX-DR3):
+// one control per product command, disabled + dimmed + tooltipped wherever the
+// block marks the role disallowed. The set of disabled controls equals the set
+// of commands the server 403s, because the block is the guard's own table
+// (AD-8) — presentation can never disagree with enforcement.
 export function renderCommandControls(permissions, lang) {
   const perms = permissions || {};
   return Object.keys(perms).map((command) =>
@@ -8803,6 +9622,13 @@ export function renderCommandControls(permissions, lang) {
   );
 }
 
+// --- the top-level controller ------------------------------------------------
+
+// Mount the whole client into `root`: the «Вход» screen, the per-role landings
+// and the logout/expiry redirect. Holds the session-scoped screen state —
+// language RU and market UAE by default, never persisted (AC4) — wires the
+// language switch, login submit, logout and the session-expiry redirect, and
+// resolves an ApiError to an inline note through the dictionary.
 const MAX_IMPORT_POLL_ATTEMPTS = 60;
 
 function emptyDataWorkspaceState({ loading = false } = {}) {
@@ -8834,6 +9660,8 @@ function emptyDataWorkspaceState({ loading = false } = {}) {
   };
 }
 
+// What the repricing desk opens on: the units that carry a recommendation, in
+// any verdict state. «Сбросить фильтры» widens to the whole inventory.
 function defaultInventoryFilters() {
   return { recommendation_state: 'any' };
 }
@@ -8886,7 +9714,8 @@ function emptyOperationalDeskState() {
     inspectedSnapshot: null,
     snapshotIntentId: null,
     capabilities: {},
-
+    // Which algorithm's result every surface on this shell is reading. The
+    // first pill is selected to begin with; every run is asked for explicitly.
     algorithm: DEFAULT_OPERATIONAL_ALGORITHM,
     algorithmBusy: null,
     algorithmError: null,
@@ -8897,12 +9726,15 @@ function emptyOperationalDeskState() {
   };
 }
 
+// The landing (same origin) keeps its own «dprice-region»; the console's
+// project filter uses a separate key.
 const REGION_STORAGE_KEY = 'dprice-console-region';
 
 export function mountApp(root, options) {
   const opts = options || {};
   const entryLang = LANGS.includes(opts.lang) ? opts.lang : (LANGS.includes('ru') ? 'ru' : LANGS[0]);
-
+  // The offline demo adapter picks its own starting region (from the link or
+  // the visitor's last choice); the server console starts from its own memory.
   if (!OFFLINE) {
     try {
       api.setRegion(window.localStorage.getItem(REGION_STORAGE_KEY) || 'uae');
@@ -8911,20 +9743,20 @@ export function mountApp(root, options) {
     }
   }
   const state = {
-    screen: 'login',
-    lang: entryLang,
-    market: 'uae',
+    screen: 'login', // 'login' | 'landing' | 'shell' | 'data' | 'loop'
+    lang: entryLang, // post-login default language, session-scoped (AC4)
+    market: 'uae', // post-login default market, session-scoped (AC4)
     role: null,
     landing: null,
-    surface: null,
-    project: null,
-    chrome: null,
-    surfaceData: null,
-    permissions: null,
-    termSet: {},
-    roleMenuOpen: false,
+    surface: null, // the active tab (a product surface) once in the shell
+    project: null, // the active rail scope (a project id, or 'all'); null → first
+    chrome: null, // the last view payload's chrome block (rail, badges, strategy)
+    surfaceData: null, // the last view payload's surface `data` block (Epic 4)
+    permissions: null, // the last view payload's permissions block (AD-8, UX-DR3)
+    termSet: {}, // the session-local what-if terms, submitted whole with each view
+    roleMenuOpen: false, // the role badge's «Выйти» popover (UX-DR2)
     error: opts.initialError || null,
-    authed: false,
+    authed: false, // has a session been established this load?
     sessionBusy: false,
     confirmedCapabilities: null,
     dataActivationPending: false,
@@ -9077,6 +9909,10 @@ export function mountApp(root, options) {
     };
   }
 
+  // A snapshot command holds the snapshot controls until its own request
+  // settles, even when its answer is no longer the screen's (the table was
+  // re-sorted, filtered or paged meanwhile): freeing them earlier lets the same
+  // command be sent twice.
   function settleOperationalSnapshotCommand(token, focusTargets) {
     if (state.operationalDesk !== token.operational
       || operationalSnapshotBusyToken !== token) return;
@@ -9127,10 +9963,13 @@ export function mountApp(root, options) {
       operational.snapshotOffset = 0;
       await loadOperationalSnapshots({ repaint: false });
       if (!operationalSnapshotCommandStillWins(token)) return;
-
+      // The table load minted a context generation of its own here, which
+      // silently ended this command after it: the steps below never ran. The
+      // run command already hands the table its own token; this does the same.
       await loadOperationalTable({ preserveViewport: true, contextToken: token });
       if (!operationalSnapshotCommandStillWins(token)) return;
-
+      // Re-read the projection so the algorithm bar sees the new snapshot at
+      // once and can offer a run against it, instead of on the next tab switch.
       await loadOperationalSurfaceProjection();
       if (!operationalSnapshotCommandStillWins(token)) return;
     } catch (err) {
@@ -9238,6 +10077,13 @@ export function mountApp(root, options) {
     }
   }
 
+  // --- the algorithm switch -------------------------------------------------
+  //
+  // Two moves live here. Choosing an algorithm re-reads everything under it;
+  // running one asks the server for a result the snapshot does not hold yet.
+  // Nothing runs unasked: a calculation can take long, and the operator decides
+  // when to spend that time.
+
   function operationalAlgorithmToken() {
     const operational = state.operationalDesk;
     return {
@@ -9262,6 +10108,9 @@ export function mountApp(root, options) {
       && token.algorithm === operational.algorithm;
   }
 
+  // Everything held on the shell was produced by the algorithm that was
+  // selected a moment ago, so it is dropped rather than left on screen under a
+  // pill that now names something else.
   async function reloadOperationalForAlgorithm() {
     const operational = state.operationalDesk;
     const token = operationalAlgorithmToken();
@@ -9303,7 +10152,7 @@ export function mountApp(root, options) {
       if (!operationalAlgorithmStillWins(token)) return;
       operational.algorithmBusy = null;
       await reloadOperationalForAlgorithm();
-
+      // The run control leaves with the result; the pill is where to carry on.
       if (state.operationalDesk === operational && operationalFocusLost()) {
         focusFirstOperational([`button[data-operational-algorithm="${key}"]`]);
       }
@@ -9327,7 +10176,8 @@ export function mountApp(root, options) {
       } else if (state.operationalDesk === operational
         && token.sequence === operationalAlgorithmSequence
         && operational.algorithmBusy === key) {
-
+        // The context moved on under the run (a refreshed version): its answer
+        // is no longer the screen's, but the bar it locked must not stay locked.
         operational.algorithmBusy = null;
         paint();
       }
@@ -9535,13 +10385,17 @@ export function mountApp(root, options) {
         };
       }
     } finally {
-
+      // The decision holds its controls until its own request settles, even
+      // when its refresh is no longer the screen's (a re-sort, a filter, a page
+      // came meanwhile): freeing them earlier lets the same decision be sent
+      // twice.
       if (state.operationalDesk === operational && operational.decisionIntent === pending) {
         operational.decisionBusy = false;
         operational.decisionIntent = null;
         const focusLost = operationalFocusLost();
         preserveOperationalViewport(paint);
-
+        // Back to the unit the decision was made on: its button while it is
+        // still live, else the unit itself, in the detail or the table.
         const verdict = `[data-inventory-recommendation-decision="${token.verdict}"]`;
         if (focusLost) {
           focusFirstOperational(String(token.detailUnitId) === token.unitId
@@ -9599,6 +10453,11 @@ export function mountApp(root, options) {
     });
   }
 
+  // A new generation drops the answers of everything in flight. A decision or
+  // snapshot command still keeps its controls busy until its own request
+  // settles, so a re-sort, a filter or a page cannot let it be sent twice;
+  // only a context that starts over (a project chosen in the rail, a refreshed
+  // version) abandons it and frees its controls at once.
   function beginOperationalContextGeneration({ abandonCommands = false } = {}) {
     const operational = state.operationalDesk;
     operationalSnapshotCreateSequence += 1;
@@ -9703,7 +10562,8 @@ export function mountApp(root, options) {
   }
 
   function paint() {
-
+    // Preserve a destination heading through background snapshot/history repaints,
+    // but never move focus back after the user has focused another control.
     const focusedId = document.activeElement?.getAttribute?.('id');
     const preserveHeading = ['data-workspace-title', 'inventory-desk-title'].includes(focusedId)
       && root.querySelector(`#${focusedId}`) === document.activeElement;
@@ -9716,7 +10576,7 @@ export function mountApp(root, options) {
     } else if (state.screen === 'shell') {
       root.replaceChildren(renderShell(state, state.chrome || {}, handlers));
       document.title = t(`nav_${state.surface}`, state.lang);
-
+      // Re-attach the live what-if wiring to the freshly-built controls (UX-DR5).
       wireSurfaceControls();
     } else if (state.screen === 'landing') {
       root.replaceChildren(renderLanding(state, handlers));
@@ -9725,19 +10585,25 @@ export function mountApp(root, options) {
         state.lang,
       );
     } else {
-
+      // The public landing is the entry page; its sign-in form hands the
+      // credentials to this page (same origin), see signInFromLanding().
       if (OFFLINE) root.replaceChildren(buildOfflineLogin(state, handlers));
       else if (root.firstElementChild !== landingEntry()) root.replaceChildren(landingEntry());
       document.title = 'DPrice';
     }
     const feedbackIntake = OFFLINE ? null : buildFeedbackIntake(state, handlers);
     if (feedbackIntake) root.append(feedbackIntake);
-
+    // The language switch re-renders everything (replaceChildren above) and
+    // swaps `<html lang>`; the `Intl` locale follows the same `state.lang`
+    // through localeFor() in the format helpers — there is no global locale to
+    // mutate (AD-3, UX-DR12).
     document.documentElement.setAttribute('lang', state.lang);
     if (state.operationalDesk.enabled) syncOperationalRail();
     if (preserveHeading) root.querySelector(`#${focusedId}`)?.focus();
   }
 
+  // The landing page shown before sign-in. One frame per visit so repaints do
+  // not reload it; a successful sign-in drops it.
   let landingFrame = null;
   function landingEntry() {
     if (!landingFrame) {
@@ -9749,7 +10615,7 @@ export function mountApp(root, options) {
     return landingFrame;
   }
 
-  const LANDING_REGIONS = { uae: 'uae', th: 'th', global: 'all' };
+  const LANDING_REGIONS = { uae: 'uae', th: 'th', ru: 'rf', global: 'all' };
   async function signInFromLanding(message) {
     const frame = landingFrame;
     const reply = (payload) => frame?.contentWindow?.postMessage(
@@ -9769,7 +10635,7 @@ export function mountApp(root, options) {
         try {
           window.localStorage.setItem(REGION_STORAGE_KEY, region);
         } catch {
-
+          // The region still applies to this session.
         }
       }
       landingFrame = null;
@@ -9789,6 +10655,7 @@ export function mountApp(root, options) {
     if (event.data?.type === 'dprice-login') signInFromLanding(event.data);
   });
 
+  // Re-read the (region-filtered) project list for the current surface.
   function reloadOperationalProjects() {
     if (!state.authed || state.screen !== 'shell') {
       paint();
@@ -9801,10 +10668,14 @@ export function mountApp(root, options) {
     loadSurface(state.surface);
   }
 
+  // The shared demo account always finds populated, recently worked projects:
+  // when its organisation has none, the browser builds them and replays three
+  // days of manager work through the ordinary commands (demo-seed.js).
   let demoAccount = false;
   let demoSeedRunning = false;
   const demoSeedQueue = [];
-
+  // The chosen region is prepared first, then every other region in turn, so
+  // the read-only analyst account finds demo projects in any region.
   function demoOrder(region) {
     return REGIONS.includes(region) ? [region, ...REGIONS.filter((r) => r !== region)] : REGIONS;
   }
@@ -9832,7 +10703,7 @@ export function mountApp(root, options) {
           if (generation !== sessionGeneration) return;
           show(tf('demo_seed_progress', state.lang, progress.label,
             Math.min(progress.done + 1, progress.total), progress.total));
-
+          // Only the region on screen needs a refresh; others finish quietly.
           if (progress.regionDone && ['all', progress.region].includes(api.currentRegion())) {
             reloadOperationalProjects();
           }
@@ -9857,11 +10728,13 @@ export function mountApp(root, options) {
   function enterLanding(data) {
     state.role = data.role;
     state.landing = data.landing;
-
+    // Every fresh login starts at the session-scoped defaults RU + UAE, with no
+    // per-user persistence (AC4, EXPERIENCE UX-DR1): a language chosen on the
+    // pre-auth switcher must not carry into the landing.
     state.lang = entryLang;
     state.market = 'uae';
-    state.project = null;
-    state.termSet = {};
+    state.project = null; // reset scope to the first project (UX-DR11)
+    state.termSet = {}; // fresh session-local what-if terms
     state.chrome = null;
     state.surfaceData = null;
     state.permissions = null;
@@ -9871,7 +10744,8 @@ export function mountApp(root, options) {
     state.error = null;
     state.authed = true;
     state.sessionBusy = false;
-
+    // The vendor-side loop administrator enters the org-less workbench. It is
+    // deliberately separate from every org-scoped product surface.
     if (data.landing === 'loop') {
       state.screen = 'loop';
       state.surface = null;
@@ -9890,7 +10764,8 @@ export function mountApp(root, options) {
       loadDataWorkspace();
     } else {
       state.screen = 'shell';
-
+      // Only the six restored operational routes may own authenticated product
+      // navigation. Hidden and stale legacy landings fail closed to Today.
       state.surface = OPERATIONAL_SURFACES.has(data.landing) ? data.landing : FIRST_TAB;
       state.operationalDesk = {
         ...emptyOperationalDeskState(), enabled: true, loading: true,
@@ -9927,7 +10802,8 @@ export function mountApp(root, options) {
   }
 
   function autoFillPlanDraft() {
-
+    // A finished preparation lands in the plan form by itself: the operator
+    // edits a filled draft instead of applying it first.
     const detail = state.loopState.detail;
     if (!detail || state.loopState.planDraft || state.loopState.editPlanId != null) return;
     if (relatedProductLoopPlans(state.loopState, detail).length) return;
@@ -10338,7 +11214,8 @@ export function mountApp(root, options) {
         || !state.authed || state.screen !== 'loop') return false;
       const error = workbenchError(err);
       if (error.key === 'product_loop_worker_dev_only') {
-
+        // No worker runs here, so preparation stops being offered; its panel
+        // says why where the control was (K072).
         state.loopState.workerDevOnly = true;
         if (preparation) return false;
       }
@@ -10431,6 +11308,10 @@ export function mountApp(root, options) {
     }
   }
 
+  // A command's repaint tears out the control it was started from, and the
+  // browser drops focus to <body>: a keyboard user loses their place. Commands
+  // hand focus to the first of their targets that can take it — only when it
+  // was lost that way, never away from a control the user has moved to since.
   function operationalFocusLost() {
     const active = document.activeElement;
     return !active || active === document.body;
@@ -10550,7 +11431,8 @@ export function mountApp(root, options) {
       && String(state.operationalDesk.projectId) === String(projectAtStart)
       && String(state.operationalDesk.inventoryVersionId) === String(versionAtStart)
       && state.operationalDesk.asOfUtc === asOfAtStart
-
+      // A projection read under another algorithm would show its numbers under
+      // the pill the user has just chosen.
       && state.operationalDesk.algorithm === algorithmAtStart;
     try {
       const projection = await operationalSurfaces(projectAtStart, {
@@ -10563,7 +11445,9 @@ export function mountApp(root, options) {
         || String(projection?.context?.inventory_version_id) !== String(versionAtStart)) {
         throw new ApiError('operational_surface_lineage_mismatch');
       }
-
+      // Deal terms edited or saved since this read was sent are newer than the
+      // ones the server read: keep the held block, which carries the edit and,
+      // once it lands, its save's answer.
       const heldTerms = heldDealTerms();
       if (dealTermsRevision !== dealTermsAtStart && heldTerms && projection.deal_price) {
         projection.deal_price.deal_terms = heldTerms;
@@ -11358,7 +12242,8 @@ export function mountApp(root, options) {
 
   async function switchOperationalProject(selected) {
     const operational = state.operationalDesk;
-
+    // An algorithm run belongs to the project it was started on: leaving that
+    // project frees the bar at once, and the run's late answer is dropped.
     if (String(selected.project_id) !== String(operational.projectId)) {
       operationalAlgorithmSequence += 1;
       operational.algorithmBusy = null;
@@ -11495,7 +12380,8 @@ export function mountApp(root, options) {
         boardError: null,
       });
       loadOperationalSnapshots();
-
+      // The repricing summary and the groups table read the projection, not
+      // the table: without this read the new project shows neither.
       const projectionRead = loadOperationalSurfaceProjection();
       preserveOperationalViewport(paint, '#inventory-table-title');
       await projectionRead;
@@ -11627,6 +12513,8 @@ export function mountApp(root, options) {
     if (heading && typeof heading.focus === 'function') heading.focus();
   }
 
+  // Scroll the content area (and the window) to the top — every tab switch resets
+  // the scroll position (UX-DR18).
   function scrollContentTop() {
     const content = root.querySelector('#content');
     if (content) {
@@ -11637,6 +12525,10 @@ export function mountApp(root, options) {
     }
   }
 
+  // Product navigation stays inside the operational project routes — the frozen
+  // prototype's own project tab set. Anything outside it (the portfolio id, a
+  // stale or injected route) fails closed to Today, and no route here can select
+  // `/api/view/*`.
   async function loadSurface(requestedSurface) {
     if (!state.authed) return;
     const generation = sessionGeneration;
@@ -11694,11 +12586,35 @@ export function mountApp(root, options) {
     }
   }
 
+  // --- live what-if recalculation (UX-DR5, Task 4) --------------------------
+  //
+  // A what-if control change updates exactly one field of the session-local
+  // term-set and fires exactly one view refresh. The client never re-derives a
+  // price — it re-submits the whole term-set and adopts the server-resolved
+  // effective set (AR-2). Discrete controls (select, checkbox, segment pill) fire
+  // immediately; sliders debounce their `input` burst to one trailing refresh
+  // (SLIDER_DEBOUNCE_MS). The per-tab sequence token in view() makes the last call
+  // win, so a stale response can never overwrite a newer render (AR-15).
+
+  // Update one term-set field from a control's raw value (see termFromControl).
+  // --- «Условия сделки» (deal-price surface) ---------------------------------
+  //
+  // Every control on «Цена сделки» writes the acting user's own retained terms.
+  // The client patches the held block so the control reads back at once, then
+  // submits; the server clamps, resolves and re-prices, and its answer replaces
+  // the block wholesale — so a value the server refused never survives on screen
+  // (AR-7: the client computes no price of its own).
+
   let dealTermsTimer = null;
   let dealTermsSequence = 0;
-
+  // Moves whenever the held block does — an edit, or a save's answer adopted —
+  // so a projection read sent before that can tell its deal terms are older.
   let dealTermsRevision = 0;
-
+  // A save repaints the shell, which replaces the very `<input>` the pointer is
+  // holding — and an element torn out mid-gesture takes the browser's implicit
+  // pointer capture with it, so the rest of the drag moves nothing. While a
+  // range control is held, nothing is written and nothing is repainted: the
+  // read-out still follows the thumb live, and the value commits once on release.
   let dealTermsDragging = false;
   let dealTermsRepaintPending = false;
 
@@ -11706,6 +12622,8 @@ export function mountApp(root, options) {
     return state.operationalDesk?.surfaceProjection?.deal_price?.deal_terms || null;
   }
 
+  // Patch one term into the held block. Returns false for an unknown control so
+  // the delegation can fall through untouched.
   function updateDealTerm(term, rawValue) {
     const block = heldDealTerms();
     if (!block || !block.terms) return false;
@@ -11713,7 +12631,7 @@ export function mountApp(root, options) {
       block.terms[term] = rawValue;
       return true;
     }
-
+    // A share slider carries percent; the contract carries a 1e9-scaled share.
     const scaled = Math.round(Number(rawValue) * 1e7);
     if (!Number.isFinite(scaled)) return false;
     if (term === 'cut') {
@@ -11741,6 +12659,8 @@ export function mountApp(root, options) {
     return true;
   }
 
+  // Keep a dragging slider's read-out live without a repaint: the surrounding
+  // `.sl` row and the rate strip each carry exactly one `<b>`.
   function syncDealReadout(input, rawValue) {
     const readout = input.closest('.sl')?.querySelector('b');
     const text = pct(Number(rawValue) / 100, state.lang, 1);
@@ -11786,11 +12706,12 @@ export function mountApp(root, options) {
     } finally {
       if (isCurrent()) {
         if (dealTermsDragging) {
-
+          // Repainting now would tear the held control out of the user's hand.
           dealTermsRepaintPending = true;
           return;
         }
-
+        // The repaint rebuilds the controls, so hand focus back to the one the
+        // user is still working in.
         const active = root.querySelector('#content')?.contains(document.activeElement)
           ? document.activeElement : null;
         const focusTerm = active?.getAttribute?.('data-deal-term');
@@ -11802,15 +12723,20 @@ export function mountApp(root, options) {
     }
   }
 
+  // Discrete controls submit at once; a dragging slider collapses its burst into
+  // one write, the same trailing debounce every other continuous control uses.
   function scheduleDealTermsSave(debounce) {
-
+    // Every edit lands here, so every edit supersedes a save still in flight:
+    // its answer carries the terms from before this edit, and adopting it would
+    // pull the control back and make the next save send the old value.
     dealTermsSequence += 1;
     dealTermsRevision += 1;
     if (dealTermsTimer) {
       clearTimeout(dealTermsTimer);
       dealTermsTimer = null;
     }
-
+    // A held slider commits on release, not on a timer: the held block already
+    // carries every movement, so there is nothing to lose by waiting.
     if (dealTermsDragging) return;
     if (!debounce) {
       saveDealTermsNow();
@@ -11822,6 +12748,9 @@ export function mountApp(root, options) {
     }, SLIDER_DEBOUNCE_MS);
   }
 
+  // The pointer went down on a range control: hold every write and repaint until
+  // it comes back up, wherever that happens (the pointer can leave the control,
+  // and the window, before it is released).
   function beginDealTermsDrag() {
     if (dealTermsDragging) return;
     dealTermsDragging = true;
@@ -11842,7 +12771,7 @@ export function mountApp(root, options) {
     if (!dealTermsDragging) return;
     dealTermsDragging = false;
     if (dealTermsRepaintPending) {
-
+      // A save that started before the drag landed while it was held.
       dealTermsRepaintPending = false;
       preserveOperationalViewport(paint);
     }
@@ -11853,16 +12782,26 @@ export function mountApp(root, options) {
     state.termSet = termFromControl(state.termSet, control, rawValue);
   }
 
+  // Toggle one lever flag in the term-set's `levers` map (see leverToggle). The
+  // on-magnitude comes from the payload the control was rendered from (the server
+  // is the one source), read off the checkbox's `data-on-magnitude`.
   function updateLever(flag, checked, magnitude) {
     state.termSet = leverToggle(state.termSet, flag, checked, magnitude);
   }
 
+  // Fire the single view refresh for the current surface (UX-DR7 loading dim,
+  // AR-15 last-wins): dim past 300 ms, drop a stale/failed response (the banner is
+  // rendered by refreshSurface), else adopt the server-resolved chrome + term-set
+  // and repaint. Re-wiring happens in paint(), so the fresh controls are live again.
   async function recalcSurface() {
     if (state.surface === 'desk' || state.operationalDesk?.enabled) return;
     const generation = sessionGeneration;
     const content = root.querySelector('#content');
     const status = content ? content.querySelector('.status-slot') : null;
-
+    // The adopt-and-repaint step, run on every fresh payload — the primary
+    // refresh and a successful «Повторить» retry alike (the retry re-issues the
+    // same refreshSurface call carrying this callback), so a restored surface
+    // is always rendered rather than left under the error banner.
     await refreshSurface(
       state.surface,
       { content, status },
@@ -11873,16 +12812,46 @@ export function mountApp(root, options) {
         state.chrome = data.chrome;
         state.surfaceData = data.data;
         state.permissions = data.permissions;
-        state.termSet = data.term_set;
+        state.termSet = data.term_set; // adopt the server-resolved set (AR-2)
         paint();
       },
     );
   }
 
+  // The single trailing-debounced slider refresh (UX-DR5): one instance for the
+  // app's lifetime so a drag's burst of `input` events — spanning no repaint —
+  // collapses to one refresh. Only the *refresh* is debounced; each `input` writes
+  // its term-set field synchronously (in the wiring below), so two sliders moved
+  // within one window both land — the debounce coalesces the network call, it never
+  // decides which control's value survives. Discrete controls call recalcSurface()
+  // directly.
   const onSliderInput = debounce(() => {
     recalcSurface();
   }, SLIDER_DEBOUNCE_MS);
 
+  // --- the desk decision lifecycle (Story 4.2, UX-DR6/UX-DR9/AR-7) ----------
+  //
+  // Adopt a command's fresh post-commit desk payload and repaint — the re-render
+  // comes from the server alone (AR-7): no optimistic client edit. The command note
+  // slot is cleared by the re-render. The strategy switch instead re-loads the whole
+  // surface so the entire console re-renders under the new strategy.
+
+  // A single desk command runs at a time (the command analogue of the view fetch
+  // loop's last-wins guard, AR-15). The pessimistic lifecycle disables only the
+  // *invoking* control, so without this a second command fired from another live
+  // control could put two responses in flight; an earlier one resolving after a
+  // later one would repaint a payload missing the later committed action until the
+  // next refresh. Serialising the commands removes the race at the source: while one
+  // is in flight every command initiator is a no-op, so no stale payload can land.
+  // The scope a desk command was fired under: the active surface, market and project.
+  // A command acts on the surface the user is looking at, but its response lands after
+  // a network round-trip — during which the user can switch tab / project / market
+  // (those handlers are not blocked by `deskCommandInFlight`, which only serialises
+  // commands against each other). A fresh *desk* payload adopted after such a switch
+  // would paint the desk `data` into whatever surface is now active, corrupting or
+  // crashing another renderer. Capturing the scope at fire time lets adoptDeskFresh
+  // drop a payload that resolves after navigation — the command analogue of the view
+  // fetch loop's last-wins guard (AR-15).
   function deskScope() {
     return { surface: state.surface, market: state.market, project: state.project };
   }
@@ -11895,6 +12864,13 @@ export function mountApp(root, options) {
     );
   }
 
+  // Structural equality over two resolved term-sets (JSON-ish: numbers, strings, and
+  // the nested `levers` map). Both operands are server-resolved sets — the command's
+  // echoed `term_set` and the client's current `state.termSet`, each `{...defaults,
+  // ...submitted}` from the same boundary — so a value compare answers "have the
+  // what-if terms moved since this command resolved its target?" without the false
+  // drops a reference compare would raise (every view load reassigns termSet to a new
+  // object with the same values).
   function sameTermSet(a, b) {
     if (a === b) return true;
     if (a == null || b == null || typeof a !== 'object' || typeof b !== 'object') {
@@ -11908,11 +12884,19 @@ export function mountApp(root, options) {
 
   function adoptDeskFresh(fresh, scope) {
     if (!state.authed) return;
-
+    // Drop a payload whose command was fired under a scope the user has since left
+    // (a tab / project / market switch mid-flight) — never paint desk data into
+    // another surface (AR-15).
     if (scope && !deskScopeCurrent(scope)) {
       return;
     }
-
+    // Drop a payload whose what-if terms the user has since changed. The command
+    // recomputed and echoed the terms it rode at fire time; a what-if edit while it
+    // was in flight — including a navigate-away, edit, navigate-back that lands on the
+    // same Desk scope — has already painted the newer resolved set, so adopting this
+    // stale echo would revert it. Scope equality alone misses a term change that keeps
+    // the same surface/market/project; this is the command path's analogue of the view
+    // loop's last-wins seq guard (AR-15).
     if (!sameTermSet(fresh.term_set, state.termSet)) {
       return;
     }
@@ -11923,13 +12907,24 @@ export function mountApp(root, options) {
     paint();
   }
 
+  // The manager's accept/decline of one unit (UX-DR6): the confirm modal, then the
+  // pessimistic lifecycle (invokeDecision disables the control with a pending label,
+  // nothing changes until the server confirms, the re-render is from the fresh payload).
   function onDecideUnit(unit, decision, controlEl) {
-    if (deskCommandInFlight) return;
+    if (deskCommandInFlight) return; // one command at a time (last-wins, see above)
     const note = root.querySelector('.cmd-note');
-
+    // The confirm variant for a price-moving command carries the unit and its price
+    // context (UX-DR9, the prototype's mo_appr_*/mo_decl_*), never a bare button label:
+    // the per-area current price and — for an accept — the recomputed target, each
+    // rendered with the market's price-per-area label exactly as the journal does.
     const accept = decision === 'accept';
     const rows = ((state.surfaceData || {}).table || {}).rows || [];
-
+    // Show the price context of the row the *server* will decide. Ids may collide in the
+    // seeded world, and the command resolves a same-id click to the first *decidable*
+    // (pending) unit — never a same-id hold/manual/decided sibling that sorts first — so
+    // the modal must match that same first-pending row, not the first row by id, or an
+    // accept could preview a hold row's numbers while the server prices the pending one
+    // (AR-7/UX-DR9). The `|| find(id)` keeps a defensive fallback.
     const same = (r) => String(r.id) === String(unit);
     const row = rows.find((r) => same(r) && r.pending) || rows.find(same) || {};
     const puf = (value) =>
@@ -11943,7 +12938,8 @@ export function mountApp(root, options) {
       confirmKey: 'w_confirm',
       onConfirm: () => {
         deskCommandInFlight = true;
-
+        // Snapshot the scope at fire time so a payload resolving after the user has
+        // navigated away is dropped rather than painted into the new surface (AR-15).
         const scope = deskScope();
         invokeDecision(
           controlEl,
@@ -11954,7 +12950,9 @@ export function mountApp(root, options) {
             decision,
             market: state.market,
             project: state.project,
-
+            // The shared what-if term-set rides along (AR-2) so the fresh payload
+            // echoes it back rather than the catalog defaults — otherwise adopting
+            // the response would wipe the session-local NEP/Shelf terms.
             termSet: state.termSet,
           },
           (fresh) => adoptDeskFresh(fresh, scope),
@@ -11965,11 +12963,20 @@ export function mountApp(root, options) {
     });
   }
 
+  // A director command (group approval / strategy switch) run through the confirm
+  // modal, then the pessimistic lifecycle: the control disables in flight, the surface
+  // re-renders only from the server's fresh payload (or a full reload for a strategy
+  // switch), and a failure drops a danger note near the control (UX-DR7). Never a price.
   async function runDeskCommand(fn, body, controlEl, { reload } = {}) {
     const note = root.querySelector('.cmd-note');
-
+    // Snapshot the scope this command fires under (synchronously, before the await):
+    // a fresh non-reload payload resolving after the user navigates away is dropped
+    // by adoptDeskFresh rather than painted into the new surface (AR-15). The reload
+    // path re-loads whatever surface is now active through view()'s own last-wins.
     const scope = deskScope();
-
+    // The pessimistic lifecycle (UX-DR6) applies to all four commands: disable the
+    // invoking control and switch it to the pending label «На согласовании» while the
+    // request is in flight, exactly as a unit decision does.
     const priorLabel = controlEl ? controlEl.textContent : null;
     if (controlEl) {
       controlEl.disabled = true;
@@ -11980,7 +12987,7 @@ export function mountApp(root, options) {
       const fresh = await fn(body);
       if (!state.authed) return;
       if (reload) {
-        loadSurface(state.surface);
+        loadSurface(state.surface); // the whole console re-renders (FR-36)
       } else {
         adoptDeskFresh(fresh, scope);
       }
@@ -11991,7 +12998,7 @@ export function mountApp(root, options) {
         note.replaceChildren(buildCommandFailure(key, params, state.lang));
       }
       if (controlEl) {
-
+        // State unchanged (UX-DR7): re-enable the control and restore its label.
         controlEl.disabled = false;
         controlEl.classList.remove('is-pending');
         if (priorLabel != null) {
@@ -12001,8 +13008,11 @@ export function mountApp(root, options) {
     }
   }
 
+  // The director's group approval: the confirm modal shows the recommendation count
+  // (UX-DR9), then the same recompute-and-journal path as a single decision (FR-23).
+  // `group` null → «Согласовать все».
   function onApproveGroup(group, count, controlEl) {
-    if (deskCommandInFlight) return;
+    if (deskCommandInFlight) return; // one command at a time (last-wins, see above)
     openConfirmModal(state, {
       titleKey: group ? 'cmd_group_approval' : 'ap_all',
       body: tp('cf_grp', state.lang, { count }),
@@ -12015,7 +13025,8 @@ export function mountApp(root, options) {
             group,
             market: state.market,
             project: state.project,
-
+            // Carry the session-local what-if terms so the fresh payload preserves
+            // them rather than echoing the catalog defaults (AR-2).
             termSet: state.termSet,
           },
           controlEl,
@@ -12026,8 +13037,11 @@ export function mountApp(root, options) {
     });
   }
 
+  // The director's strategy switch (FR-36): «Сменить стратегию?» with the copy that the
+  // change re-weights the whole org and that decided prices remain (cf_b), then the
+  // command and a full re-render under the new strategy.
   function onStrategySwitch(strategy, controlEl) {
-    if (deskCommandInFlight) return;
+    if (deskCommandInFlight) return; // one command at a time (last-wins, see above)
     openConfirmModal(state, {
       titleKey: 'cf_t',
       body: tf('cf_b', state.lang, t(`sg_${strategy}`, state.lang)),
@@ -12046,8 +13060,15 @@ export function mountApp(root, options) {
     });
   }
 
+  // The manager's «Зафиксировать сценарий для комитета» (FR-20, Story 4.3): the
+  // confirm modal («Зафиксировать сценарий для комитета» + the mo_save_b committee
+  // copy), then the same pessimistic lifecycle as a desk command — the control
+  // disables in flight, the surface re-renders only from the server's fresh «Релиз»
+  // payload, and a failure drops a danger note near the control (UX-DR6/UX-DR7/UX-DR9).
+  // The command carries the scenario *inputs* (the shared what-if terms), never the
+  // outcome (AR-7); the server recomputes and journals «Сценарий релиза зафиксирован…».
   function onSaveScenario(controlEl) {
-    if (deskCommandInFlight) return;
+    if (deskCommandInFlight) return; // one command at a time (last-wins, see above)
     openConfirmModal(state, {
       titleKey: 'r_save',
       body: t('mo_save_b', state.lang),
@@ -12065,26 +13086,33 @@ export function mountApp(root, options) {
     });
   }
 
+  // The five-factor reasoning modal a group's «Обоснование» opens (FR-23 read side):
+  // the group's live factors rendered from their message keys — read-only, so the
+  // reusable modal's confirm/cancel both simply close it.
+  // One reasoning factor rendered as «label: live value» (AC4): the view-model emits
+  // each factor's raw params, formatted here in the active locale — the group's
+  // deviation, sales pace, demand elasticity, average floor/area, and remaining supply
+  // with months to handover (prototype `openR`, line 2274). Values only, never a raw key.
   function reasoningFactorText(f) {
     const { lang } = state;
     const p = f.params || [];
     const label = t(f.key, lang);
     let value;
     switch (f.key) {
-      case 'ap_r1':
+      case 'ap_r1': // group price-vs-optimal deviation
         value = pct(p[0], lang, 1);
         break;
-      case 'ap_r2':
+      case 'ap_r2': // project sales pace
         value = pct(p[0], lang, 0);
         break;
-      case 'ap_r3':
+      case 'ap_r3': // segment demand elasticity
         value = nf(p[0], lang, 2);
         break;
-      case 'ap_r4':
+      case 'ap_r4': // average unit characteristics: floor + area
         value = `${t('th_floor', lang).toLowerCase()} ${nf(p[0], lang, 0)}, `
           + `${t('th_sqft', lang).toLowerCase()} ${nf(p[1], lang, 0)} ${areaUnitLabel(state)}`;
         break;
-      case 'ap_r5':
+      case 'ap_r5': // remaining supply in the group + months to handover
         value = `${nf(p[0], lang)} ${t('u_units', lang)}, ${nf(p[1], lang)} ${t('u_mo', lang)}`;
         break;
       default:
@@ -12107,6 +13135,10 @@ export function mountApp(root, options) {
     });
   }
 
+  // Wire the surface controls after each shell paint via event delegation on the
+  // `#content` host (the controls are rebuilt every paint, so delegation attaches
+  // once to the stable-per-paint host and survives the body swap). Discrete
+  // controls fire one immediate refresh; range sliders debounce their `input`.
   function wireSurfaceControls() {
     const content = root.querySelector('#content');
     if (!content) {
@@ -12118,7 +13150,9 @@ export function mountApp(root, options) {
       state.termSet = withoutFields(state.termSet, PROJECT_SWITCH_RESET_FIELDS);
       loadSurface(FIRST_TAB);
     };
-
+    // One path applies a new filter set to whichever projection is open; the
+    // form submit, a changed select and the typology «Показать квартиры»
+    // buttons all end here.
     const applyOperationalFilters = (next) => {
       state.operationalDesk.filterError = null;
       if (state.operationalDesk.mode === 'chessboard') {
@@ -12160,7 +13194,8 @@ export function mountApp(root, options) {
           next[key] = input.value;
         }
       }
-
+      // A group drill-down has no control of its own in the form; it rides
+      // along until the typology table or «Все группы» lifts it.
       const currentGroup = state.operationalDesk.filters?.price_group_id;
       if (currentGroup) next.price_group_id = currentGroup;
       if (invalidFilter) {
@@ -12195,7 +13230,7 @@ export function mountApp(root, options) {
           replacement: { [key]: target.value, page: 1 },
         });
       } else if (target.matches('select[data-inventory-filter]')) {
-
+        // A chosen option is a decision; it applies without a second click.
         const form = typeof target.closest === 'function'
           ? target.closest('form[data-inventory-filters]') : null;
         if (form) applyInventoryFilterForm(form);
@@ -12213,7 +13248,8 @@ export function mountApp(root, options) {
         updateTermFromControl(target.getAttribute('data-control'), target.value);
         recalcSurface();
       } else if (target.matches('input[type="radio"][data-control]')) {
-
+        // A discrete radio (the Release concession package) fires an immediate
+        // recalc, exactly as a select does — no debounce (UX-DR5).
         updateTermFromControl(target.getAttribute('data-control'), target.value);
         recalcSurface();
       } else if (target.matches('input[data-lever]')) {
@@ -12242,9 +13278,12 @@ export function mountApp(root, options) {
         return;
       }
       if (target && target.matches && target.matches('input[type="range"][data-control]')) {
-
+        // Capture this slider's value immediately so a second slider moving within
+        // the debounce window cannot drop it; only the refresh coalesces.
         updateTermFromControl(target.getAttribute('data-control'), target.value);
-
+        // Our refresh is deferred by the debounce, so invalidate any request still
+        // in flight now: otherwise an older one resolving inside the window would
+        // adopt its stale echoed term-set and revert this slider's value (AR-15).
         supersedeInflightViews();
         onSliderInput();
       }
@@ -12506,7 +13545,9 @@ export function mountApp(root, options) {
         });
         return;
       }
-
+      // Desk (Story 4.2): the manager's accept/decline, the director's group approval
+      // and «Согласовать все», and the group reasoning modal. A disabled control (a
+      // zero-pending group / approve-all) never acts.
       const decide = close('button[data-decision][data-unit]');
       if (decide) {
         onDecideUnit(
@@ -12533,7 +13574,9 @@ export function mountApp(root, options) {
         openReasoningModal(reason.getAttribute('data-reason-group'));
         return;
       }
-
+      // Release (Story 4.3): the manager's «Зафиксировать сценарий для комитета». A
+      // disabled control (a non-manager, UX-DR3) never acts — the guard mirrors the
+      // desk command controls.
       const save = close('button[data-save-scenario]');
       if (save && !save.disabled) {
         onSaveScenario(save);
@@ -12553,7 +13596,9 @@ export function mountApp(root, options) {
     onLang(lang) {
       if (state.lang !== lang) {
         state.lang = lang;
-
+        // The language switch re-renders everything from the same payload — the
+        // chrome carries message keys and bilingual values, so no refetch is
+        // needed (AD-3, UX-DR12); the shell repaints in the new language.
         paint();
       }
     },
@@ -12643,7 +13688,7 @@ export function mountApp(root, options) {
     },
     async onOpenOperationalDesk(projectId = null, versionId = null, pendingResult = null) {
       if (state.dataActivationPending) return;
-
+      // Re-discover projects and active versions after every Data visit.
       clearDataWorkspaceState();
       clearOperationalDeskState();
       state.operationalDesk.projectId = typeof projectId === 'string' ? projectId : null;
@@ -12809,7 +13854,8 @@ export function mountApp(root, options) {
       root.querySelector('[data-loop-plan] textarea')?.focus();
     },
     onRequestStart(plan) {
-
+      // Every run starts at the minimal class; the deterministic classifier
+      // escalates and the operator confirms only when it asks.
       const confirmedClass = 'ui-class';
       openConfirmModal(state, {
         titleKey: 'product_loop_start_title',
@@ -12877,7 +13923,12 @@ export function mountApp(root, options) {
       state.loopState.detailPlanOffset = offset;
       loadProductLoopFeedback(state.loopState.selectedFeedbackId);
     },
-
+    // Switch the active rail scope. The «По всем проектам» entry opens the `all`
+    // portfolio surface (the prototype's `openAll` — `view='all'`); a project entry
+    // opens that project (the prototype's `openProject`), resetting the NEP what-if
+    // terms and release size/window (AD-2 switch-reset: drop the fields, the server
+    // re-resolves the defaults) and keeping the current tab unless we are leaving
+    // the portfolio surface, which is not a project tab (then fall back to «Сегодня»).
     onProject(project) {
       if (project === PORTFOLIO_ID) {
         state.project = PORTFOLIO_ID;
@@ -12900,7 +13951,9 @@ export function mountApp(root, options) {
         switchOperationalProject(selected);
       }
     },
-
+    // Pick which algorithm's result the console shows. Every operational read
+    // carries the selection, so the whole shell — surfaces, table, board and
+    // unit detail — moves together and never shows two algorithms at once.
     onOperationalAlgorithm(key) {
       const operational = state.operationalDesk;
       if (!operational.enabled || operational.algorithmBusy) return;
@@ -12913,17 +13966,23 @@ export function mountApp(root, options) {
     onOperationalAlgorithmRun(key) {
       runOperationalAlgorithm(key);
     },
-
+    // Switch the market (FR-6): the dataset swap and preview treatment are the
+    // server's; the client executes the AD-2 switch-reset — scope to the first
+    // project's «Сегодня», the whole what-if term-set dropped (NEP terms, release
+    // params, segment, retro month, competitors mode, and the dormant status filter;
+    // the server resolves every field to its default and echoes it). The org
+    // strategy is server-side and untouched.
     onMarket(market) {
       if (state.market !== market) {
         state.market = market;
-        state.project = null;
-        state.surface = FIRST_TAB;
-        state.termSet = {};
+        state.project = null; // the server resets scope to the first project
+        state.surface = FIRST_TAB; // reset to the first project's Today (AD-2)
+        state.termSet = {}; // drop every what-if term; the server re-resolves them
         loadSurface(FIRST_TAB);
       }
     },
-
+    // Switch tabs (UX-DR18): instant frame, scroll-to-top, session-local terms
+    // survive. A no-op when the tab is already active.
     onTab(surface) {
       if (state.surface !== surface) {
         loadSurface(surface);
@@ -12951,7 +14010,7 @@ export function mountApp(root, options) {
       try {
         window.localStorage.setItem(REGION_STORAGE_KEY, region);
       } catch {
-
+        // Region memory is a convenience; the filter still applies this session.
       }
       reloadOperationalProjects();
       if (demoAccount && REGIONS.includes(region)) prepareDemoData(sessionGeneration, [region]);
@@ -12961,7 +14020,8 @@ export function mountApp(root, options) {
       const generation = ++sessionGeneration;
       state.sessionBusy = true;
       state.error = null;
-
+      // Update the live region in place so the screen reader announces a change
+      // from a prior error to "clear" before the request resolves.
       const slot = root.querySelector('.error-slot');
       if (slot) {
         slot.replaceChildren();
@@ -12987,7 +14047,8 @@ export function mountApp(root, options) {
       }
     },
     async onLogout() {
-
+      // Org-scoped state is cleared and the login surface is painted before
+      // waiting for the best-effort network request.
       showLogin(null);
       const generation = sessionGeneration;
       state.sessionBusy = true;
@@ -12995,7 +14056,8 @@ export function mountApp(root, options) {
       try {
         await logout();
       } catch {
-
+        // Logout is best-effort client-side; the cookie is cleared server-side
+        // regardless, so we always return to «Вход».
       } finally {
         if (generation === sessionGeneration) {
           state.sessionBusy = false;
@@ -13005,7 +14067,8 @@ export function mountApp(root, options) {
     },
     onFileSelected(file) {
       if (state.dataActivationPending || state.dataState.calculatingProject != null) return;
-
+      // Selecting a replacement explicitly supersedes any older upload. Its
+      // eventual response must not overwrite the new file or selected batch.
       uploadRequestSequence += 1;
       dataRequestSequence += 1;
       activationRequestSequence += 1;
@@ -13302,6 +14365,10 @@ export function mountApp(root, options) {
     }
   });
 
+  // The strategy bar lives in the chrome (rebuilt each paint), outside `#content`, so
+  // wire its pills via a delegated listener on the persistent root: the director's
+  // click on an inactive strategy pill opens the «Сменить стратегию?» confirm (FR-36).
+  // A disabled pill (a non-director, UX-DR3) never acts, and the active pill is a no-op.
   root.addEventListener('click', (event) => {
     const pill =
       event.target.closest &&
@@ -13316,11 +14383,17 @@ export function mountApp(root, options) {
     }
   });
 
+  // A 401 x_session_expired on any call redirects to «Вход» (UX-DR7). The note
+  // shows only if a session had been established this load; a cold-boot probe
+  // that finds no session just shows the plain login screen.
   onSessionExpired(() => {
     const hadSession = state.authed;
     showLogin(hadSession ? 'x_session_expired' : null);
   });
 
+  // The public entry page disables this legacy probe so every visit requires
+  // credentials. Explicit callers such as in-memory test harnesses may still
+  // request session restoration to exercise authenticated workspace behavior.
   paint();
   if (opts.probeSession !== false) {
     const generation = sessionGeneration;
@@ -13329,10 +14402,16 @@ export function mountApp(root, options) {
         if (generation === sessionGeneration) enterLanding(data);
       })
       .catch(() => {
-
+        /* no session — the login screen is already shown */
       });
   }
   return state;
 }
 
+// Re-export the localization and number-formatting API through the render
+// facade — the single UI entry point. The dictionary for key enumeration, the
+// resolvers (`t` literal, `tp` named params, `tf` positional `{0}` — the shape
+// the ported prototype strings use), and the `Intl` helpers whose locale follows
+// the active language, never the market (ru-RU space-thousands/comma-decimals vs
+// en-US, AD-3): surfaces (Epic 4) format the raw payload numbers through these.
 export { DICT, localeFor, nf, pct, ppt, sgn, t, tf, tp };
