@@ -35,7 +35,7 @@ export const DICT = {
   x_import_project_exists_generic: ['Один из проектов уже существует. Используйте обычный импорт в разделе «Данные» для обновления или измените идентичности в XLSX для создания.', 'A project already exists. Use normal import in Data to update it, or change the identities in XLSX to create new projects.'],
   x_import_project_exists: ['Проект «{project_external_id}» уже существует. Для новой версии используйте обычный импорт в разделе «Данные»; для нового проекта измените идентичность в XLSX.', 'Project “{project_external_id}” already exists. Use normal import in Data for a new version, or change the identity in XLSX for a new project.'],
   x_demo_workbooks_title: ['Данные для демонстрации', 'Demo workbooks'],
-  x_demo_workbooks_help: ['Скачайте XLSX нужного рынка, загрузите и активируйте набор. Затем откройте проект и создайте расчётный снимок. Все данные синтетические; цены и площади можно изменить в Excel.', 'Download a market workbook, upload it and activate the dataset. Then open a project and create a calculation snapshot. All data is synthetic; prices and areas can be edited in Excel.'],
+  x_demo_workbooks_help: ['Скачайте XLSX нужного рынка, загрузите и активируйте набор. Затем откройте проект и создайте расчётный снимок. Все данные демонстрационные; цены и площади можно изменить в Excel.', 'Download a market workbook, upload it and activate the dataset. Then open a project and create a calculation snapshot. All data is illustrative; prices and areas can be edited in Excel.'],
   // --- Story 3.1-3.3 additions (no prototype precedent): login, session,
   // roles, and the x_* message keys the substrate emits (AD-15). Kept above the
   // verbatim port; the overlap keys (brand_sub, demo_uae, rf_title, rf_sub,
@@ -312,7 +312,7 @@ export const DICT = {
 
   // Story 5.4 operational apartment Table and inline detail.
   inventory_title: ['Реестр квартир', 'Apartment inventory'],
-  inventory_subtitle: ['Активная каноническая версия без синтетических рекомендаций', 'Active canonical version without synthetic recommendations'],
+  inventory_subtitle: ['Активная каноническая версия без условных рекомендаций', 'Active canonical version without placeholder recommendations'],
   operational_today_sub: ['Текущий остаток, завершённые продажи и история прайсов активной версии', 'Current stock, completed sales, and price-list history from the active version'],
   operational_menu: ['Открыть проекты', 'Open projects'],
   operational_close_menu: ['Закрыть проекты', 'Close projects'],
@@ -456,8 +456,8 @@ export const DICT = {
   operational_trend_history_invalid: ['Часть истории расчётов повреждена и исключена', 'Some calculation history is invalid and was excluded'],
   operational_trend_history_truncated: ['Дальнейшая история не проверена в этом ограниченном ответе', 'Further history was not checked in this bounded response'],
   operational_surface_lineage_mismatch: ['Ответ относится к другому проекту или версии данных', 'The response belongs to a different project or dataset version'],
-  operational_payment_placeholder: ['Формы оплаты и акции пока не реализованы для операционных данных. Синтетические значения не показываются.', 'Payment forms and promotions are not yet implemented for operational data. No synthetic values are shown.'],
-  operational_competitors_placeholder: ['Данные конкурентов пока не подключены к активной версии проекта. Синтетические значения не показываются.', 'Competitor data is not yet connected to the active project version. No synthetic values are shown.'],
+  operational_payment_placeholder: ['Формы оплаты и акции пока не реализованы для операционных данных. Условные значения не показываются.', 'Payment forms and promotions are not yet implemented for operational data. No placeholder values are shown.'],
+  operational_competitors_placeholder: ['Данные конкурентов пока не подключены к активной версии проекта. Условные значения не показываются.', 'Competitor data is not yet connected to the active project version. No placeholder values are shown.'],
   operational_payment_forms_sub: ['Что каждая форма оплаты делает с целевой функцией — выручкой проекта за горизонт расчёта', 'What each payment form does to the target function — the project revenue over the calculation horizon'],
   operational_payment_forms_empty: ['В загруженных данных нет форм оплаты: рабочая книга не содержит листов PaymentPlans и PaymentScheduleItems.', 'The loaded data carries no payment forms: the workbook has no PaymentPlans and PaymentScheduleItems sheets.'],
   operational_payment_forms_single: ['В загруженных данных одна форма оплаты, поэтому сравнивать её не с чем. Сравнение появится, когда рабочая книга принесёт вторую форму.', 'The loaded data carries a single payment form, so there is nothing to compare it with. The comparison appears when the workbook brings a second form.'],
@@ -1401,7 +1401,7 @@ export const DICT = {
   // breadcrumbs and the two distinct warn-note banners for RF/KZ. UAE (the demo
   // home market) carries no preview; these keys are emitted only for RF/KZ.
   x_preview: ['предпросмотр', 'preview'],
-  x_preview_rf: ['Предпросмотр рынка России. Расчёт полный, но рынок вне демонстрационного контура: числа синтетические, интеграции не подключены.', 'Russia market preview. The calculation is complete, but the market is outside the demo contour: the figures are synthetic and no integrations are wired.'],
+  x_preview_rf: ['Предпросмотр рынка России. Расчёт полный, но рынок вне демонстрационного контура: числа демонстрационные, интеграции не подключены.', 'Russia market preview. The calculation is complete, but the market is outside the demo contour: the figures are illustrative and no integrations are wired.'],
   x_preview_kz: ['Предпросмотр рынка Казахстана. Расчёт полный, но рынок вне демонстрационного контура. Часть проводки сохранена как задел: реестр «Казреестр», гарантия единого оператора и эскроу-схемы ещё не подключены.', 'Kazakhstan market preview. The calculation is complete, but the market is outside the demo contour. Some wiring is preserved as groundwork: the Kazreestr registry, the single-operator guarantee and the escrow schemes are not yet connected.'],
 
   // Product command control labels ([ASSUMPTION] — stub names for the seam's
@@ -1422,7 +1422,7 @@ export const DICT = {
   nav_desk:['Переоценка','Repricing'],
   nav_method:['Метод и совместимость','Method & fit'],
   rf_title:['DPrice by RAMAX','DPrice by RAMAX'],
-  rf_sub:['Демо-контур. Данные синтетические, рыночные ориентиры — из открытых источников 2026 г.','Demo build. Synthetic data; market anchors from public 2026 sources.'],
+  rf_sub:['Демо-контур. Данные демонстрационные, рыночные ориентиры — из открытых источников 2026 г.','Demo build. Illustrative data; market anchors from public 2026 sources.'],
   mk_uae:['ОАЭ','UAE'],
   mk_rf:['Россия','Russia'],
   demo_uae:['демо · дубай','demo · dubai'],
@@ -2176,7 +2176,7 @@ export const DICT = {
   wk_off:['Отключается','Switched off'],
   wk_ui:['Только интерфейс','Interface only'],
   m_out:['Что в этот продукт не входит','What this product does not include'],
-  m_honest:['Прототип показывает продуктовую логику, а не готовность к внедрению. Все числа на экранах синтетические. Коэффициенты воспринимаемой ценности и параметры спроса требуют калибровки на сделках конкретного застройщика — до неё продукт работает в теневом режиме и служит для сверки решений, а не для автоматической переоценки.','This prototype shows product logic rather than deployment readiness. All on-screen figures are synthetic. Perceived-value coefficients and demand parameters require calibration on a specific developer\u2019s deals; until then the product runs in shadow mode and serves to check decisions rather than to reprice automatically.'],
+  m_honest:['Прототип показывает продуктовую логику, а не готовность к внедрению. Все числа на экранах демонстрационные. Коэффициенты воспринимаемой ценности и параметры спроса требуют калибровки на сделках конкретного застройщика — до неё продукт работает в теневом режиме и служит для сверки решений, а не для автоматической переоценки.','This prototype shows product logic rather than deployment readiness. All on-screen figures are illustrative. Perceived-value coefficients and demand parameters require calibration on a specific developer\u2019s deals; until then the product runs in shadow mode and serves to check decisions rather than to reprice automatically.'],
   m_acad:['Академическая основа: Gallego & van Ryzin (1994), Araman & Caldentey (2009), Besbes & Maglaras (2012), van den Boer (2015).','Academic basis: Gallego & van Ryzin (1994), Araman & Caldentey (2009), Besbes & Maglaras (2012), van den Boer (2015).'],
   m_val:['Ценность, которую даёт текущий набор алгоритмов','Value delivered by the current algorithm set'],
 
