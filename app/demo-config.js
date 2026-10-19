@@ -2,7 +2,8 @@ export const CONFIG = {
   "edition": "site",
   "regions": [
     "world",
-    "gulf",
+    "uae",
+    "sa",
     "th",
     "in"
   ],
@@ -13,8 +14,10 @@ export const CONFIG = {
       "th",
       "in"
     ],
-    "gulf": [
-      "uae",
+    "uae": [
+      "uae"
+    ],
+    "sa": [
       "sa"
     ],
     "th": [
@@ -27,7 +30,8 @@ export const CONFIG = {
   "landing": "../landing/",
   "landingRegion": {
     "world": "global",
-    "gulf": "gulf",
+    "uae": "uae",
+    "sa": "sa",
     "th": "th",
     "in": "in"
   }

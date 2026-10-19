@@ -39,7 +39,7 @@ function recall(key, fallback) {
 // --- region -------------------------------------------------------------
 // The landing passes its own region codes; map them onto the demo regions
 // (older links still carry the former single-country codes).
-const LANDING_REGION = { global: 'world', uae: 'gulf', sa: 'gulf' };
+const LANDING_REGION = { global: 'world', gulf: 'uae' };
 function initialRegion() {
   const asked = new URLSearchParams(window.location.search).get('region');
   const mapped = LANDING_REGION[asked] || asked;
@@ -93,7 +93,7 @@ function expand(file) {
 }
 
 // A demo region shows the captured data of one or more countries
-// (CONFIG.parts, e.g. Gulf = UAE + Saudi Arabia); project ids never repeat
+// (CONFIG.parts, e.g. World = every country); project ids never repeat
 // across countries, so their projects simply sit side by side.
 function regionData(which = region) {
   const parts = CONFIG.parts?.[which] || [which];

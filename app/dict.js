@@ -330,7 +330,6 @@ export const DICT = {
   region_empty: ['В этом регионе пока нет проектов.', 'No projects in this region yet.'],
   region_sa: ['Саудовская Аравия', 'Saudi Arabia'],
   region_world: ['Мир', 'World'],
-  region_gulf: ['Залив', 'Gulf'],
   demo_disable: ['Отключить демо-проекты', 'Hide demo projects'],
   demo_restore: ['Вернуть демо-проекты', 'Show demo projects'],
   demo_connect_own: ['Подключить свой проект', 'Connect your project'],
