@@ -38,8 +38,10 @@ function recall(key, fallback) {
 
 // --- region -------------------------------------------------------------
 // The landing passes its own region codes; map them onto the demo regions
-// (older links still carry the former single-country codes).
-const LANDING_REGION = { global: 'world', gulf: 'uae' };
+// (older links still carry the former single-country codes). The landing's
+// default «World» opens the product on the UAE, the product's default; World
+// stays one pick away, last in the list.
+const LANDING_REGION = { global: 'uae', gulf: 'uae' };
 function initialRegion() {
   const asked = new URLSearchParams(window.location.search).get('region');
   const mapped = LANDING_REGION[asked] || asked;

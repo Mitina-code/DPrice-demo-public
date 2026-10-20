@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex">
   <title>DPrice</title>
-  <link rel="stylesheet" href="./styles.css?v=202610191549">
-  <link rel="stylesheet" href="./demo.css?v=202610191549">
+  <link rel="stylesheet" href="./styles.css?v=202610201310">
+  <link rel="stylesheet" href="./demo.css?v=202610201310">
 </head>
 <body>
   <div class="demo-ribbon" role="note">Demo projects · illustrative data</div>
   <main id="app"></main>
   <script type="module">
-    import { mountApp } from './render.js?v=202610191549';
+    import { mountApp } from './render.js?v=202610201310';
     const lang = new URLSearchParams(location.search).get('lang');
     mountApp(document.getElementById('app'), { probeSession: true, lang });
   </script>

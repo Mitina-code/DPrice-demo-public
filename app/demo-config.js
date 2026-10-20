@@ -1,11 +1,11 @@
 export const CONFIG = {
   "edition": "site",
   "regions": [
-    "world",
     "uae",
     "sa",
     "th",
-    "in"
+    "in",
+    "world"
   ],
   "parts": {
     "world": [
