@@ -312,7 +312,31 @@ export const activeInventory = activeInventoryAll;
 
 export async function operationalSurfaces(id, options = {}) {
   const { record } = await captured(id, options);
-  return clone(record.surfaces);
+  const surfaces = clone(record.surfaces);
+  countBrowserDecisions(surfaces, record.units?.items || []);
+  return surfaces;
+}
+
+// The captured counters know only the server's decisions; every decision kept
+// in this browser moves one unit from «awaiting» to «accepted» or «declined».
+function countBrowserDecisions(surfaces, units) {
+  const deal = surfaces?.deal_price;
+  if (!deal) return;
+  const move = (counts, verdict) => {
+    if (!counts || counts.pending == null) return;
+    counts.pending = Math.max(0, Number(counts.pending) - 1);
+    counts[verdict] = Number(counts[verdict] || 0) + 1;
+  };
+  for (const unit of units) {
+    if (unit.recommendation?.state !== 'ready') continue;
+    const verdict = withDecision(clone(unit)).recommendation.state;
+    if (verdict === 'ready') continue;
+    move(deal.recommendation?.decision_counts, verdict);
+    const groups = new Set((unit.pricing_inputs?.groups || []).map((g) => String(g.group_id)));
+    for (const group of deal.groups || []) {
+      if (groups.has(String(group.group_id))) move(group.decision_counts, verdict);
+    }
+  }
 }
 
 export async function inventoryProjectUnits(id, options = {}) {
@@ -355,7 +379,9 @@ export async function inventoryProjectChessboard(id, sectionId, options = {}) {
   let hidden = 0;
   for (const cell of board.cells || []) {
     if (cell.unit && !ids.has(cell.unit.unit_id)) {
-      cell.type = 'filtered_occupied';
+      // The server's shape for a unit hidden by filters, plus its number.
+      cell.type = 'filtered';
+      cell.unit_number = cell.unit.unit_number;
       cell.unit = null;
       hidden += 1;
     } else if (cell.unit) {

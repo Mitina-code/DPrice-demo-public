@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo26-r4';
-import * as api from './api.js?v=demo26-r4';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo26-r4';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-e1b08607';
+import * as api from './api.js?v=demo28-e1b08607';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-e1b08607';
 
 const {
   ApiError,
@@ -316,7 +316,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo26-r4', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-e1b08607', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -326,7 +326,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo26-r4', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-e1b08607', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -2405,6 +2405,9 @@ const TAB_ORDER = [
 // disappears on real data. A tab whose inputs the v1 import contract never
 // carries renders its prototype header and an explicit «not in the loaded data»
 // note — never a synthetic number.
+// The offline demo shows only the tabs that already carry content; the code of
+// the others stays, the demo navigation just leaves them out.
+const DEMO_HIDDEN_SURFACES = new Set(['release', 'comp', 'retro']);
 const OPERATIONAL_TAB_ORDER = [
   'today',
   'nep',
@@ -2414,7 +2417,7 @@ const OPERATIONAL_TAB_ORDER = [
   'trend',
   'comp',
   'retro',
-];
+].filter((surface) => !OFFLINE || !DEMO_HIDDEN_SURFACES.has(surface));
 const OPERATIONAL_SURFACES = new Set(OPERATIONAL_TAB_ORDER);
 
 // The market → demo-chip key and switcher label. The three demo markets in the
@@ -5131,7 +5134,7 @@ function buildOperationalDetail(state, operational) {
       `${t('inventory_snapshot_rationale', lang)}: ${recommendation.rationale_codes
         .map((key) => t(key, lang)).join(' · ')}`,
     ]) : null,
-    recommendation.lineage ? el('dl', {
+    recommendation.lineage && !OFFLINE ? el('dl', {
       class: 'inventory-detail-facts inventory-recommendation-lineage',
     }, [
       [t('inventory_version', lang), recommendation.lineage.inventory_version_id],
@@ -5173,7 +5176,7 @@ function buildOperationalDetail(state, operational) {
       t(`inventory_readiness_${calculation.state}`, lang)}`]),
     // The recommendation's lineage already names this snapshot; the block
     // below is for units that have readiness but no recommendation to cite it.
-    calculation.snapshot && !recommendation.lineage
+    calculation.snapshot && !recommendation.lineage && !OFFLINE
       ? el('dl', { class: 'inventory-detail-facts inventory-snapshot-lineage' }, [
           el('dt', null, [t('inventory_snapshot_id', lang)]),
           el('dd', { class: 'mono' }, [String(calculation.snapshot.id)]),
@@ -5332,7 +5335,8 @@ function buildOperationalChessboard(state, operational) {
               'aria-label': `${entranceName}: ${t('inventory_chessboard_filtered', lang)}`,
               title: t('inventory_chessboard_filtered', lang),
             }, [el('span', { 'aria-hidden': 'true' }, [
-              t('inventory_chessboard_filtered_short', lang),
+              // The offline demo names the hidden unit; the server sends no number.
+              cell.unit_number || t('inventory_chessboard_filtered_short', lang),
             ])]);
           }
           const unit = cell.unit || {};
@@ -6011,7 +6015,7 @@ export function renderOperationalDeskSurface(state, operational) {
       }, [t('inventory_return_data', lang)]) : null,
     ]),
     el('div', { class: 'inventory-context' }, [
-      context.project_external_id
+      context.project_external_id && !OFFLINE
         ? el('p', { class: 'sub mono' }, [
             `${t('inventory_project_external_id', lang)}: ${context.project_external_id}`,
           ]) : null,
@@ -7646,7 +7650,7 @@ function buildRepricingGroupsTable(state, operational, deal) {
     const active = activeGroupId != null && String(activeGroupId) === groupId;
     // A recommended row also says which demand curve its price stands on — in
     // v1 the fixed-elasticity one (ADR-002 D6) — not only the snapshot block.
-    const curveNotes = (baseline?.rationale_codes || [])
+    const curveNotes = OFFLINE ? [] : (baseline?.rationale_codes || [])
       .filter((code) => String(code).startsWith('dco_estimation_'))
       .map((code) => el('span', { class: 'sub' }, [` ${t(code, lang)}`]));
     const outcome = !baseline ? ['—']
@@ -8205,7 +8209,7 @@ function operationalGroupOutcome(baseline, lang) {
 function buildDealTermSelect(term, options, selected, labelId) {
   return el('select', {
     class: 'projsel', style: 'width:100%;margin-bottom:12px', 'data-deal-term': term,
-    'aria-labelledby': labelId,
+    'aria-labelledby': labelId, disabled: OFFLINE ? 'disabled' : null,
   }, options.map((option) => el('option', {
     value: option.value,
     selected: String(option.value) === String(selected) ? 'selected' : null,
@@ -8235,6 +8239,7 @@ function buildDealTermPercentSlider(term, label, bounds, lang) {
       value: toPercent(bounds.value_scaled),
       'aria-valuetext': valueText,
       'data-deal-term': term,
+      disabled: OFFLINE ? 'disabled' : null,
     }, []),
   ]);
 }
@@ -8255,7 +8260,7 @@ function buildDealLevers(state, levers, unit) {
       'data-on-magnitude': lever.on_magnitude == null ? 1 : lever.on_magnitude,
     };
     if (lever.on) inputAttrs.checked = 'checked';
-    if (lever.disabled) inputAttrs.disabled = 'disabled';
+    if (lever.disabled || OFFLINE) inputAttrs.disabled = 'disabled';
     return el('label', attrs, [
       el('input', inputAttrs, []),
       el('div', null, [
@@ -8457,7 +8462,10 @@ function renderOperationalDealPriceSurface(state) {
     ]),
     buildOperationalSurfaceContext(state, operational),
     operationalSurfaceRefreshStatus(state, operational),
-    operational.dealTermsError ? el('div', { class: 'danger', role: 'alert' }, [
+    OFFLINE && terms ? el('div', { class: 'note info', role: 'status' }, [
+      t('operational_deal_terms_demo', state.lang),
+    ]) : null,
+    operational.dealTermsError && !OFFLINE ? el('div', { class: 'danger', role: 'alert' }, [
       t('operational_deal_terms_error', state.lang),
     ]) : null,
     terms ? el('div', { class: 'grid g32 operational-deal-terms' }, [
@@ -8660,6 +8668,7 @@ function renderOperationalTrendSurface(state) {
       (key) => (key === 'baseline_result' ? 'baseline_model_result' : key),
     ),
   };
+  const hideBaseline = OFFLINE && !forecastIsSelected;
   const forecastTableLabel = forecastIsSelected
     ? 'operational_trend_table_label' : 'operational_trend_table_label_baseline';
   return el('div', { class: 'operational-management-surface' }, [
@@ -8676,7 +8685,7 @@ function renderOperationalTrendSurface(state) {
     ]),
     operationalPricePeriodEvidence(state, facts),
     operationalSalesPeriodEvidence(state, facts),
-    el('div', { class: 'panel operational-forecast-summary' }, [
+    hideBaseline ? null : el('div', { class: 'panel operational-forecast-summary' }, [
       el('h2', null, [t(
         forecastIsSelected ? 'operational_forecast' : 'operational_forecast_baseline', state.lang,
       )]),
@@ -8707,7 +8716,7 @@ function renderOperationalTrendSurface(state) {
         ),
       ]) : null,
     ]),
-    (forecast.points || []).length ? el('details', {
+    !hideBaseline && (forecast.points || []).length ? el('details', {
       class: 'panel operational-details',
     }, [
       el('summary', null, [t(forecastTableLabel, state.lang)]),
@@ -10428,7 +10437,8 @@ export function mountApp(root, options) {
       ? operational.detail.recommendation : tableUnit?.recommendation;
     const unitNumber = identity?.unit_number;
     const unitExternalId = identity?.unit_external_id;
-    const unitLabel = unitNumber && unitExternalId && unitNumber !== unitExternalId
+    // The demo names the unit by its number only, without the import code.
+    const unitLabel = unitNumber && unitExternalId && unitNumber !== unitExternalId && !OFFLINE
       ? `${unitNumber} (${unitExternalId})`
       : unitNumber || unitExternalId || unitId;
     const intent = {
@@ -10445,7 +10455,8 @@ export function mountApp(root, options) {
       titleKey: 'inventory_recommendation_decision_confirm_title',
       confirmKey: verdict === 'accepted'
         ? 'inventory_recommendation_accept' : 'inventory_recommendation_decline',
-      bodyKey: 'inventory_recommendation_decision_confirm_body',
+      bodyKey: OFFLINE ? 'inventory_recommendation_decision_confirm_body_demo'
+        : 'inventory_recommendation_decision_confirm_body',
       params: {
         unit: unitLabel,
         verdict: t(`inventory_recommendation_${verdict}`, state.lang),
@@ -10614,7 +10625,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=demo26-r4${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=demo28-e1b08607${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
