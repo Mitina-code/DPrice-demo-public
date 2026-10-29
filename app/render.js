@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-795bf7f0';
-import * as api from './api.js?v=demo28-795bf7f0';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-795bf7f0';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-29570bab';
+import * as api from './api.js?v=demo28-29570bab';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-29570bab';
 
 const {
   ApiError,
@@ -316,7 +316,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-795bf7f0', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-29570bab', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -326,7 +326,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-795bf7f0', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-29570bab', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -9747,6 +9747,7 @@ const REGION_STORAGE_KEY = 'dprice-console-region';
 export function mountApp(root, options) {
   const opts = options || {};
   startHints(root);
+  startJobs(root);
   const entryLang = LANGS.includes(opts.lang) ? opts.lang : (LANGS.includes('ru') ? 'ru' : LANGS[0]);
   // The offline demo adapter picks its own starting region (from the link or
   // the visitor's last choice); the server console starts from its own memory.
@@ -10626,7 +10627,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=demo28-795bf7f0${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=demo28-29570bab${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
@@ -14566,11 +14567,13 @@ function decorateHints(root) {
     toggle.type = 'button';
     toggle.className = 'hints-toggle';
     toggle.textContent = t(hintsOff() ? 'hints_on' : 'hints_off', lang);
+    toggle.title = toggle.textContent;
     toggle.addEventListener('click', () => {
       setHintsOff(!hintsOff());
       closeHints();
       document.querySelectorAll('.hints-toggle').forEach((button) => {
         button.textContent = t(hintsOff() ? 'hints_on' : 'hints_off', hintLang());
+        button.title = button.textContent;
       });
     });
     switcher.before(toggle);
@@ -14597,5 +14600,314 @@ function startHints(root) {
   });
   // A fixed bubble would drift away from its «?» on scroll, so scrolling closes it.
   document.addEventListener('scroll', () => closeHints(), true);
+  run();
+}
+
+// --------------------------------------------------------------------------- //
+// «С чего начать». A panel of jobs a newcomer comes to do («Решить, какие цены
+// поменять»…). A job opens the tab that answers it, goes to the block, and
+// leaves a strip on top with what to do there and a way back to the jobs. It
+// opens by itself on the first visit in this browser and from the top-bar
+// button afterwards. Like the hints it drives the screen the console already
+// renders — tab buttons and headings found by their dictionary text — so no
+// surface builder knows about it.
+// --------------------------------------------------------------------------- //
+
+// group dictionary key → jobs; a job names its tab, the heading it scrolls to
+// and an optional extra step on arrival (with the heading it then shows, `land`). Dictionary keys: job_<id>_t (title),
+// job_<id>_d (what you get), job_<id>_s (what to do there).
+const JOB_GROUPS = [
+  ['jobs_group_daily', [
+    { id: 'today', tab: 'today', heading: 'operational_tasks' },
+    { id: 'reprice', tab: 'desk', heading: 'operational_repricing_summary' },
+    { id: 'decide', tab: 'desk', heading: 'inventory_title', arrive: 'filterRecommended', land: 'inventory_title', from: 'inventory_chessboard_title' },
+    { id: 'chess', tab: 'desk', heading: 'inventory_title', arrive: 'chessboard', land: 'inventory_chessboard_title' },
+  ]],
+  ['jobs_group_deal', [
+    { id: 'deal', tab: 'nep', heading: 'n_ctrl' },
+    { id: 'promo', tab: 'nep', heading: 'al_conc' },
+    { id: 'forms', tab: 'shelf', heading: 'fm_h' },
+  ]],
+  ['jobs_group_strategy', [
+    { id: 'goal', tab: 'today', heading: 'algo_h' },
+    { id: 'pace', tab: 'trend', heading: 'operational_sales_history' },
+    { id: 'history', tab: 'trend', heading: 'operational_price_history' },
+  ]],
+  ['jobs_group_data', [
+    { id: 'effect', link: OFFLINE ? '../calculator/' : `${PUBLIC_PLATFORM}/calculator` },
+    { id: 'upload', data: true },
+  ]],
+];
+const JOBS_SEEN_KEY = 'dprice-jobs-seen';
+const JOB_HEADING_SELECTOR = 'h1, h2, h3, .mini-lb, .lb, .railsec, .label, label, summary';
+let activeJob = null;
+
+function jobsSeen() {
+  try {
+    return window.localStorage.getItem(JOBS_SEEN_KEY) === '1';
+  } catch {
+    return true;
+  }
+}
+
+function markJobsSeen() {
+  try {
+    window.localStorage.setItem(JOBS_SEEN_KEY, '1');
+  } catch {
+    // Storage blocked: the panel just opens again on the next visit.
+  }
+}
+
+function ownText(node) {
+  return [...node.childNodes]
+    .filter((child) => child.nodeType === 3)
+    .map((child) => child.textContent)
+    .join('')
+    .trim()
+    .toLowerCase();
+}
+
+function findByText(root, selector, key, lang) {
+  const want = t(key, lang).trim().toLowerCase();
+  return [...root.querySelectorAll(selector)].find((node) => ownText(node) === want) || null;
+}
+
+function currentTab(root) {
+  return root.querySelector('.operational-tabs button.on')?.getAttribute('data-tab') || null;
+}
+
+// Wait until the console has painted what a job needs (tabs load their data).
+function whenFound(find, done, tries = 60) {
+  const node = find();
+  if (node) {
+    done(node);
+    return;
+  }
+  if (tries > 0) setTimeout(() => whenFound(find, done, tries - 1), 150);
+}
+
+const JOB_ARRIVALS = {
+  filterRecommended(root, lang) {
+    // The filter sits on the table view; leave the stacking plan first.
+    const table = [...root.querySelectorAll('button')]
+      .find((b) => b.textContent.trim().toLowerCase() === t('inventory_mode_table', lang).trim().toLowerCase());
+    if (table && findByText(root, JOB_HEADING_SELECTOR, 'inventory_chessboard_title', lang)) {
+      table.click();
+      setTimeout(() => JOB_ARRIVALS.filterRecommended(root, lang), 600);
+      return;
+    }
+    const label = findByText(root, '.label, label', 'inventory_filter_recommendation', lang);
+    const select = label?.closest('label')?.querySelector('select') || label?.parentElement?.querySelector('select');
+    const want = t('inventory_filter_recommendation_any', lang).trim().toLowerCase();
+    const option = select && [...select.options].find((o) => o.textContent.trim().toLowerCase() === want);
+    if (!option) return;
+    select.value = option.value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    const apply = [...root.querySelectorAll('button')]
+      .find((b) => b.textContent.trim().toLowerCase() === t('data_apply_filters', lang).trim().toLowerCase());
+    apply?.click();
+  },
+  chessboard(root, lang) {
+    const button = [...root.querySelectorAll('button')]
+      .find((b) => b.textContent.trim().toLowerCase() === t('inventory_mode_chessboard', lang).trim().toLowerCase());
+    button?.click();
+  },
+};
+
+function closeJobsPanel() {
+  document.querySelectorAll('.jobs-panel').forEach((panel) => panel.remove());
+}
+
+function runJob(root, job) {
+  const lang = hintLang();
+  closeJobsPanel();
+  markJobsSeen();
+  if (job.link) {
+    window.location.href = job.link;
+    return;
+  }
+  if (job.data) {
+    // The demo has no upload; the working console opens its Data workspace.
+    const nav = OFFLINE ? null : [...root.querySelectorAll('button, a')]
+      .find((b) => b.textContent.trim().toLowerCase() === t('nav_data', lang).trim().toLowerCase());
+    activeJob = { ...job, tab: nav ? null : currentTab(root) };
+    nav?.click();
+    paintJobStrip(root);
+    return;
+  }
+  activeJob = job;
+  if (currentTab(root) !== job.tab) root.querySelector(`.operational-tabs button[data-tab="${job.tab}"]`)?.click();
+  // An arrival step (a filter, the stacking plan) repaints the tab, so the
+  // heading is looked up again and the scroll repeated once the repaint is in.
+  const show = (smooth) => {
+    const target = findByText(root, JOB_HEADING_SELECTOR, job.land || job.heading, hintLang());
+    if (!target || activeJob !== job) return;
+    target.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+    target.classList.add('job-target');
+    setTimeout(() => target.classList.remove('job-target'), 2400);
+  };
+  const ready = () => findByText(root, JOB_HEADING_SELECTOR, job.heading, hintLang())
+    || (job.land && findByText(root, JOB_HEADING_SELECTOR, job.land, hintLang()))
+    || (job.from && findByText(root, JOB_HEADING_SELECTOR, job.from, hintLang()));
+  whenFound(ready, () => {
+    if (!job.arrive) {
+      show(true);
+      return;
+    }
+    JOB_ARRIVALS[job.arrive](root, hintLang());
+    setTimeout(() => show(true), 900);
+    setTimeout(() => show(false), 2200);
+  });
+  paintJobStrip(root);
+}
+
+function openJobsPanel(root) {
+  const lang = hintLang();
+  closeJobsPanel();
+  const panel = document.createElement('div');
+  panel.className = 'jobs-panel';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-modal', 'true');
+  panel.setAttribute('aria-labelledby', 'jobs-title');
+  const card = document.createElement('div');
+  card.className = 'jobs-card';
+  const head = document.createElement('div');
+  head.className = 'jobs-head';
+  const title = document.createElement('h2');
+  title.id = 'jobs-title';
+  title.textContent = t('jobs_title', lang);
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'jobs-close';
+  close.textContent = '×';
+  close.setAttribute('aria-label', t('jobs_close', lang));
+  close.addEventListener('click', () => {
+    markJobsSeen();
+    closeJobsPanel();
+  });
+  head.append(title, close);
+  const sub = document.createElement('p');
+  sub.className = 'jobs-sub';
+  sub.textContent = t('jobs_sub', lang);
+  card.append(head, sub);
+  JOB_GROUPS.forEach(([groupKey, jobs]) => {
+    const group = document.createElement('section');
+    group.className = 'jobs-group';
+    const name = document.createElement('h3');
+    name.textContent = t(groupKey, lang);
+    const grid = document.createElement('div');
+    grid.className = 'jobs-grid';
+    jobs.forEach((job) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'job';
+      const jobTitle = document.createElement('span');
+      jobTitle.className = 'job-t';
+      jobTitle.textContent = t(`job_${job.id}_t`, lang);
+      const jobNote = document.createElement('span');
+      jobNote.className = 'job-d';
+      jobNote.textContent = t(`job_${job.id}_d`, lang);
+      button.append(jobTitle, jobNote);
+      button.addEventListener('click', () => runJob(root, job));
+      grid.append(button);
+    });
+    group.append(name, grid);
+    card.append(group);
+  });
+  panel.append(card);
+  panel.addEventListener('click', (event) => {
+    if (event.target === panel) {
+      markJobsSeen();
+      closeJobsPanel();
+    }
+  });
+  panel.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      markJobsSeen();
+      closeJobsPanel();
+    }
+  });
+  document.body.append(panel);
+  close.focus();
+}
+
+// The strip lives above the tab content while its job's tab is open.
+function paintJobStrip(root) {
+  root.querySelectorAll('.job-strip').forEach((strip) => strip.remove());
+  if (!activeJob) return;
+  const content = root.querySelector('#content');
+  if (!content) return;
+  if (activeJob.tab && currentTab(root) && currentTab(root) !== activeJob.tab) return;
+  const lang = hintLang();
+  const strip = document.createElement('div');
+  strip.className = 'job-strip';
+  strip.setAttribute('role', 'note');
+  const text = document.createElement('div');
+  text.className = 'job-strip-text';
+  const what = document.createElement('b');
+  what.textContent = `${t('jobs_task', lang)}: ${t(`job_${activeJob.id}_t`, lang)}`;
+  const steps = document.createElement('span');
+  const stepsKey = activeJob.data && OFFLINE ? 'job_upload_s_demo' : `job_${activeJob.id}_s`;
+  steps.textContent = t(stepsKey, lang);
+  text.append(what, steps);
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'job-strip-back';
+  back.textContent = t('jobs_back', lang);
+  back.addEventListener('click', () => openJobsPanel(root));
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'job-strip-close';
+  close.textContent = '×';
+  close.setAttribute('aria-label', t('jobs_close', lang));
+  close.addEventListener('click', () => {
+    activeJob = null;
+    paintJobStrip(root);
+  });
+  strip.append(text, back, close);
+  content.prepend(strip);
+}
+
+function decorateJobs(root) {
+  const lang = hintLang();
+  root.querySelectorAll('.langsw').forEach((switcher) => {
+    const before = switcher.previousElementSibling?.classList.contains('hints-toggle')
+      ? switcher.previousElementSibling : switcher;
+    if (before.previousElementSibling?.classList.contains('jobs-open')) return;
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'jobs-open';
+    open.textContent = t('jobs_open', lang);
+    open.addEventListener('click', () => openJobsPanel(root));
+    before.before(open);
+  });
+  const strip = root.querySelector('.job-strip');
+  const wanted = activeJob && (!activeJob.tab || !currentTab(root) || currentTab(root) === activeJob.tab);
+  if (wanted && (!strip || strip.parentElement !== root.querySelector('#content') || strip.dataset.lang !== lang)) {
+    paintJobStrip(root);
+    root.querySelector('.job-strip')?.setAttribute('data-lang', lang);
+  } else if (!wanted && strip) {
+    strip.remove();
+  }
+  // First visit: offer the jobs as soon as the project tabs are on screen.
+  if (!jobsSeen() && root.querySelector('.operational-tabs') && !document.querySelector('.jobs-panel')) {
+    markJobsSeen();
+    openJobsPanel(root);
+  }
+}
+
+function startJobs(root) {
+  if (typeof MutationObserver === 'undefined' || typeof setTimeout === 'undefined'
+      || typeof document === 'undefined' || !document.body || !root?.querySelectorAll) return;
+  let queued = false;
+  const run = () => {
+    queued = false;
+    decorateJobs(root);
+  };
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    setTimeout(run, 40);
+  }).observe(root, { childList: true, subtree: true });
   run();
 }
