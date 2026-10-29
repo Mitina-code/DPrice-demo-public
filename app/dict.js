@@ -753,8 +753,8 @@ export const DICT = {
     'Dynamic price optimisation completed',
   ],
   dco_policy_neutral: [
-    'Оптимизация денежного потока по горизонту',
-    'Cash-flow optimisation over the horizon',
+    'Денежный поток: оптимизация по горизонту',
+    'Cash flow: optimised over the horizon',
   ],
   dco_policy_revenue_rate: [
     'Максимум с остатка: цена быстрой выручки, шаг не больше 5% за месяц',
@@ -1607,8 +1607,8 @@ export const DICT = {
   a5:['Режим «только интерфейс»: первый результат получается на данных, которые в системе уже есть, без новых источников и без калибровки.','The interface-only mode: the first result comes from data already in the system, with no new sources and no calibration.'],
 
   st_h:['Коммерческая стратегия','Commercial strategy'],
-  sg_max:['Максимум остатка','Maximum remaining value'],
-  sg_cash:['Денежный поток','Cash flow'],
+  sg_max:['Держать цену','Hold the price'],
+  sg_cash:['Деньги раньше','Earlier cash'],
   sg_cov:['Ковенанты банка','Bank covenants'],
   sg_max_d:['Цена держится выше, скорость приносится в жертву стоимости непроданного остатка.','Holds prices higher, trading sales speed for the value of unsold stock.'],
   sg_cash_d:['Деньги нужны раньше. Поздние поступления оцениваются строже, ранние — дороже.','Cash is needed sooner. Late receipts are discounted harder, early ones valued more.'],
