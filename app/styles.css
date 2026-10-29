@@ -4149,3 +4149,26 @@ ul.tight li {
   color: #5b6770;
   text-align: center;
 }
+
+/* «?» hints (render.js, startHints). */
+.hint-wrap { position: relative; display: inline-flex; vertical-align: middle; }
+.hint-q {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; margin-left: 6px; padding: 0;
+  border: 1.5px solid currentColor; border-radius: 50%;
+  background: transparent; color: #2fbf68; font-family: inherit; font-weight: 700; font-size: 11px; line-height: 1;
+  cursor: pointer; vertical-align: middle; flex: none; text-transform: none; letter-spacing: 0;
+}
+.hint-q:hover, .hint-q:focus-visible { background: #2fbf68; color: #fff; outline: none; }
+.hint-pop {
+  position: fixed; z-index: 80; top: 0; left: 0; width: max-content; max-width: min(340px, calc(100vw - 16px));
+  padding: 10px 12px; border-radius: 10px; background: #17211c; color: #fff;
+  font-family: inherit; font-weight: 400; font-size: 13px; line-height: 1.45; text-transform: none; letter-spacing: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18); white-space: normal; text-align: left;
+}
+.hints-off .hint-q, .hints-off .hint-pop { display: none !important; }
+.hints-toggle {
+  margin-right: 8px; padding: 6px 10px; border: 1px solid #cfd9d3; border-radius: 8px;
+  background: #fff; color: #17211c; font-family: inherit; font-weight: 500; font-size: 12px; line-height: 1.2; cursor: pointer; white-space: nowrap;
+}
+.hints-toggle:hover { border-color: #2fbf68; }

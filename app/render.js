@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-2ffa2b56';
-import * as api from './api.js?v=demo28-2ffa2b56';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-2ffa2b56';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-795bf7f0';
+import * as api from './api.js?v=demo28-795bf7f0';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-795bf7f0';
 
 const {
   ApiError,
@@ -316,7 +316,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-2ffa2b56', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-795bf7f0', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -326,7 +326,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-2ffa2b56', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-795bf7f0', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -9746,6 +9746,7 @@ const REGION_STORAGE_KEY = 'dprice-console-region';
 
 export function mountApp(root, options) {
   const opts = options || {};
+  startHints(root);
   const entryLang = LANGS.includes(opts.lang) ? opts.lang : (LANGS.includes('ru') ? 'ru' : LANGS[0]);
   // The offline demo adapter picks its own starting region (from the link or
   // the visitor's last choice); the server console starts from its own memory.
@@ -10625,7 +10626,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=demo28-2ffa2b56${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=demo28-795bf7f0${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
@@ -14431,3 +14432,170 @@ export function mountApp(root, options) {
 // the active language, never the market (ru-RU space-thousands/comma-decimals vs
 // en-US, AD-3): surfaces (Epic 4) format the raw payload numbers through these.
 export { DICT, localeFor, nf, pct, ppt, sgn, t, tf, tp };
+
+// --------------------------------------------------------------------------- //
+// «?» hints. A small «?» sits beside the headings and labels that new users
+// misread; clicking it opens a short explanation. One top-bar button turns every
+// hint off (remembered in this browser). The hints decorate whatever the screen
+// renders — matched by the dictionary text of each anchor in the page's
+// language — so no surface builder knows about them.
+// --------------------------------------------------------------------------- //
+
+// anchor dictionary key → hint dictionary key
+const HINT_ANCHORS = [
+  ['region_label', 'hint_region'],
+  ['role_manager', 'hint_role'],
+  ['role_director', 'hint_role'],
+  ['role_analyst', 'hint_role'],
+  ['role_data_steward', 'hint_role'],
+  ['algo_h', 'hint_goal'],
+  ['operational_tasks', 'hint_tasks'],
+  ['operational_current_price_per_area', 'hint_current_price'],
+  ['operational_completed_deals', 'hint_completed_deals'],
+  ['operational_available', 'hint_available'],
+  ['operational_price_periods', 'hint_price_periods'],
+  ['operational_price_history', 'hint_price_history'],
+  ['operational_typology_price_chart', 'hint_typology_chart'],
+  ['n_ctrl', 'hint_deal_terms'],
+  ['operational_price_category', 'hint_price_category'],
+  ['operational_current_base_price', 'hint_base_price'],
+  ['w_plan', 'hint_payment_plan'],
+  ['w_rate', 'hint_rate'],
+  ['w_cut', 'hint_cut'],
+  ['al_conc', 'hint_levers'],
+  ['n_res', 'hint_deal_result'],
+  ['fm_h', 'hint_payment_forms'],
+  ['operational_target_function', 'hint_target_value'],
+  ['operational_expected_sales_horizon', 'hint_expected_sales'],
+  ['operational_discount_rate', 'hint_discount_rate'],
+  ['operational_repricing_summary', 'hint_repricing_summary'],
+  ['repricing_groups_title', 'hint_typologies'],
+  ['inventory_mode_chessboard', 'hint_chessboard'],
+  ['inventory_filter_recommendation', 'hint_recommendation_state'],
+  ['inventory_title', 'hint_registry'],
+  ['operational_sales_history', 'hint_sales_history'],
+  ['data_upload_title', 'hint_upload'],
+];
+const HINTS_OFF_KEY = 'dprice-hints-off';
+const HINT_SELECTOR = 'h1, h2, h3, .mini-lb, .lb, .railsec, .label, label, button, summary';
+
+function hintsOff() {
+  try {
+    return window.localStorage.getItem(HINTS_OFF_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function setHintsOff(off) {
+  try {
+    window.localStorage.setItem(HINTS_OFF_KEY, off ? '1' : '0');
+  } catch {
+    // Storage blocked: the choice holds for this page only.
+  }
+  document.documentElement.classList.toggle('hints-off', off);
+}
+
+function hintLang() {
+  const code = document.querySelector('.langsw button[aria-pressed="true"]')?.dataset.lang;
+  return LANGS.includes(code) ? code : 'ru';
+}
+
+function closeHints(except) {
+  document.querySelectorAll('.hint-pop').forEach((pop) => {
+    if (pop !== except) pop.remove();
+  });
+}
+
+function hintButton(hintKey, lang) {
+  const wrap = document.createElement('span');
+  wrap.className = 'hint-wrap';
+  const q = document.createElement('button');
+  q.type = 'button';
+  q.className = 'hint-q';
+  q.textContent = '?';
+  q.setAttribute('aria-label', t('hint_open', lang));
+  q.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const open = Boolean(wrap.querySelector('.hint-pop'));
+    closeHints();
+    if (open) return;
+    const pop = document.createElement('span');
+    pop.className = 'hint-pop';
+    pop.setAttribute('role', 'note');
+    pop.textContent = t(hintKey, lang);
+    wrap.append(pop);
+    // Placed against the window, not the anchor: top bars scroll sideways and
+    // panels clip, so the bubble is fixed under the «?» and kept on screen.
+    const anchor = q.getBoundingClientRect();
+    const box = pop.getBoundingClientRect();
+    const left = Math.max(8, Math.min(anchor.left - 8, window.innerWidth - 8 - box.width));
+    const below = anchor.bottom + 6;
+    const top = below + box.height > window.innerHeight - 8 && anchor.top - 6 - box.height > 8
+      ? anchor.top - 6 - box.height
+      : below;
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+  });
+  wrap.append(q);
+  return wrap;
+}
+
+function decorateHints(root) {
+  const lang = hintLang();
+  const texts = new Map(HINT_ANCHORS.map(([anchor, hint]) => [t(anchor, lang).trim().toLowerCase(), hint]));
+  root.querySelectorAll(HINT_SELECTOR).forEach((node) => {
+    if (node.dataset.hinted || node.closest('.hint-wrap, .hint-pop')) return;
+    const own = [...node.childNodes]
+      .filter((child) => child.nodeType === 3)
+      .map((child) => child.textContent)
+      .join('')
+      .trim()
+      .toLowerCase();
+    const hint = texts.get(own) || texts.get(node.textContent.trim().toLowerCase());
+    if (!hint) return;
+    node.dataset.hinted = '1';
+    const q = hintButton(hint, lang);
+    if (node.tagName === 'BUTTON') node.after(q);
+    else node.append(q);
+  });
+  root.querySelectorAll('.langsw').forEach((switcher) => {
+    if (switcher.previousElementSibling?.classList.contains('hints-toggle')) return;
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'hints-toggle';
+    toggle.textContent = t(hintsOff() ? 'hints_on' : 'hints_off', lang);
+    toggle.addEventListener('click', () => {
+      setHintsOff(!hintsOff());
+      closeHints();
+      document.querySelectorAll('.hints-toggle').forEach((button) => {
+        button.textContent = t(hintsOff() ? 'hints_on' : 'hints_off', hintLang());
+      });
+    });
+    switcher.before(toggle);
+  });
+}
+
+function startHints(root) {
+  // Real browsers only: test harnesses without these APIs render without hints.
+  if (typeof MutationObserver === 'undefined' || typeof setTimeout === 'undefined'
+      || typeof document === 'undefined' || !document.documentElement?.classList || !root?.querySelectorAll) return;
+  document.documentElement.classList.toggle('hints-off', hintsOff());
+  let queued = false;
+  const run = () => {
+    queued = false;
+    decorateHints(root);
+  };
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    setTimeout(run, 30);
+  }).observe(root, { childList: true, subtree: true });
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest?.('.hint-q, .hint-pop')) closeHints();
+  });
+  // A fixed bubble would drift away from its «?» on scroll, so scrolling closes it.
+  document.addEventListener('scroll', () => closeHints(), true);
+  run();
+}
