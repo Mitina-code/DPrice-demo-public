@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-493ae105';
-import * as api from './api.js?v=demo28-493ae105';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-493ae105';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611021218';
+import * as api from './api.js?v=202611021218';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611021218';
 
 const {
   ApiError,
@@ -59,6 +59,13 @@ const {
 // straight into the product, lists only demo regions and can hide the demo
 // projects. The server build keeps every behaviour below unchanged.
 const OFFLINE = Boolean(api.OFFLINE);
+// The public site (platform.dprice.ai) runs the real engine in the visitor's
+// browser, so every feature works there (OFFLINE is false); it keeps the
+// visitor-facing presentation of the former static demo — readable dates, no
+// internal ids or lineage, the hidden empty tabs, its own regions — and its
+// own sign-in gate. An api.js that predates these flags is the static demo.
+const PUBLIC_EDITION = Boolean(api.PUBLIC_EDITION ?? api.OFFLINE);
+const GATE_LOGIN = Boolean(api.GATE_LOGIN ?? api.OFFLINE);
 
 // --- small DOM helpers ------------------------------------------------------
 
@@ -316,7 +323,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-493ae105', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-7083db8a', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -326,7 +333,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-493ae105', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-7083db8a', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -1973,7 +1980,7 @@ export function renderDataWorkspace(state, handlers) {
             el('p', null, [t('x_demo_workbooks_help', lang)]),
             el('div', { class: 'demo-workbook-links' }, ['uae', 'rf', 'kz'].map((market) =>
               el('a', {
-                href: `/ui/demo-workbooks/dprice-demo-${market}.xlsx`,
+                href: `./demo-workbooks/dprice-demo-${market}.xlsx`,
                 download: `dprice-demo-${market}.xlsx`,
               }, [t(`mk_${market}`, lang), ' · XLSX']),
             )),
@@ -2029,7 +2036,7 @@ const SHORT_MONTHS = {
 
 function readableUtc(value, lang) {
   if (value == null || value === '') return '—';
-  if (!OFFLINE) return String(value);
+  if (!PUBLIC_EDITION) return String(value);
   const text = String(value);
   const parsed = new Date(text.length === 10 ? `${text}T00:00:00Z` : text);
   if (Number.isNaN(parsed.getTime())) return text;
@@ -2092,12 +2099,12 @@ function scaledHistoryMoneyNodes(value, currency, lang) {
 
 function historyTermsNodes(item, lang) {
   const values = [];
-  if (item.source_status && !OFFLINE) {
+  if (item.source_status && !PUBLIC_EDITION) {
     values.push(historyTemplateNodes(
       'history_source_status_value', lang, [item.source_status],
     ));
   }
-  if (item.reason_code && !OFFLINE) {
+  if (item.reason_code && !PUBLIC_EDITION) {
     values.push(historyTemplateNodes('history_reason_value', lang, [item.reason_code]));
   }
   if (item.closed_at_utc) {
@@ -2153,7 +2160,7 @@ function historyCurrentFacet(item, key, lang) {
     ? scaledHistoryMoneyNodes(item.price_absolute_scaled, item.currency, lang)
     : [historyFactLabel(item, lang)];
   const details = [];
-  if (key === 'history_current_price' && !OFFLINE) {
+  if (key === 'history_current_price' && !PUBLIC_EDITION) {
     details.push([
       `${t('history_source_version', lang)}: `,
       String(item.version_label || item.external_id || '—'),
@@ -2182,13 +2189,13 @@ function historyCurrentFacet(item, key, lang) {
       el('span', { class: 'num' }, [readableUtc(item.effective_at_utc, lang)]),
     ]);
   }
-  if (item.recorded_at_utc && !OFFLINE) {
+  if (item.recorded_at_utc && !PUBLIC_EDITION) {
     details.push([
       `${t('history_recorded_at', lang)}: `,
       el('span', { class: 'num' }, [item.recorded_at_utc]),
     ]);
   }
-  if (!OFFLINE && (item.source_batch_id != null || item.version_sequence != null)) {
+  if (!PUBLIC_EDITION && (item.source_batch_id != null || item.version_sequence != null)) {
     details.push(historySourceNodes(item, lang));
   }
   return el('div', { class: 'history-current-fact' }, [
@@ -2292,7 +2299,7 @@ export function renderInventoryHistory(state, handlers = {}) {
       ? el('table', { class: 'data-table commercial-history-table' }, [
           historyTableHead([
             'history_fact', 'history_state', 'history_terms', 'history_effective_at',
-            ...(OFFLINE ? [] : ['history_recorded_at', 'history_source_lineage']),
+            ...(PUBLIC_EDITION ? [] : ['history_recorded_at', 'history_source_lineage']),
           ], lang),
           el('tbody', null, commercialRows.map((item) => el('tr', null, [
             el('th', { scope: 'row' }, [historyKindLabel(item.kind, lang)]),
@@ -2302,8 +2309,8 @@ export function renderInventoryHistory(state, handlers = {}) {
             el('td', null, historyTermsNodes(item, lang).length
               ? historyTermsNodes(item, lang) : ['—']),
             el('td', { class: 'num' }, [readableUtc(item.effective_at_utc, lang)]),
-            OFFLINE ? null : el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
-            OFFLINE ? null : el('td', null, historySourceNodes(item, lang)),
+            PUBLIC_EDITION ? null : el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
+            PUBLIC_EDITION ? null : el('td', null, historySourceNodes(item, lang)),
           ]))),
         ])
       : el('p', { class: 'note history-empty' }, [
@@ -2320,7 +2327,7 @@ export function renderInventoryHistory(state, handlers = {}) {
     ]),
     priceRows.length
       ? el('table', { class: 'data-table price-history-table' }, [
-          historyTableHead(OFFLINE ? [
+          historyTableHead(PUBLIC_EDITION ? [
             'history_state', 'history_effective_at',
             'history_price_absolute', 'history_price_per_area',
           ] : [
@@ -2333,14 +2340,14 @@ export function renderInventoryHistory(state, handlers = {}) {
               `${String(item.version_label || '—')} · ${historyFactLabel(item, lang)} · ${historyLineageLabel(item, lang)}`,
             ]),
             el('td', { class: 'num' }, [readableUtc(item.effective_at_utc, lang)]),
-            OFFLINE ? null : el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
+            PUBLIC_EDITION ? null : el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
             el('td', { class: 'history-number-cell' },
               scaledHistoryMoneyNodes(item.price_absolute_scaled, item.currency, lang)),
             el('td', { class: 'history-number-cell' }, [
               ...scaledHistoryMoneyNodes(item.price_per_area_scaled, item.currency, lang),
               ` / ${operationalAreaUnitLabel(item.area_unit, lang) || '—'}`,
             ]),
-            OFFLINE ? null : el('td', null, historySourceNodes(item, lang)),
+            PUBLIC_EDITION ? null : el('td', null, historySourceNodes(item, lang)),
           ]))),
         ])
       : el('p', { class: 'note history-empty' }, [t(
@@ -2435,6 +2442,7 @@ const TAB_ORDER = [
 // the others stays, the demo navigation just leaves them out.
 const DEMO_HIDDEN_SURFACES = new Set(['release', 'comp', 'retro']);
 const OPERATIONAL_TAB_ORDER = [
+  'project',
   'today',
   'nep',
   'shelf',
@@ -2443,7 +2451,7 @@ const OPERATIONAL_TAB_ORDER = [
   'trend',
   'comp',
   'retro',
-].filter((surface) => !OFFLINE || !DEMO_HIDDEN_SURFACES.has(surface));
+].filter((surface) => !PUBLIC_EDITION || !DEMO_HIDDEN_SURFACES.has(surface));
 const OPERATIONAL_SURFACES = new Set(OPERATIONAL_TAB_ORDER);
 
 // The market → demo-chip key and switcher label. The three demo markets in the
@@ -2635,8 +2643,11 @@ function buildRoleBadge(state, handlers) {
       'aria-haspopup': 'true',
       'aria-expanded': state.roleMenuOpen ? 'true' : 'false',
     },
-    [t(`role_${role}`, lang)],
+    // One role for now (owner decision 02.11.2026): the same person prices,
+    // decides and analyses, so the badge names the account, not a role.
+    [t('account_menu', lang)],
   );
+  badge.setAttribute('data-role', role || '');
   badge.addEventListener('click', () => handlers.onToggleRoleMenu());
   const children = [badge];
   if (state.roleMenuOpen) {
@@ -2810,7 +2821,9 @@ export function renderShell(state, chrome, handlers) {
       el('div', { class: 'main' }, [
         buildOperationalTopBar(state, handlers),
         buildOperationalTabs(state, handlers),
-        buildOperationalAlgorithmBar(state, handlers),
+        // «Мой проект» edits the data every goal is priced from; the goal
+        // switch belongs to the tabs that show a goal's result.
+        state.surface === 'project' ? null : buildOperationalAlgorithmBar(state, handlers),
         buildSurfaceFrame(state),
       ]),
     ]);
@@ -4409,7 +4422,7 @@ function buildOfflineLogin(state, handlers) {
 // «Disable demo projects» (offline demo build only): the choice is kept in the
 // visitor's browser by the offline adapter.
 function buildDemoToggle(state, handlers) {
-  if (!OFFLINE || !api.demoEnabled) return null;
+  if (!PUBLIC_EDITION || !api.demoEnabled) return null;
   const enabled = api.demoEnabled();
   const button = el('button', {
     type: 'button', class: 'demo-toggle', 'aria-pressed': enabled ? 'false' : 'true',
@@ -5092,8 +5105,8 @@ function buildOperationalDetail(state, operational) {
   ]);
   const identitySection = factsSection('inventory_detail_identity', 'inventory-identity-title', [
     [t('inventory_unit', lang), identity.unit_number || identity.unit_external_id],
-    [t('inventory_external_id', lang), OFFLINE ? null : identity.unit_external_id],
-    [t('inventory_source_system', lang), OFFLINE ? null : identity.source_system],
+    [t('inventory_external_id', lang), PUBLIC_EDITION ? null : identity.unit_external_id],
+    [t('inventory_source_system', lang), PUBLIC_EDITION ? null : identity.source_system],
     [t('inventory_phase', lang), hierarchy.phase_name],
     [t('inventory_building', lang), hierarchy.building_name],
     [t('inventory_section', lang), hierarchy.section_name],
@@ -5128,7 +5141,7 @@ function buildOperationalDetail(state, operational) {
     'inventory-pricing-inputs-title',
     [
       [t('inventory_price_groups', lang), (pricingInputs.groups || [])
-        .map((group) => (OFFLINE ? group.name : `${group.name} (${group.group_id})`))
+        .map((group) => (PUBLIC_EDITION ? group.name : `${group.name} (${group.group_id})`))
         .join(', ') || '—'],
       [t('inventory_modifier_factor', lang), pricingInputs.modifier?.factor_scaled == null
         ? '—' : formatScaledOperational(
@@ -5154,7 +5167,7 @@ function buildOperationalDetail(state, operational) {
       state, operational, identity, recommendation, 'detail',
     ),
     recommendation.group_id ? el('p', null, [
-      `${t('inventory_recommendation_group', lang)}: ${OFFLINE
+      `${t('inventory_recommendation_group', lang)}: ${PUBLIC_EDITION
         ? ((pricingInputs.groups || []).find((group) => group.group_id === recommendation.group_id)?.name
           || recommendation.group_id)
         : recommendation.group_id} · ${
@@ -5164,7 +5177,7 @@ function buildOperationalDetail(state, operational) {
       `${t('inventory_snapshot_rationale', lang)}: ${recommendation.rationale_codes
         .map((key) => t(key, lang)).join(' · ')}`,
     ]) : null,
-    recommendation.lineage && !OFFLINE ? el('dl', {
+    recommendation.lineage && !PUBLIC_EDITION ? el('dl', {
       class: 'inventory-detail-facts inventory-recommendation-lineage',
     }, [
       [t('inventory_version', lang), recommendation.lineage.inventory_version_id],
@@ -5194,7 +5207,7 @@ function buildOperationalDetail(state, operational) {
       [t('inventory_recommendation_decision', lang),
         t(`inventory_recommendation_${recommendation.decision.verdict}`, lang)],
       [t('inventory_recommendation_decided_by', lang),
-        OFFLINE ? t('inventory_demo_user', lang) : recommendation.decision.decided_by_user_id],
+        PUBLIC_EDITION ? t('inventory_demo_user', lang) : recommendation.decision.decided_by_user_id],
       [t('inventory_recommendation_decided_at', lang),
         readableUtc(recommendation.decision.decided_at_utc, lang)],
     ].flatMap(([label, value]) => [
@@ -5206,7 +5219,7 @@ function buildOperationalDetail(state, operational) {
       t(`inventory_readiness_${calculation.state}`, lang)}`]),
     // The recommendation's lineage already names this snapshot; the block
     // below is for units that have readiness but no recommendation to cite it.
-    calculation.snapshot && !recommendation.lineage && !OFFLINE
+    calculation.snapshot && !recommendation.lineage && !PUBLIC_EDITION
       ? el('dl', { class: 'inventory-detail-facts inventory-snapshot-lineage' }, [
           el('dt', null, [t('inventory_snapshot_id', lang)]),
           el('dd', { class: 'mono' }, [String(calculation.snapshot.id)]),
@@ -5755,7 +5768,7 @@ function buildSnapshotWorkflow(state, operational) {
 export function renderOperationalDeskSurface(state, operational) {
   const { lang } = state;
   const projects = operational.projects || [];
-  if (!projects.length && OFFLINE && api.demoEnabled && !api.demoEnabled() && !operational.loading) {
+  if (!projects.length && PUBLIC_EDITION && api.demoEnabled && !api.demoEnabled() && !operational.loading) {
     return el('div', { class: 'desk operational-desk' }, [
       el('div', { class: 'h' }, [
         el('h1', { id: 'inventory-desk-title', tabindex: '-1' }, [t(`nav_${state.surface || 'desk'}`, lang)]),
@@ -6045,7 +6058,7 @@ export function renderOperationalDeskSurface(state, operational) {
       }, [t('inventory_return_data', lang)]) : null,
     ]),
     el('div', { class: 'inventory-context' }, [
-      context.project_external_id && !OFFLINE
+      context.project_external_id && !PUBLIC_EDITION
         ? el('p', { class: 'sub mono' }, [
             `${t('inventory_project_external_id', lang)}: ${context.project_external_id}`,
           ]) : null,
@@ -6090,7 +6103,7 @@ export function renderOperationalDeskSurface(state, operational) {
           pager,
         ]),
     buildOperationalDetailSurface(state, operational),
-    OFFLINE ? null : serviceBlock,
+    PUBLIC_EDITION ? null : serviceBlock,
   ]);
 }
 
@@ -7680,7 +7693,7 @@ function buildRepricingGroupsTable(state, operational, deal) {
     const active = activeGroupId != null && String(activeGroupId) === groupId;
     // A recommended row also says which demand curve its price stands on — in
     // v1 the fixed-elasticity one (ADR-002 D6) — not only the snapshot block.
-    const curveNotes = OFFLINE ? [] : (baseline?.rationale_codes || [])
+    const curveNotes = PUBLIC_EDITION ? [] : (baseline?.rationale_codes || [])
       .filter((code) => String(code).startsWith('dco_estimation_'))
       .map((code) => el('span', { class: 'sub' }, [` ${t(code, lang)}`]));
     const outcome = !baseline ? ['—']
@@ -8698,7 +8711,7 @@ function renderOperationalTrendSurface(state) {
       (key) => (key === 'baseline_result' ? 'baseline_model_result' : key),
     ),
   };
-  const hideBaseline = OFFLINE && !forecastIsSelected;
+  const hideBaseline = PUBLIC_EDITION && !forecastIsSelected;
   const forecastTableLabel = forecastIsSelected
     ? 'operational_trend_table_label' : 'operational_trend_table_label_baseline';
   return el('div', { class: 'operational-management-surface' }, [
@@ -9121,11 +9134,283 @@ function renderOperationalPlaceholderSurface(state, titleKey, bodyKey) {
   ]);
 }
 
+// --- «Мой проект»: the first-time path, upload → coefficients → prices --------
+//
+// A unit's coefficient is how much dearer per m2 it is than its group's base
+// price (1.05 = 5% dearer). The tab shows each section as a grid of
+// coefficients; a floor number picks the whole floor, a riser code the whole
+// riser, a cell one unit. The edit goes to the server, which activates it as a
+// new version; the client then recalculates the three goals and reloads.
+// DPrice's own advice (which floors, risers and buildings sell out of line with
+// their coefficients) sits beside the grid; it never changes anything itself.
+
+// Resolved next to this module, so it works wherever the console is served.
+const PROJECT_SAMPLE_WORKBOOK = new URL('demo-workbooks/dprice-demo-uae.xlsx', import.meta.url).href;
+
+function projectFactor(unit) {
+  const scaled = unit?.pricing_inputs?.modifier?.factor_scaled;
+  if (scaled == null) return null;
+  const value = Number(scaled) / 1e9;
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function projectFactorTone(value) {
+  if (value == null) return 'none';
+  const step = Math.round((value - 1) * 100);
+  if (step >= 10) return 'up3';
+  if (step >= 5) return 'up2';
+  if (step >= 1) return 'up1';
+  if (step <= -10) return 'down3';
+  if (step <= -5) return 'down2';
+  if (step <= -1) return 'down1';
+  return 'flat';
+}
+
+function projectBoardUnits(board) {
+  return (board?.cells || []).filter((cell) => cell.type === 'unit' && cell.unit);
+}
+
+function buildProjectStep(index, titleKey, lang, body, done = false) {
+  return el('li', { class: `project-step${done ? ' done' : ''}` }, [
+    el('div', { class: 'project-step-n', 'aria-hidden': 'true' }, [String(index)]),
+    el('div', { class: 'project-step-body' }, [
+      el('h2', null, [t(titleKey, lang)]),
+      ...body,
+    ]),
+  ]);
+}
+
+function buildProjectGrid(state, board, setup) {
+  const { lang } = state;
+  const section = board.section || {};
+  const sectionId = String(section.section_id ?? '');
+  const floors = [...(board.axes?.floors || [])]
+    .sort((a, b) => Number(b.display_order ?? b.floor_number) - Number(a.display_order ?? a.floor_number));
+  const stacks = [...(board.axes?.stacks || [])]
+    .sort((a, b) => Number(a.display_order) - Number(b.display_order));
+  const cells = new Map();
+  for (const cell of projectBoardUnits(board)) {
+    cells.set(`${cell.floor_id}|${cell.stack_id}`, cell.unit);
+  }
+  const selection = setup.selection;
+  const head = el('tr', null, [
+    el('th', { class: 'coef-corner', scope: 'col' }, [t('project_floor', lang)]),
+    ...stacks.map((stack) => el('th', { scope: 'col' }, [
+      el('button', {
+        type: 'button', class: 'coef-axis', 'data-coef-stack': `${sectionId}|${stack.stack_id}`,
+        title: tf('project_pick_stack', lang, stack.label || stack.stack_code),
+      }, [String(stack.label || stack.stack_code || '—')]),
+    ])),
+  ]);
+  const rows = floors.map((floor) => el('tr', null, [
+    el('th', { scope: 'row' }, [
+      el('button', {
+        type: 'button', class: 'coef-axis', 'data-coef-floor': `${sectionId}|${floor.floor_id}`,
+        title: tf('project_pick_floor', lang, floor.label ?? floor.floor_number),
+      }, [String(floor.label ?? floor.floor_number ?? '—')]),
+    ]),
+    ...stacks.map((stack) => {
+      const unit = cells.get(`${floor.floor_id}|${stack.stack_id}`);
+      if (!unit) return el('td', { class: 'coef-gap' }, []);
+      const factor = projectFactor(unit);
+      const id = String(unit.unit_id);
+      const sold = unit.commercial?.status && unit.commercial.status !== 'available';
+      return el('td', null, [el('button', {
+        type: 'button',
+        class: `coef-cell tone-${projectFactorTone(factor)}${selection.has(id) ? ' sel' : ''}${sold ? ' sold' : ''}`,
+        'data-coef-unit': id,
+        'aria-pressed': selection.has(id) ? 'true' : 'false',
+        title: tf('project_cell_title', lang, unit.unit_number || id,
+          factor == null ? '—' : nf(factor, lang, 3)),
+      }, [
+        el('span', { class: 'coef-v' }, [factor == null ? '—' : nf(factor, lang, 2)]),
+        el('span', { class: 'coef-n' }, [String(unit.unit_number || '')]),
+      ])]);
+    }),
+  ]));
+  const name = [section.building_name, section.section_name].filter(Boolean).join(' · ');
+  return el('div', { class: 'coef-board' }, [
+    el('h3', null, [name || t('project_section', lang)]),
+    el('div', { class: 'coef-scroll' }, [
+      el('table', { class: 'coef-grid' }, [el('thead', null, [head]), el('tbody', null, rows)]),
+    ]),
+  ]);
+}
+
+function buildProjectActionBar(state, setup, canEdit) {
+  const { lang } = state;
+  const count = setup.selection.size;
+  if (!count) {
+    return el('p', { class: 'coef-hint' }, [t('project_pick_hint', lang)]);
+  }
+  const mode = el('select', { class: 'input', 'data-coef-mode': '1', 'aria-label': t('project_mode', lang) }, [
+    el('option', { value: 'multiply', selected: setup.mode === 'multiply' ? 'selected' : null },
+      [t('project_mode_multiply', lang)]),
+    el('option', { value: 'set', selected: setup.mode === 'set' ? 'selected' : null },
+      [t('project_mode_set', lang)]),
+  ]);
+  const value = el('input', {
+    class: 'input coef-value', type: 'text', inputmode: 'decimal', 'data-coef-value': '1',
+    value: setup.value, 'aria-label': t(setup.mode === 'set' ? 'project_mode_set' : 'project_mode_multiply', lang),
+    placeholder: setup.mode === 'set' ? '1.05' : '+5',
+  });
+  const label = el('input', {
+    class: 'input coef-label', type: 'text', maxlength: '60', 'data-coef-label': '1',
+    value: setup.label, placeholder: t('project_reason_placeholder', lang),
+    'aria-label': t('project_reason', lang),
+  });
+  return el('div', { class: 'coef-bar', role: 'group', 'aria-label': t('project_selected_group', lang) }, [
+    el('strong', null, [tf('project_selected', lang, count)]),
+    mode, value, label,
+    el('button', {
+      type: 'button', class: 'btn-primary', 'data-coef-apply': '1',
+      disabled: setup.busy || !canEdit ? 'disabled' : null,
+    }, [t(setup.busy ? 'project_applying' : 'project_apply', lang)]),
+    el('button', { type: 'button', class: 'btn-ghost', 'data-coef-clear': '1' }, [t('project_clear', lang)]),
+    canEdit ? null : el('span', { class: 'coef-hint' }, [t('project_no_edit_right', lang)]),
+  ]);
+}
+
+function projectAdviceLabel(row, dimension, lang) {
+  if (dimension === 'stacks') return tf('project_advice_stack', lang, row.stack, row.building);
+  if (dimension === 'floors') {
+    return tf('project_advice_floors', lang, row.floor_from, row.floor_to, row.building);
+  }
+  return tf('project_advice_building', lang, row.building);
+}
+
+function buildProjectAdvice(state, setup) {
+  const { lang } = state;
+  const advice = setup.advice;
+  const intro = el('p', { class: 'coef-hint' }, [t('project_advice_how', lang)]);
+  if (setup.adviceError) {
+    return [intro, el('div', { class: 'danger', role: 'alert' }, [keyedErrorText(setup.adviceError, lang)])];
+  }
+  if (!advice) return [intro, el('p', { role: 'status' }, [t('x_loading', lang)])];
+  if (advice.state === 'no_snapshot') return [intro, el('p', null, [t('project_advice_no_snapshot', lang)])];
+  if (advice.state === 'not_enough_sales') return [intro, el('p', null, [t('project_advice_no_sales', lang)])];
+  const clear = [];
+  const unsure = [];
+  for (const dimension of ['stacks', 'floors', 'buildings']) {
+    for (const row of advice.dimensions?.[dimension] || []) {
+      if (row.state === 'raise' || row.state === 'lower') clear.push([dimension, row]);
+      else if (row.state === 'needs_sales') unsure.push([dimension, row]);
+    }
+  }
+  const items = clear.map(([dimension, row], index) => {
+    const change = Math.round((Number(row.multiplier) - 1) * 1000) / 10;
+    return el('li', { class: `advice-item ${row.state}` }, [
+      el('strong', null, [projectAdviceLabel(row, dimension, lang)]),
+      el('span', null, [tf(
+        row.ratio >= 1 ? 'project_advice_faster' : 'project_advice_slower', lang,
+        nf(row.ratio >= 1 ? row.ratio : 1 / row.ratio, lang, 1),
+      )]),
+      el('span', null, [tf('project_advice_suggest', lang, `${change > 0 ? '+' : ''}${nf(change, lang, 1)}%`)]),
+      el('div', { class: 'advice-actions' }, [
+        el('button', { type: 'button', class: 'btn sm', 'data-advice-pick': String(index) },
+          [t('project_advice_show', lang)]),
+        el('button', { type: 'button', class: 'btn sm btn-primary', 'data-advice-apply': String(index) },
+          [t('project_advice_apply', lang)]),
+      ]),
+    ]);
+  });
+  setup.adviceRows = clear.map(([, row]) => row);
+  return [
+    intro,
+    el('p', { class: 'coef-hint' }, [tf('project_advice_basis', lang, advice.sales_analysed)]),
+    items.length ? el('ul', { class: 'advice-list' }, items)
+      : el('p', null, [t('project_advice_in_line', lang)]),
+    unsure.length ? el('details', { class: 'advice-unsure' }, [
+      el('summary', null, [tf('project_advice_unsure', lang, unsure.length)]),
+      el('ul', null, unsure.map(([dimension, row]) => el('li', null, [
+        `${projectAdviceLabel(row, dimension, lang)}: `,
+        tf('project_advice_need_sales', lang, row.more_sales_needed),
+      ]))),
+    ]) : null,
+    el('p', { class: 'coef-hint' }, [t('project_advice_yours', lang)]),
+  ];
+}
+
+function renderOperationalProjectSurface(state) {
+  const { lang } = state;
+  const operational = state.operationalDesk;
+  const capabilities = projectDataCapabilities(state, operational);
+  const canUpload = Boolean(capabilities?.import_upload?.allowed);
+  const canEdit = Boolean(capabilities?.inventory_modifier_edit?.allowed);
+  const setup = state.projectSetup;
+  const hasProject = Boolean(operational.projects?.length && operational.projectId != null);
+  if (operational.loading && !hasProject) {
+    return el('div', null, [
+      el('h1', { class: 'surface-title' }, [t('nav_project', lang)]),
+      el('p', { role: 'status' }, [t('x_loading', lang)]),
+    ]);
+  }
+  const upload = buildProjectStep(1, 'project_step_upload', lang, [
+    el('p', null, [t('project_step_upload_text', lang)]),
+    el('div', { class: 'project-actions' }, [
+      el('a', {
+        class: 'btn', href: PROJECT_SAMPLE_WORKBOOK, download: 'dprice-sample.xlsx',
+      }, [t('project_sample', lang)]),
+      canUpload ? el('button', { type: 'button', class: 'btn-primary', 'data-project-upload': '1' },
+        [t('project_upload', lang)]) : el('span', { class: 'coef-hint' }, [t('project_no_upload_right', lang)]),
+    ]),
+  ], hasProject);
+  let gridBody;
+  if (!hasProject) {
+    gridBody = [el('p', null, [t('project_after_upload', lang)])];
+  } else if (setup?.error) {
+    gridBody = [el('div', { class: 'danger', role: 'alert' }, [
+      keyedErrorText(setup.error, lang),
+      el('button', { type: 'button', class: 'btn-primary', 'data-coef-retry': '1' }, [t('x_retry', lang)]),
+    ])];
+  } else if (!setup?.boards) {
+    gridBody = [el('p', { role: 'status' }, [t('x_loading', lang)])];
+  } else {
+    gridBody = [
+      el('p', null, [t('project_step_coef_text', lang)]),
+      el('div', { class: 'coef-legend' }, [
+        el('span', { class: 'coef-cell tone-down2' }, ['0,95']),
+        el('span', { class: 'coef-cell tone-flat' }, ['1,00']),
+        el('span', { class: 'coef-cell tone-up2' }, ['1,05']),
+        el('span', null, [t('project_legend', lang)]),
+      ]),
+      setup.notice ? el('div', { class: 'note info', role: 'status' }, [setup.notice]) : null,
+      setup.editError ? el('div', { class: 'danger', role: 'alert' }, [keyedErrorText(setup.editError, lang)]) : null,
+      buildProjectActionBar(state, setup, canEdit),
+      ...setup.boards.map((board) => buildProjectGrid(state, board, setup)),
+    ];
+  }
+  const coefficients = buildProjectStep(2, 'project_step_coef', lang, [
+    el('div', { class: 'project-coef-layout' }, [
+      el('div', { class: 'project-coef-main' }, gridBody),
+      hasProject ? el('aside', { class: 'project-advice', 'aria-labelledby': 'project-advice-title' }, [
+        el('h3', { id: 'project-advice-title' }, [t('project_advice_title', lang)]),
+        ...(setup ? buildProjectAdvice(state, setup) : []),
+      ]) : null,
+    ]),
+  ]);
+  const prices = buildProjectStep(3, 'project_step_prices', lang, [
+    el('p', null, [t('project_step_prices_text', lang)]),
+    el('div', { class: 'project-actions' }, [
+      el('button', {
+        type: 'button', class: 'btn-primary', 'data-open-surface': 'desk',
+        disabled: hasProject ? null : 'disabled',
+      }, [t('project_open_prices', lang)]),
+    ]),
+  ]);
+  return el('div', { class: 'project-setup' }, [
+    el('h1', { class: 'surface-title', id: 'project-setup-title', tabindex: '-1' }, [t('nav_project', lang)]),
+    el('p', { class: 'project-intro' }, [t('project_intro', lang)]),
+    el('ol', { class: 'project-steps' }, [upload, coefficients, prices]),
+  ]);
+}
+
 // The registry of surface body renderers keyed by surface id. A surface with an
 // entry and a held `data` block renders its live body; otherwise the content
 // frame falls back to its neutral title panel. Function declarations hoist, so
 // the map may name renderers defined above without ordering hazard.
 const SURFACE_RENDERERS = {
+  project: (state) => renderOperationalProjectSurface(state),
   today: (state, data) => state.operationalDesk?.enabled
     ? renderOperationalTodaySurface(state) : renderTodaySurface(state, data),
   nep: (state, data) => state.operationalDesk?.enabled
@@ -9781,7 +10066,7 @@ export function mountApp(root, options) {
   const entryLang = LANGS.includes(opts.lang) ? opts.lang : (LANGS.includes('ru') ? 'ru' : LANGS[0]);
   // The offline demo adapter picks its own starting region (from the link or
   // the visitor's last choice); the server console starts from its own memory.
-  if (!OFFLINE) {
+  if (!PUBLIC_EDITION) {
     try {
       api.setRegion(window.localStorage.getItem(REGION_STORAGE_KEY) || 'uae');
     } catch {
@@ -10470,7 +10755,7 @@ export function mountApp(root, options) {
     const unitNumber = identity?.unit_number;
     const unitExternalId = identity?.unit_external_id;
     // The demo names the unit by its number only, without the import code.
-    const unitLabel = unitNumber && unitExternalId && unitNumber !== unitExternalId && !OFFLINE
+    const unitLabel = unitNumber && unitExternalId && unitNumber !== unitExternalId && !PUBLIC_EDITION
       ? `${unitNumber} (${unitExternalId})`
       : unitNumber || unitExternalId || unitId;
     const intent = {
@@ -10635,11 +10920,11 @@ export function mountApp(root, options) {
     } else {
       // The public landing is the entry page; its sign-in form hands the
       // credentials to this page (same origin), see signInFromLanding().
-      if (OFFLINE) root.replaceChildren(buildOfflineLogin(state, handlers));
+      if (GATE_LOGIN) root.replaceChildren(buildOfflineLogin(state, handlers));
       else if (root.firstElementChild !== landingEntry()) root.replaceChildren(landingEntry());
       document.title = 'DPrice';
     }
-    const feedbackIntake = OFFLINE ? null : buildFeedbackIntake(state, handlers);
+    const feedbackIntake = PUBLIC_EDITION ? null : buildFeedbackIntake(state, handlers);
     if (feedbackIntake) root.append(feedbackIntake);
     // The language switch re-renders everything (replaceChildren above) and
     // swaps `<html lang>`; the `Intl` locale follows the same `state.lang`
@@ -10657,7 +10942,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=demo28-493ae105${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-7083db8a${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
@@ -11538,9 +11823,228 @@ export function mountApp(root, options) {
     if (['today', 'nep', 'shelf', 'release', 'trend', 'retro'].includes(state.surface)) {
       return loadOperationalSurfaceProjection({ focus });
     }
+    if (state.surface === 'project') {
+      return loadProjectSetup();
+    }
     paint();
     return true;
   }
+
+  // «Мой проект»: the coefficient grids of the selected project's active version
+  // and DPrice's coefficient advice. Last request wins, keyed by project and
+  // version, so a project switch mid-load never paints the old project's grid.
+  let projectSetupSequence = 0;
+
+  async function loadProjectSetup({ force = false } = {}) {
+    const operational = state.operationalDesk;
+    if (operational.projectId == null || operational.inventoryVersionId == null) {
+      paint();
+      return true;
+    }
+    const key = `${operational.projectId}:${operational.inventoryVersionId}`;
+    const prior = state.projectSetup;
+    if (!force && prior?.key === key && (prior.boards || prior.loading)) {
+      paint();
+      return true;
+    }
+    const setup = {
+      key, loading: true, boards: null, error: null, advice: null, adviceError: null,
+      adviceRows: [], selection: new Set(), mode: prior?.mode || 'multiply', value: '', label: '',
+      busy: false, editError: null, notice: prior?.key === key || prior?.carryNotice ? prior.notice : null,
+    };
+    state.projectSetup = setup;
+    const sequence = ++projectSetupSequence;
+    paint();
+    const projectId = operational.projectId;
+    const versionId = operational.inventoryVersionId;
+    const current = () => sequence === projectSetupSequence && state.projectSetup === setup;
+    try {
+      const page = await inventoryProjectUnits(projectId, {
+        inventoryVersionId: versionId, pageSize: 1, asOfUtc: operational.asOfUtc,
+      });
+      if (!current()) return false;
+      const sections = page?.filter_options?.sections || [];
+      setup.boards = sections.length ? await inventoryProjectBuildingChessboard(projectId, sections, {
+        inventoryVersionId: versionId, asOfUtc: operational.asOfUtc,
+      }) : [];
+      if (!current()) return false;
+    } catch (err) {
+      if (!current()) return false;
+      setup.error = { key: err instanceof ApiError ? err.key : 'x_internal_error',
+        params: err instanceof ApiError ? err.params : {} };
+    } finally {
+      if (current()) {
+        setup.loading = false;
+        paint();
+      }
+    }
+    try {
+      setup.advice = await api.modifierAdvice(projectId, { inventoryVersionId: versionId });
+    } catch (err) {
+      setup.adviceError = { key: err instanceof ApiError ? err.key : 'x_internal_error',
+        params: err instanceof ApiError ? err.params : {} };
+    }
+    if (current()) paint();
+    return true;
+  }
+
+  function projectUnitsWhere(match) {
+    const ids = [];
+    for (const board of state.projectSetup?.boards || []) {
+      const sectionId = String(board.section?.section_id ?? '');
+      for (const cell of projectBoardUnits(board)) {
+        if (match(sectionId, cell)) ids.push(String(cell.unit.unit_id));
+      }
+    }
+    return ids;
+  }
+
+  // A floor or riser click selects all of it, or clears it when it is all
+  // selected already, so the same click undoes itself.
+  function toggleProjectUnits(ids) {
+    const selection = state.projectSetup?.selection;
+    if (!selection || !ids.length) return;
+    const all = ids.every((id) => selection.has(id));
+    for (const id of ids) {
+      if (all) selection.delete(id);
+      else selection.add(id);
+    }
+    state.projectSetup.editError = null;
+    preserveOperationalViewport(paint);
+  }
+
+  function projectFactorFromInput(setup) {
+    const raw = String(setup.value || '').trim().replace(',', '.').replace('%', '');
+    if (!/^[+-]?\d+(\.\d+)?$/.test(raw)) return null;
+    const number = Number(raw);
+    if (setup.mode === 'set') return number > 0 ? number : null;
+    const factor = 1 + number / 100;
+    return factor > 0 ? factor : null;
+  }
+
+  async function applyProjectCoefficients(unitIds, mode, factor, label) {
+    const setup = state.projectSetup;
+    const operational = state.operationalDesk;
+    if (!setup || setup.busy || !unitIds.length || factor == null) return;
+    const projectId = operational.projectId;
+    setup.busy = true;
+    setup.editError = null;
+    setup.notice = null;
+    paint();
+    try {
+      const edited = await api.editUnitModifiers(projectId, {
+        inventoryVersionId: operational.inventoryVersionId,
+        unitIds, mode, factor: factor.toFixed(6), label: label || null,
+      });
+      const versionId = edited.inventory_version_id;
+      const outcome = await createCalculationSnapshot(projectId, {
+        inventoryVersionId: versionId, asOfUtc: edited.source_as_of_utc,
+      });
+      if (outcome?.state === 'ready' && outcome.snapshot) {
+        for (const algorithm of OPERATIONAL_ALGORITHMS) {
+          await runCalculationSnapshotDco(projectId, outcome.snapshot.id, algorithm.policy);
+        }
+      }
+      const notice = tf(
+        outcome?.state === 'ready' ? 'project_applied' : 'project_applied_no_prices',
+        state.lang, edited.edited_units,
+      );
+      state.projectSetup = { ...setup, notice, carryNotice: true, busy: false };
+      state.operationalDesk = {
+        ...emptyOperationalDeskState(), enabled: true, loading: true,
+        projectId: String(projectId), requiredVersionId: versionId,
+      };
+      await loadSurface('project');
+    } catch (err) {
+      setup.busy = false;
+      setup.editError = { key: err instanceof ApiError ? err.key : 'x_internal_error',
+        params: err instanceof ApiError ? err.params : {} };
+      paint();
+    }
+  }
+
+  root.addEventListener('click', (event) => {
+    const setup = state.projectSetup;
+    const close = (selector) => event.target.closest && event.target.closest(selector);
+    if (close('button[data-project-upload]')) {
+      handlers.onOpenData(true);
+      return;
+    }
+    if (!setup || state.surface !== 'project') return;
+    const unit = close('button[data-coef-unit]');
+    if (unit) {
+      toggleProjectUnits([unit.getAttribute('data-coef-unit')]);
+      return;
+    }
+    const floor = close('button[data-coef-floor]');
+    if (floor) {
+      const [sectionId, floorId] = floor.getAttribute('data-coef-floor').split('|');
+      toggleProjectUnits(projectUnitsWhere((section, cell) => section === sectionId
+        && String(cell.floor_id) === floorId));
+      return;
+    }
+    const stack = close('button[data-coef-stack]');
+    if (stack) {
+      const [sectionId, stackId] = stack.getAttribute('data-coef-stack').split('|');
+      toggleProjectUnits(projectUnitsWhere((section, cell) => section === sectionId
+        && String(cell.stack_id) === stackId));
+      return;
+    }
+    if (close('button[data-coef-clear]')) {
+      setup.selection.clear();
+      paint();
+      return;
+    }
+    if (close('button[data-coef-retry]')) {
+      loadProjectSetup({ force: true });
+      return;
+    }
+    if (close('button[data-coef-apply]')) {
+      const factor = projectFactorFromInput(setup);
+      if (factor == null) {
+        setup.editError = { key: 'modifier_edit_invalid_factor', params: {} };
+        paint();
+        return;
+      }
+      applyProjectCoefficients([...setup.selection], setup.mode, factor, setup.label.trim());
+      return;
+    }
+    const pick = close('button[data-advice-pick]');
+    if (pick) {
+      const row = setup.adviceRows[Number(pick.getAttribute('data-advice-pick'))];
+      if (!row) return;
+      setup.selection = new Set(row.unit_ids.map(String));
+      setup.mode = 'multiply';
+      setup.value = String(Math.round((Number(row.multiplier) - 1) * 1000) / 10);
+      paint();
+      root.querySelector('.coef-bar')?.scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    const apply = close('button[data-advice-apply]');
+    if (apply) {
+      const row = setup.adviceRows[Number(apply.getAttribute('data-advice-apply'))];
+      if (!row) return;
+      applyProjectCoefficients(row.unit_ids.map(String), 'multiply', Number(row.multiplier),
+        t('project_advice_label', state.lang));
+    }
+  });
+
+  root.addEventListener('input', (event) => {
+    const setup = state.projectSetup;
+    if (!setup || state.surface !== 'project') return;
+    if (event.target.matches?.('[data-coef-value]')) setup.value = event.target.value;
+    if (event.target.matches?.('[data-coef-label]')) setup.label = event.target.value;
+  });
+
+  root.addEventListener('change', (event) => {
+    const setup = state.projectSetup;
+    if (!setup || state.surface !== 'project') return;
+    if (event.target.matches?.('[data-coef-mode]')) {
+      setup.mode = event.target.value === 'set' ? 'set' : 'multiply';
+      setup.value = '';
+      paint();
+    }
+  });
 
   function cancelPendingOperationalDetail() {
     operationalDetailSequence += 1;
@@ -14650,6 +15154,11 @@ function startHints(root) {
 // and an optional extra step on arrival (with the heading it then shows, `land`). Dictionary keys: job_<id>_t (title),
 // job_<id>_d (what you get), job_<id>_s (what to do there).
 const JOB_GROUPS = [
+  // A first-time visitor starts with their own project: upload, coefficients.
+  ['jobs_group_data', [
+    { id: 'upload', tab: 'project', heading: 'project_step_upload' },
+    { id: 'effect', link: PUBLIC_EDITION ? '../calculator/' : `${PUBLIC_PLATFORM}/calculator` },
+  ]],
   ['jobs_group_daily', [
     { id: 'today', tab: 'today', heading: 'operational_tasks' },
     { id: 'reprice', tab: 'desk', heading: 'operational_repricing_summary' },
@@ -14665,10 +15174,6 @@ const JOB_GROUPS = [
     { id: 'goal', tab: 'today', heading: 'algo_h' },
     { id: 'pace', tab: 'trend', heading: 'operational_sales_history' },
     { id: 'history', tab: 'trend', heading: 'operational_price_history' },
-  ]],
-  ['jobs_group_data', [
-    { id: 'effect', link: OFFLINE ? '../calculator/' : `${PUBLIC_PLATFORM}/calculator` },
-    { id: 'upload', data: true },
   ]],
 ];
 const JOBS_SEEN_KEY = 'dprice-jobs-seen';
@@ -14880,7 +15385,7 @@ function paintJobStrip(root) {
   const what = document.createElement('b');
   what.textContent = `${t('jobs_task', lang)}: ${t(`job_${activeJob.id}_t`, lang)}`;
   const steps = document.createElement('span');
-  const stepsKey = activeJob.data && OFFLINE ? 'job_upload_s_demo' : `job_${activeJob.id}_s`;
+  const stepsKey = `job_${activeJob.id}_s`;
   steps.textContent = t(stepsKey, lang);
   text.append(what, steps);
   const back = document.createElement('button');

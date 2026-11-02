@@ -4227,3 +4227,76 @@ ul.tight li {
   .operational-top .hints-toggle::before { content: '?'; font-size: 12px; font-weight: 700; }
   .hints-off .operational-top .hints-toggle { opacity: .55; }
 }
+
+/* «Мой проект»: upload → coefficients → prices. The grid colours a unit by how
+   far its coefficient sits from 1: green dearer, slate cheaper, white typical. */
+.project-setup .project-intro { color: var(--muted); max-width: 72ch; }
+.project-steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 14px; }
+.project-step {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px;
+}
+.project-step h2 { font-size: 16px; margin: 4px 0 6px; }
+.project-step p { margin: 0 0 10px; max-width: 80ch; }
+.project-step-n {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--tint-chip); color: var(--green-dk); font-weight: 700;
+}
+.project-step.done .project-step-n { background: var(--green); color: #fff; }
+.project-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.project-coef-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+.project-coef-main { min-width: 0; }
+.project-advice {
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--tint-hover);
+}
+.project-advice h3 { margin: 0 0 6px; font-size: 14px; }
+.advice-list { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 8px; }
+.advice-item {
+  display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px; background: var(--panel);
+  border: 1px solid var(--line); border-left: 4px solid var(--green);
+}
+.advice-item.lower { border-left-color: var(--slate); }
+.advice-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.advice-unsure { margin: 6px 0; font-size: 13px; color: var(--muted); }
+.coef-hint { color: var(--muted); font-size: 13px; }
+.coef-legend { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 4px 0 10px; font-size: 12px; color: var(--muted); }
+.coef-legend .coef-cell { min-width: 44px; cursor: default; }
+.coef-bar {
+  position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 10px 12px; margin: 0 0 12px; border: 1px solid var(--tint-chip-border);
+  background: var(--tint-selected); border-radius: 10px;
+}
+.coef-bar .coef-value { width: 90px; }
+.coef-bar .coef-label { width: 220px; max-width: 100%; }
+.coef-board { margin: 0 0 18px; }
+.coef-board h3 { font-size: 14px; margin: 0 0 6px; }
+.coef-scroll { overflow-x: auto; max-width: 100%; }
+.coef-grid { border-collapse: separate; border-spacing: 3px; }
+.coef-grid th { font-weight: 600; font-size: 12px; color: var(--muted); }
+.coef-corner { text-align: left; }
+.coef-axis {
+  min-width: 40px; padding: 4px 6px; border: 1px dashed var(--hover-border); border-radius: 6px;
+  background: var(--panel); color: var(--ink); font: inherit; font-size: 12px; cursor: pointer;
+}
+.coef-axis:hover, .coef-axis:focus-visible { border-style: solid; border-color: var(--green); }
+.coef-cell {
+  display: grid; min-width: 52px; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); font: inherit; text-align: center; cursor: pointer; line-height: 1.15;
+}
+.coef-cell .coef-v { font-weight: 700; font-size: 13px; }
+.coef-cell .coef-n { font-size: 10px; color: var(--muted); }
+.coef-cell.sold { opacity: 0.6; }
+.coef-cell.sel { outline: 3px solid var(--green); outline-offset: 1px; opacity: 1; }
+.coef-cell:focus-visible { outline: 3px solid var(--green-br); }
+.coef-cell.tone-up1 { background: #EEF8F0; }
+.coef-cell.tone-up2 { background: #D7F0DD; }
+.coef-cell.tone-up3 { background: #B5E3C1; }
+.coef-cell.tone-down1 { background: #F1F4F3; }
+.coef-cell.tone-down2 { background: #E1E8E4; }
+.coef-cell.tone-down3 { background: #CBD6D0; }
+.coef-gap { min-width: 52px; }
+@media (max-width: 960px) {
+  .project-coef-layout { grid-template-columns: minmax(0, 1fr); }
+}
+.project-actions .btn-primary, .coef-bar .btn-primary, .advice-actions .btn-primary { width: auto; }
+.project-actions a.btn { text-decoration: none; }
