@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-557187eb';
-import * as api from './api.js?v=demo28-557187eb';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-557187eb';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=demo28-493ae105';
+import * as api from './api.js?v=demo28-493ae105';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=demo28-493ae105';
 
 const {
   ApiError,
@@ -316,7 +316,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-557187eb', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=demo28-493ae105', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -326,7 +326,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-557187eb', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=demo28-493ae105', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -2020,6 +2020,27 @@ function historyKindLabel(kind, lang) {
   return kind ? t(`history_kind_${kind}`, lang) : '—';
 }
 
+// The demo edition shows dates as people read them: 28 Oct 2026, 15:45 /
+// 28 окт 2026, 15:45 (UTC); the full product keeps the stored ISO value.
+const SHORT_MONTHS = {
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  ru: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+};
+
+function readableUtc(value, lang) {
+  if (value == null || value === '') return '—';
+  if (!OFFLINE) return String(value);
+  const text = String(value);
+  const parsed = new Date(text.length === 10 ? `${text}T00:00:00Z` : text);
+  if (Number.isNaN(parsed.getTime())) return text;
+  const months = SHORT_MONTHS[lang] || SHORT_MONTHS.en;
+  const day = `${parsed.getUTCDate()} ${months[parsed.getUTCMonth()]} ${parsed.getUTCFullYear()}`;
+  const hours = parsed.getUTCHours();
+  const minutes = parsed.getUTCMinutes();
+  if (text.length === 10 || (hours === 0 && minutes === 0)) return day;
+  return `${day}, ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
 function historyLineageLabel(item, lang) {
   const labels = [];
   if (item.is_current) labels.push(t('history_current', lang));
@@ -2071,22 +2092,22 @@ function scaledHistoryMoneyNodes(value, currency, lang) {
 
 function historyTermsNodes(item, lang) {
   const values = [];
-  if (item.source_status) {
+  if (item.source_status && !OFFLINE) {
     values.push(historyTemplateNodes(
       'history_source_status_value', lang, [item.source_status],
     ));
   }
-  if (item.reason_code) {
+  if (item.reason_code && !OFFLINE) {
     values.push(historyTemplateNodes('history_reason_value', lang, [item.reason_code]));
   }
   if (item.closed_at_utc) {
     values.push(historyTemplateNodes(
-      'history_closed_at_value', lang, [item.closed_at_utc], [0],
+      'history_closed_at_value', lang, [readableUtc(item.closed_at_utc, lang)], [0],
     ));
   }
   if (item.cancelled_at_utc) {
     values.push(historyTemplateNodes(
-      'history_cancelled_at_value', lang, [item.cancelled_at_utc], [0],
+      'history_cancelled_at_value', lang, [readableUtc(item.cancelled_at_utc, lang)], [0],
     ));
   }
   if (item.conversion_probability_scaled != null) {
@@ -2132,11 +2153,13 @@ function historyCurrentFacet(item, key, lang) {
     ? scaledHistoryMoneyNodes(item.price_absolute_scaled, item.currency, lang)
     : [historyFactLabel(item, lang)];
   const details = [];
-  if (key === 'history_current_price') {
+  if (key === 'history_current_price' && !OFFLINE) {
     details.push([
       `${t('history_source_version', lang)}: `,
       String(item.version_label || item.external_id || '—'),
     ]);
+  }
+  if (key === 'history_current_price') {
     if (item.price_per_area_scaled != null) {
       details.push([
         `${t('history_price_per_area', lang)}: `,
@@ -2147,7 +2170,7 @@ function historyCurrentFacet(item, key, lang) {
     if (item.effective_to_utc) {
       details.push([
         `${t('history_effective_to', lang)}: `,
-        el('span', { class: 'num' }, [item.effective_to_utc]),
+        el('span', { class: 'num' }, [readableUtc(item.effective_to_utc, lang)]),
       ]);
     }
   }
@@ -2156,16 +2179,16 @@ function historyCurrentFacet(item, key, lang) {
   if (item.effective_at_utc) {
     details.push([
       `${t('history_effective_at', lang)}: `,
-      el('span', { class: 'num' }, [item.effective_at_utc]),
+      el('span', { class: 'num' }, [readableUtc(item.effective_at_utc, lang)]),
     ]);
   }
-  if (item.recorded_at_utc) {
+  if (item.recorded_at_utc && !OFFLINE) {
     details.push([
       `${t('history_recorded_at', lang)}: `,
       el('span', { class: 'num' }, [item.recorded_at_utc]),
     ]);
   }
-  if (item.source_batch_id != null || item.version_sequence != null) {
+  if (!OFFLINE && (item.source_batch_id != null || item.version_sequence != null)) {
     details.push(historySourceNodes(item, lang));
   }
   return el('div', { class: 'history-current-fact' }, [
@@ -2269,7 +2292,7 @@ export function renderInventoryHistory(state, handlers = {}) {
       ? el('table', { class: 'data-table commercial-history-table' }, [
           historyTableHead([
             'history_fact', 'history_state', 'history_terms', 'history_effective_at',
-            'history_recorded_at', 'history_source_lineage',
+            ...(OFFLINE ? [] : ['history_recorded_at', 'history_source_lineage']),
           ], lang),
           el('tbody', null, commercialRows.map((item) => el('tr', null, [
             el('th', { scope: 'row' }, [historyKindLabel(item.kind, lang)]),
@@ -2278,9 +2301,9 @@ export function renderInventoryHistory(state, handlers = {}) {
             ]),
             el('td', null, historyTermsNodes(item, lang).length
               ? historyTermsNodes(item, lang) : ['—']),
-            el('td', { class: 'num' }, [String(item.effective_at_utc || '—')]),
-            el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
-            el('td', null, historySourceNodes(item, lang)),
+            el('td', { class: 'num' }, [readableUtc(item.effective_at_utc, lang)]),
+            OFFLINE ? null : el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
+            OFFLINE ? null : el('td', null, historySourceNodes(item, lang)),
           ]))),
         ])
       : el('p', { class: 'note history-empty' }, [
@@ -2297,7 +2320,10 @@ export function renderInventoryHistory(state, handlers = {}) {
     ]),
     priceRows.length
       ? el('table', { class: 'data-table price-history-table' }, [
-          historyTableHead([
+          historyTableHead(OFFLINE ? [
+            'history_state', 'history_effective_at',
+            'history_price_absolute', 'history_price_per_area',
+          ] : [
             'history_state', 'history_effective_at', 'history_recorded_at',
             'history_price_absolute', 'history_price_per_area',
             'history_source_lineage',
@@ -2306,15 +2332,15 @@ export function renderInventoryHistory(state, handlers = {}) {
             el('th', { scope: 'row' }, [
               `${String(item.version_label || '—')} · ${historyFactLabel(item, lang)} · ${historyLineageLabel(item, lang)}`,
             ]),
-            el('td', { class: 'num' }, [String(item.effective_at_utc || '—')]),
-            el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
+            el('td', { class: 'num' }, [readableUtc(item.effective_at_utc, lang)]),
+            OFFLINE ? null : el('td', { class: 'num' }, [String(item.recorded_at_utc || '—')]),
             el('td', { class: 'history-number-cell' },
               scaledHistoryMoneyNodes(item.price_absolute_scaled, item.currency, lang)),
             el('td', { class: 'history-number-cell' }, [
               ...scaledHistoryMoneyNodes(item.price_per_area_scaled, item.currency, lang),
               ` / ${operationalAreaUnitLabel(item.area_unit, lang) || '—'}`,
             ]),
-            el('td', null, historySourceNodes(item, lang)),
+            OFFLINE ? null : el('td', null, historySourceNodes(item, lang)),
           ]))),
         ])
       : el('p', { class: 'note history-empty' }, [t(
@@ -5066,8 +5092,8 @@ function buildOperationalDetail(state, operational) {
   ]);
   const identitySection = factsSection('inventory_detail_identity', 'inventory-identity-title', [
     [t('inventory_unit', lang), identity.unit_number || identity.unit_external_id],
-    [t('inventory_external_id', lang), identity.unit_external_id],
-    [t('inventory_source_system', lang), identity.source_system],
+    [t('inventory_external_id', lang), OFFLINE ? null : identity.unit_external_id],
+    [t('inventory_source_system', lang), OFFLINE ? null : identity.source_system],
     [t('inventory_phase', lang), hierarchy.phase_name],
     [t('inventory_building', lang), hierarchy.building_name],
     [t('inventory_section', lang), hierarchy.section_name],
@@ -5102,7 +5128,8 @@ function buildOperationalDetail(state, operational) {
     'inventory-pricing-inputs-title',
     [
       [t('inventory_price_groups', lang), (pricingInputs.groups || [])
-        .map((group) => `${group.name} (${group.group_id})`).join(', ') || '—'],
+        .map((group) => (OFFLINE ? group.name : `${group.name} (${group.group_id})`))
+        .join(', ') || '—'],
       [t('inventory_modifier_factor', lang), pricingInputs.modifier?.factor_scaled == null
         ? '—' : formatScaledOperational(
           pricingInputs.modifier.factor_scaled, 9, 6, lang,
@@ -5127,7 +5154,10 @@ function buildOperationalDetail(state, operational) {
       state, operational, identity, recommendation, 'detail',
     ),
     recommendation.group_id ? el('p', null, [
-      `${t('inventory_recommendation_group', lang)}: ${recommendation.group_id} · ${
+      `${t('inventory_recommendation_group', lang)}: ${OFFLINE
+        ? ((pricingInputs.groups || []).find((group) => group.group_id === recommendation.group_id)?.name
+          || recommendation.group_id)
+        : recommendation.group_id} · ${
         t(`inventory_group_outcome_${recommendation.group_state || 'unavailable'}`, lang)}`,
     ]) : null,
     (recommendation.rationale_codes || []).length ? el('p', null, [
@@ -5164,9 +5194,9 @@ function buildOperationalDetail(state, operational) {
       [t('inventory_recommendation_decision', lang),
         t(`inventory_recommendation_${recommendation.decision.verdict}`, lang)],
       [t('inventory_recommendation_decided_by', lang),
-        recommendation.decision.decided_by_user_id],
+        OFFLINE ? t('inventory_demo_user', lang) : recommendation.decision.decided_by_user_id],
       [t('inventory_recommendation_decided_at', lang),
-        recommendation.decision.decided_at_utc],
+        readableUtc(recommendation.decision.decided_at_utc, lang)],
     ].flatMap(([label, value]) => [
       el('dt', null, [label]), el('dd', { class: 'mono' }, [String(value)]),
     ])) : null,
@@ -6060,7 +6090,7 @@ export function renderOperationalDeskSurface(state, operational) {
           pager,
         ]),
     buildOperationalDetailSurface(state, operational),
-    serviceBlock,
+    OFFLINE ? null : serviceBlock,
   ]);
 }
 
@@ -10627,7 +10657,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=demo28-557187eb${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=demo28-493ae105${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
