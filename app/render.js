@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611021218';
-import * as api from './api.js?v=202611021218';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611021218';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611021238';
+import * as api from './api.js?v=202611021238';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611021238';
 
 const {
   ApiError,
@@ -323,7 +323,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-7083db8a', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-d9aff9cc', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -333,7 +333,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-7083db8a', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-d9aff9cc', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -7663,9 +7663,44 @@ function buildRepricingGroupsTable(state, operational, deal) {
     const name = group.name || group.group_id;
     nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
   });
+  // The everyday path is to accept DPrice's recommendations; a unit type the
+  // manager disagrees with is declined first, as a whole. Accepting all keeps
+  // every verdict already given, so «decline these, accept the rest» works.
+  const calculation = operationalCalculationView(operational);
+  const algorithms = calculation.algorithms || {};
+  const resultId = algorithms.results?.[algorithms.active]?.result_id;
+  const snapshotId = calculation.snapshot?.id;
+  const canDecide = Boolean(
+    projectDataCapabilities(state, operational).inventory_recommendation_decision?.allowed
+    && resultId != null && snapshotId != null
+    && calculation.snapshot?.current_state === 'current',
+  );
+  const busy = Boolean(operational.decisionBusy);
+  const pendingTotal = groups.reduce(
+    (sum, group) => sum + Number(group.decision_counts?.pending || 0), 0,
+  );
+  const decisionAttrs = (verdict, groupId) => ({
+    type: 'button',
+    'data-group-decision': verdict,
+    'data-group-id': groupId || '',
+    'data-group-snapshot-id': String(snapshotId),
+    'data-group-result-id': String(resultId),
+    disabled: busy ? 'disabled' : null,
+  });
+  const bulkBar = canDecide && pendingTotal > 0 ? el('div', { class: 'repricing-bulk' }, [
+    el('button', { ...decisionAttrs('accepted', null), class: 'btn-primary' }, [
+      tf('repricing_accept_all', lang, pendingTotal),
+    ]),
+    el('span', { class: 'sub' }, [t('repricing_accept_all_hint', lang)]),
+  ]) : null;
   const heading = [
     el('h2', { id: 'repricing-groups-title' }, [t('repricing_groups_title', lang)]),
     el('p', { class: 'sub' }, [t('repricing_groups_sub', lang)]),
+    operational.groupDecisionNotice
+      ? el('div', { class: 'note info', role: 'status' }, [operational.groupDecisionNotice]) : null,
+    operational.groupDecisionError
+      ? el('div', { class: 'danger', role: 'alert' }, [keyedErrorText(operational.groupDecisionError, lang)]) : null,
+    bulkBar,
   ];
   const section = (children) => el('section', {
     class: 'panel repricing-groups', 'aria-labelledby': 'repricing-groups-title',
@@ -7717,11 +7752,17 @@ function buildRepricingGroupsTable(state, operational, deal) {
         ]) : null,
       ]),
       el('td', null, Array.isArray(outcome) ? outcome : [outcome]),
-      el('td', null, [el('button', {
-        type: 'button', class: active ? 'active' : 'btn-ghost',
-        'data-inventory-group-filter': active ? '' : groupId,
-        'aria-pressed': active ? 'true' : 'false',
-      }, [t(active ? 'repricing_all_groups' : 'repricing_show_units', lang)])]),
+      el('td', { class: 'repricing-row-actions' }, [
+        el('button', {
+          type: 'button', class: active ? 'active' : 'btn-ghost',
+          'data-inventory-group-filter': active ? '' : groupId,
+          'aria-pressed': active ? 'true' : 'false',
+        }, [t(active ? 'repricing_all_groups' : 'repricing_show_units', lang)]),
+        canDecide && counts.pending ? el('button', {
+          ...decisionAttrs('declined', groupId), class: 'btn-ghost',
+          'data-group-name': label,
+        }, [t('repricing_decline_group', lang)]) : null,
+      ]),
     ]);
   });
   const table = el('table', { class: 'data-table repricing-groups-table' }, [
@@ -10740,6 +10781,61 @@ export function mountApp(root, options) {
     }
   }
 
+  function confirmGroupDecision(control) {
+    const operational = state.operationalDesk;
+    if (!control || control.disabled || operational.decisionBusy) return;
+    const verdict = control.getAttribute('data-group-decision');
+    const groupId = control.getAttribute('data-group-id') || null;
+    const intent = {
+      verdict,
+      groupId,
+      snapshotId: control.getAttribute('data-group-snapshot-id'),
+      resultId: control.getAttribute('data-group-result-id'),
+      projectId: operational.projectId,
+      inventoryVersionId: operational.inventoryVersionId,
+    };
+    if (!['accepted', 'declined'].includes(verdict) || !intent.snapshotId || !intent.resultId) return;
+    openConfirmModal(state, {
+      titleKey: verdict === 'accepted' ? 'repricing_accept_all_title' : 'repricing_decline_group_title',
+      confirmKey: verdict === 'accepted'
+        ? 'inventory_recommendation_accept' : 'inventory_recommendation_decline',
+      bodyKey: verdict === 'accepted' ? 'repricing_accept_all_body' : 'repricing_decline_group_body',
+      params: { group: control.getAttribute('data-group-name') || '' },
+      onConfirm: () => submitGroupDecision(intent),
+    });
+  }
+
+  async function submitGroupDecision(intent) {
+    const operational = state.operationalDesk;
+    if (operational.decisionBusy) return;
+    operational.decisionBusy = true;
+    operational.groupDecisionError = null;
+    operational.groupDecisionNotice = null;
+    preserveOperationalViewport(paint);
+    try {
+      const outcome = await api.recordGroupRecommendationDecisions(intent.projectId, intent);
+      if (state.operationalDesk !== operational) return;
+      operational.groupDecisionNotice = tf(
+        intent.verdict === 'accepted' ? 'repricing_accepted_notice' : 'repricing_declined_notice',
+        state.lang, outcome.decided, outcome.already_decided,
+      );
+      await loadOperationalTable({ preserveViewport: true });
+      if (state.operationalDesk !== operational) return;
+      await loadOperationalSurfaceProjection();
+    } catch (err) {
+      if (state.operationalDesk !== operational) return;
+      operational.groupDecisionError = {
+        key: err instanceof ApiError ? err.key : 'x_internal_error',
+        params: err instanceof ApiError ? err.params : {},
+      };
+    } finally {
+      if (state.operationalDesk === operational) {
+        operational.decisionBusy = false;
+        preserveOperationalViewport(paint);
+      }
+    }
+  }
+
   function confirmOperationalDecision(control) {
     if (!control || control.disabled || state.operationalDesk.decisionBusy) return;
     const verdict = control.getAttribute('data-inventory-recommendation-decision');
@@ -10942,7 +11038,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=proj29-7083db8a${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-d9aff9cc${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
@@ -13905,6 +14001,11 @@ export function mountApp(root, options) {
       const openProject = close('[data-open-project]');
       if (openProject) {
         openProjectFromRow(openProject);
+        return;
+      }
+      const groupDecision = close('button[data-group-decision]');
+      if (groupDecision) {
+        confirmGroupDecision(groupDecision);
         return;
       }
       const inventoryDecision = close(

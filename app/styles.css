@@ -4300,3 +4300,6 @@ ul.tight li {
 }
 .project-actions .btn-primary, .coef-bar .btn-primary, .advice-actions .btn-primary { width: auto; }
 .project-actions a.btn { text-decoration: none; }
+.repricing-bulk { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 8px 0 12px; }
+.repricing-bulk .btn-primary { width: auto; }
+.repricing-row-actions { display: flex; flex-wrap: wrap; gap: 6px; }

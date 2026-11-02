@@ -697,6 +697,28 @@ export function modifierAdvice(projectId, { inventoryVersionId }) {
   );
 }
 
+// Accept or decline every undecided recommendation of one result, or of one
+// unit type (`groupId`). Verdicts already given are kept.
+export function recordGroupRecommendationDecisions(
+  projectId,
+  { inventoryVersionId, snapshotId, resultId, verdict, groupId = null },
+) {
+  return dataRequest(
+    `/api/inventory/projects/${encodeURIComponent(projectId)}/recommendation-decisions/bulk`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inventory_version_id: String(inventoryVersionId),
+        snapshot_id: String(snapshotId),
+        result_id: String(resultId),
+        verdict,
+        group_id: groupId,
+      }),
+    },
+  );
+}
+
 export function recordInventoryRecommendationDecision(
   projectId,
   { inventoryVersionId, unitId, snapshotId, resultId, verdict },
