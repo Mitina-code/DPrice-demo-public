@@ -33,7 +33,7 @@ const TEXT = {
 };
 
 const nativeFetch = window.fetch.bind(window);
-const worker = new Worker(new URL('./engine/worker.js?v=202611091709', import.meta.url), { type: 'module' });
+const worker = new Worker(new URL('./engine/worker.js?v=202611101340', import.meta.url), { type: 'module' });
 const pending = new Map();
 let nextId = 1;
 let stage = 'python';
