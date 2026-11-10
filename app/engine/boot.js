@@ -6,7 +6,7 @@
 //
 // `base` is the URL of the folder holding runtime/ (Pyodide, wheels, the dprice
 // source bundle and the starting database) and engine/engine.py.
-import { scryptRomix } from './scrypt.js?v=202611021238';
+import { scryptRomix } from './scrypt.js?v=202611091709';
 
 // Packages from the Pyodide lock (their dependencies come along).
 const LOCK_PACKAGES = ['fastapi', 'pydantic', 'tzdata'];

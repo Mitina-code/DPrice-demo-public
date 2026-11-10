@@ -5,6 +5,10 @@ export const CONFIG = {
     "sa",
     "th",
     "in",
+    "id",
+    "vn",
+    "my",
+    "sg",
     "world"
   ],
   "parts": {
@@ -12,7 +16,11 @@ export const CONFIG = {
       "uae",
       "sa",
       "th",
-      "in"
+      "in",
+      "id",
+      "vn",
+      "my",
+      "sg"
     ],
     "uae": [
       "uae"
@@ -25,6 +33,18 @@ export const CONFIG = {
     ],
     "in": [
       "in"
+    ],
+    "id": [
+      "id"
+    ],
+    "vn": [
+      "vn"
+    ],
+    "my": [
+      "my"
+    ],
+    "sg": [
+      "sg"
     ]
   },
   "landing": "../landing/",
@@ -33,6 +53,10 @@ export const CONFIG = {
     "uae": "uae",
     "sa": "sa",
     "th": "th",
-    "in": "in"
+    "in": "in",
+    "id": "global",
+    "vn": "global",
+    "my": "global",
+    "sg": "global"
   }
 };

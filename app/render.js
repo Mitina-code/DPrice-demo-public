@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611021238';
-import * as api from './api.js?v=202611021238';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611021238';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611091709';
+import * as api from './api.js?v=202611091709';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611091709';
 
 const {
   ApiError,
@@ -323,7 +323,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-d9aff9cc', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-a0ecce40', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -333,7 +333,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-d9aff9cc', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-a0ecce40', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -4092,9 +4092,14 @@ function deskPendingByType(data) {
   return counts;
 }
 
+// Currencies with no minor unit in use: a fraction of a dong or rupiah is
+// rounding residue, so it is not shown.
+const WHOLE_CURRENCIES = new Set(['VND', 'IDR', 'JPY', 'KRW']);
+
 function operationalMoney(value, currency, lang) {
   if (value == null) return '—';
-  return `${formatScaledOperational(value, 2, 2, lang)}${currency ? ` ${currency}` : ''}`;
+  const digits = WHOLE_CURRENCIES.has(String(currency || '').toUpperCase()) ? 0 : 2;
+  return `${formatScaledOperational(value, 2, digits, lang)}${currency ? ` ${currency}` : ''}`;
 }
 
 function operationalBuildingKey(section) {
@@ -9186,7 +9191,15 @@ function renderOperationalPlaceholderSurface(state, titleKey, bodyKey) {
 // their coefficients) sits beside the grid; it never changes anything itself.
 
 // Resolved next to this module, so it works wherever the console is served.
-const PROJECT_SAMPLE_WORKBOOK = new URL('demo-workbooks/dprice-demo-uae.xlsx', import.meta.url).href;
+// A module loaded from a data: URL (the fake-DOM tests) has no base to resolve
+// against; the relative path is enough there.
+function projectSampleWorkbook() {
+  try {
+    return new URL('demo-workbooks/dprice-demo-uae.xlsx', import.meta.url).href;
+  } catch {
+    return 'demo-workbooks/dprice-demo-uae.xlsx';
+  }
+}
 
 function projectFactor(unit) {
   const scaled = unit?.pricing_inputs?.modifier?.factor_scaled;
@@ -9390,7 +9403,7 @@ function renderOperationalProjectSurface(state) {
     el('p', null, [t('project_step_upload_text', lang)]),
     el('div', { class: 'project-actions' }, [
       el('a', {
-        class: 'btn', href: PROJECT_SAMPLE_WORKBOOK, download: 'dprice-sample.xlsx',
+        class: 'btn', href: projectSampleWorkbook(), download: 'dprice-sample.xlsx',
       }, [t('project_sample', lang)]),
       canUpload ? el('button', { type: 'button', class: 'btn-primary', 'data-project-upload': '1' },
         [t('project_upload', lang)]) : el('span', { class: 'coef-hint' }, [t('project_no_upload_right', lang)]),
@@ -11038,7 +11051,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=proj29-d9aff9cc${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-a0ecce40${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;

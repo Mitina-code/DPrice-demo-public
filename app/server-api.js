@@ -420,7 +420,9 @@ export function inventoryVersionHistory({ limit = 25, offset = 0 } = {}) {
 // The region the console shows. Projects carry no region field, so a demo
 // project is recognised by its external-ID prefix and any other project by the
 // currency of its prices (looked up once per active version and cached).
-const REGION_BY_CURRENCY = { AED: 'uae', THB: 'th', RUB: 'rf', INR: 'in', KZT: 'kz' };
+const REGION_BY_CURRENCY = {
+  AED: 'uae', SAR: 'sa', THB: 'th', INR: 'in', IDR: 'id', VND: 'vn', MYR: 'my', SGD: 'sg', RUB: 'rf', KZT: 'kz',
+};
 const regionCache = new Map();
 let selectedRegion = 'all';
 

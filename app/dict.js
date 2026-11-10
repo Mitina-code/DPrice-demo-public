@@ -329,6 +329,10 @@ export const DICT = {
   region_other: ['Другие', 'Other'],
   region_empty: ['В этом регионе пока нет проектов.', 'No projects in this region yet.'],
   region_sa: ['Саудовская Аравия', 'Saudi Arabia'],
+  region_id: ['Индонезия', 'Indonesia'],
+  region_vn: ['Вьетнам', 'Vietnam'],
+  region_my: ['Малайзия', 'Malaysia'],
+  region_sg: ['Сингапур', 'Singapore'],
   region_world: ['Мир', 'World'],
   demo_disable: ['Отключить демо-проекты', 'Hide demo projects'],
   demo_restore: ['Вернуть демо-проекты', 'Show demo projects'],
@@ -848,6 +852,14 @@ export const DICT = {
     'Индия: 70% платежей — на счёт проекта (RERA), выдаются по мере стройки; 30% доступны сразу. «Отсрочка платежа» считается от этих дат.',
     'India: 70% of payments go into the project account (RERA) and are released as construction progresses; 30% is available at once. The deferral is counted from those dates.',
   ],
+  deal_cash_access_escrow_progress_hda: [
+    'Малайзия: платежи покупателя идут на счёт проекта (HDA) и выдаются застройщику по мере стройки, последние 5% — двумя частями, через 8 и 24 месяца после передачи. «Отсрочка платежа» считается от этих дат.',
+    'Malaysia: buyer payments go into the project\'s Housing Development Account (HDA) and are released as construction progresses. The final 5% is released in two halves, 8 and 24 months after handover. The deferral runs from these release dates.',
+  ],
+  deal_cash_access_escrow_progress_project_account: [
+    'Сингапур: платежи покупателя идут на счёт проекта и выдаются застройщику по мере стройки. «Отсрочка платежа» считается от этих дат.',
+    'Singapore: buyer payments go into the project account and are released as construction progresses. The deferral runs from these release dates.',
+  ],
   algo_dco_revenue_d: [
     'Наибольшая выручка со всего остатка к концу горизонта: цена держится там, где позволяет спрос, при условии, что остаток распродаётся.',
     'The highest total revenue from the remaining units by the end of the horizon. The price holds wherever demand allows, as long as the stock still sells out.',
@@ -1009,8 +1021,32 @@ export const DICT = {
     'Buyer money goes into escrow and reaches the developer as construction progresses (Saudi Arabia, Wafi)',
   ],
   dco_cash_access_escrow_progress_rera_70: [
-    '70% денег покупателей — на счёт проекта, доступны по мере стройки; 30% — сразу (Индия, RERA)',
-    '70% of buyer money goes into the project account and is released as construction progresses; 30% is available at once (India, RERA)',
+    '70% денег покупателей — на счёт проекта, доступны по мере затрат (земля засчитывается сразу); 30% — сразу (Индия, RERA)',
+    '70% of buyer payments go into the project account and are released as costs are incurred, with land cost counted from the start of sales; 30% is available at once (India, RERA)',
+  ],
+  dco_cash_access_escrow_progress_hda: [
+    'Деньги покупателей идут на счёт проекта и доступны застройщику по мере стройки; последние 5% — двумя частями, через 8 и 24 месяца после передачи (Малайзия, Housing Development Account)',
+    'Malaysia: buyer payments go into the project\'s Housing Development Account (HDA) and reach the developer as construction progresses. The final 5% is released in two halves, 8 and 24 months after handover',
+  ],
+  dco_cash_access_escrow_progress_project_account: [
+    'Деньги покупателей идут на счёт проекта и доступны застройщику по мере стройки (Сингапур, Project Account Rules)',
+    'Buyer payments go into the project account and reach the developer as construction progresses (Singapore, Project Account Rules)',
+  ],
+  dco_sellout_absd_remission_sg: [
+    'Срок распродажи: если к сроку остались непроданные квартиры, застройщик возвращает льготу по налогу на землю (Сингапур, ABSD). Каждая непроданная квартира учтена как убыток около 1,9 её цены',
+    'Sell-out deadline: units unsold by the deadline cost the developer its stamp-duty remission on the land (Singapore, ABSD). Each unsold unit counts as a loss of about 1.9 times its price',
+  ],
+  dco_sellout_deadline_assumed: [
+    'Срок распродажи принят через 48 месяцев от старта продаж (земля куплена за год до старта)',
+    'The sell-out deadline is assumed to be 48 months after sales start (land bought a year before launch)',
+  ],
+  dco_sellout_deadline_beyond_horizon: [
+    'Срок распродажи наступает после конца горизонта: план его пока не учитывает',
+    'The sell-out deadline falls beyond the planning horizon, so the plan does not reflect it yet',
+  ],
+  dco_sellout_absd_remission_sg_dates_invalid: [
+    'Дата старта продаж не читается: срок распродажи не учтён',
+    'The sales start date could not be read, so the sell-out deadline is not applied',
   ],
   dco_cash_access_sales_start_assumed: [
     'Дата старта продаж не указана: стройка считается от даты расчёта',
