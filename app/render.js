@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611101340';
-import * as api from './api.js?v=202611101340';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611101340';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611101651';
+import * as api from './api.js?v=202611101651';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611101651';
 
 const {
   ApiError,
