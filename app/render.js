@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611111353';
-import * as api from './api.js?v=202611111353';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611111353';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611111555';
+import * as api from './api.js?v=202611111555';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611111555';
 
 const {
   ApiError,
@@ -323,7 +323,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-f6f68499', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-64c864a8', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -333,7 +333,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-f6f68499', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-64c864a8', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -2451,6 +2451,7 @@ const OPERATIONAL_TAB_ORDER = [
   'trend',
   'comp',
   'retro',
+  'science',
 ].filter((surface) => !PUBLIC_EDITION || !DEMO_HIDDEN_SURFACES.has(surface));
 const OPERATIONAL_SURFACES = new Set(OPERATIONAL_TAB_ORDER);
 
@@ -2822,8 +2823,10 @@ export function renderShell(state, chrome, handlers) {
         buildOperationalTopBar(state, handlers),
         buildOperationalTabs(state, handlers),
         // «Мой проект» edits the data every goal is priced from; the goal
-        // switch belongs to the tabs that show a goal's result.
-        state.surface === 'project' ? null : buildOperationalAlgorithmBar(state, handlers),
+        // switch belongs to the tabs that show a goal's result, which «Наука
+        // ценообразования» is not.
+        state.surface === 'project' || state.surface === 'science'
+          ? null : buildOperationalAlgorithmBar(state, handlers),
         buildSurfaceFrame(state),
       ]),
     ]);
@@ -4393,9 +4396,11 @@ function buildRegionPicker(state, handlers) {
 }
 
 // Sign-in of the offline demo: the adapter checks the login and password
-// against its list of issued demo accounts.
+// against its list of issued demo accounts. The card is always in English
+// (owner decision 11.11.2026), whatever language the console opens in; the
+// link back keeps the visitor's language.
 function buildOfflineLogin(state, handlers) {
-  const { lang } = state;
+  const lang = 'en';
   const email = el('input', {
     id: 'offline-login-email', class: 'input', type: 'text', autocomplete: 'username',
     placeholder: t('login_email_placeholder', lang), required: 'required',
@@ -4404,7 +4409,7 @@ function buildOfflineLogin(state, handlers) {
     id: 'offline-login-password', class: 'input', type: 'password', autocomplete: 'current-password',
     placeholder: t('login_password_placeholder', lang), required: 'required',
   });
-  const form = el('form', { class: 'offline-login-card', novalidate: 'novalidate' }, [
+  const form = el('form', { class: 'offline-login-card', novalidate: 'novalidate', lang }, [
     el('h1', null, [t('login_title', lang)]),
     el('label', { for: 'offline-login-email' }, [t('login_email', lang)]),
     email,
@@ -4415,7 +4420,7 @@ function buildOfflineLogin(state, handlers) {
     el('button', {
       type: 'submit', class: 'btn-primary', disabled: state.sessionBusy ? 'disabled' : null,
     }, [t('login_submit', lang)]),
-    api.landingUrl ? el('a', { class: 'offline-login-back', href: api.landingUrl(lang) }, ['← DPrice']) : null,
+    api.landingUrl ? el('a', { class: 'offline-login-back', href: api.landingUrl(state.lang) }, ['← DPrice']) : null,
   ]);
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -9459,6 +9464,208 @@ function renderOperationalProjectSurface(state) {
   ]);
 }
 
+// «Наука ценообразования»: why the DPrice method works, in plain words and
+// charts. The charts run the engine's own demand form, x = L·(a − b·p/φ), on
+// a fixed sample project and say so; they explain the mechanism and promise
+// no result. Nothing here reads the selected project.
+const SCIENCE_REFERENCES = [
+  'Gallego G., van Ryzin G. (1994). Optimal dynamic pricing of inventories with stochastic demand over finite horizons. Management Science 40(8).',
+  'Zhao W., Zheng Y.-S. (2000). Optimal dynamic pricing for perishable assets with nonhomogeneous demand. Management Science 46(3).',
+  'Araman V., Caldentey R. (2009). Dynamic pricing for nonperishable products with demand learning. Operations Research 57(5).',
+  'Besbes O., Maglaras C. (2012). Dynamic pricing with financial milestones: feedback-form policies. Management Science 58(9).',
+  'van den Boer A. (2015). Dynamic pricing and learning: historical origins, current research, and new directions. Surveys in Operations Research and Management Science 20(1).',
+  'Razumovskiy L., Gerasimova M., Karenin N. (2024). Dynamic pricing for real estate. arXiv:2408.12553.',
+];
+
+// The sample project: 100 units over 24 months, demand that sells 4 units a
+// month at today's list in an average month and ±20% with the season,
+// willingness to pay +0.5% a month, money at 1% a month.
+const SCIENCE_SAMPLE = {
+  units: 100, months: 24, a: 10, b: 0.06, growth: 0.005, rate: 0.01, season: 0.2,
+};
+
+function scienceSamplePaths() {
+  const { units, months, a, b, growth, rate, season } = SCIENCE_SAMPLE;
+  const market = Array.from({ length: months }, (_, t) => 1 + season * Math.sin((2 * Math.PI * t) / 12));
+  const phi = Array.from({ length: months }, (_, t) => (1 + growth) ** t);
+  const weight = Array.from({ length: months }, (_, t) => (1 + rate) ** -t);
+  const priceFor = (sold, t) => (phi[t] * (a - sold / market[t])) / b;
+  // Stepped list: +3% every three months, whatever the sales.
+  const stepped = phi.map((_, t) => 100 * (1 + 0.03 * Math.floor(t / 3)));
+  let left = units;
+  stepped.forEach((p, t) => {
+    left -= Math.min(left, Math.max(0, market[t] * (a - (b * p) / phi[t])));
+  });
+  // Even sell-out: the same number of units every month.
+  const even = phi.map((_, t) => priceFor(units / months, t));
+  // DPrice: the most money in today's terms with the stock sold out —
+  // x_t = L_t·(a − μ·b / (w_t·φ_t)) / 2, μ ≥ 0 set so the months sell exactly N.
+  const salesAt = (mu) => phi.map((f, t) => Math.max(
+    0, (market[t] * (a - (mu * b) / (weight[t] * f))) / 2,
+  ));
+  const total = (mu) => salesAt(mu).reduce((sum, x) => sum + x, 0);
+  let lo = 0;
+  let hi = 10_000;
+  if (total(0) > units) {
+    for (let i = 0; i < 80; i += 1) {
+      const mid = (lo + hi) / 2;
+      if (total(mid) > units) lo = mid; else hi = mid;
+    }
+  }
+  const dpriceSales = salesAt(total(0) > units ? hi : 0);
+  const dprice = dpriceSales.map((x, t) => priceFor(x, t));
+  return { stepped, even, dprice, dpriceSales, steppedUnsold: left };
+}
+
+function scienceChart(state, titleKey, opts) {
+  return buildTrendChart(state, { ...opts, title_key: titleKey, bare: true });
+}
+
+function scienceSection(state, headKey, textKey, figure, noteKey) {
+  const { lang } = state;
+  return el('section', { class: 'panel science-section' }, [
+    el('h2', null, [t(headKey, lang)]),
+    el('p', null, [t(textKey, lang)]),
+    figure || null,
+    noteKey ? el('p', { class: 'sub' }, [
+      `${t('sci_schema', lang)}. ${t(noteKey, lang)}`,
+    ]) : null,
+  ]);
+}
+
+function renderOperationalScienceSurface(state) {
+  const { lang } = state;
+  const prices = Array.from({ length: 21 }, (_, i) => 60 + i * 5);
+  const priceLabels = prices.map((p) => `${p}%`);
+  const ticks = [0, 4, 8, 12, 16, 20];
+
+  // 1. Demand and revenue: elasticity −0.8 at today's list, peak at 112.5%.
+  const demand = (p) => Math.max(0, 1.8 - 0.008 * p);
+  const peak = 1.8 / (2 * 0.008);
+  const salesIndex = prices.map((p) => 100 * demand(p));
+  const revenueIndex = prices.map((p) => p * demand(p));
+  const chart1 = scienceChart(state, 'sci_s1_h', {
+    months: prices.length, labels: priceLabels, xValues: prices, tickIndexes: ticks,
+    series: [
+      { name: t('sci_s1_sales', lang), values: salesIndex, color: TREND_PALETTE[1] },
+      { name: t('sci_s1_revenue', lang), values: revenueIndex, color: TREND_PALETTE[0], width: 2.4 },
+    ],
+  });
+
+  // 2. Two unit types under the same change: studios (−0.6) and three-bedroom (−2).
+  const studio = (p) => (p * Math.max(0, 1.6 - 0.006 * p));
+  const large = (p) => (p * Math.max(0, 3 - 0.02 * p));
+  const chart2 = scienceChart(state, 'sci_s2_h', {
+    months: prices.length, labels: priceLabels, xValues: prices, tickIndexes: ticks,
+    series: [
+      { name: t('sci_s2_studio', lang), values: prices.map(studio), color: TREND_PALETTE[0], width: 2.2 },
+      { name: t('sci_s2_large', lang), values: prices.map(large), color: TREND_PALETTE[2], width: 2.2 },
+    ],
+  });
+
+  // 3. Willingness to pay over 36 months against a +2%-a-stage list.
+  const months36 = Array.from({ length: 37 }, (_, m) => m);
+  const chart3 = scienceChart(state, 'sci_s3_h', {
+    months: months36.length, labels: months36.map(String),
+    series: [
+      { name: t('sci_s3_market', lang), values: months36.map((m) => 100 * 1.004 ** m),
+        color: TREND_PALETTE[0], width: 2.2 },
+      { name: t('sci_s3_steps', lang), values: months36.map((m) => 100 + 2 * Math.floor(m / 6)),
+        color: TREND_PALETTE[2] },
+    ],
+  });
+
+  // 4. Today at −2% against full price in six months, at 12% a year.
+  const now = 98;
+  const later = 100 / 1.12 ** 0.5;
+  const bar = (labelKey, value, color) => el('div', { class: 'science-bar' }, [
+    el('span', { class: 'science-bar-label' }, [t(labelKey, lang)]),
+    el('span', { class: 'science-bar-track' }, [
+      el('i', { style: `width:${value}%;background:${color}` }, []),
+    ]),
+    el('b', null, [`${nf(value, lang, 1)}%`]),
+  ]);
+  const figure4 = el('div', { class: 'science-bars' }, [
+    bar('sci_s4_now', now, TREND_PALETTE[0]),
+    bar('sci_s4_later', later, TREND_PALETTE[2]),
+  ]);
+
+  // 5–6. The sample project's price paths and the sales corridor.
+  const sample = scienceSamplePaths();
+  const months24 = Array.from({ length: SCIENCE_SAMPLE.months }, (_, m) => String(m + 1));
+  const chart5 = scienceChart(state, 'sci_s5_h', {
+    months: months24.length, labels: months24,
+    series: [
+      { name: t('sci_s5_steps', lang), values: sample.stepped, color: TREND_PALETTE[2] },
+      { name: t('sci_s5_even', lang), values: sample.even, color: TREND_PALETTE[1] },
+      { name: t('sci_s5_dprice', lang), values: sample.dprice, color: TREND_PALETTE[0], width: 2.6 },
+    ],
+  });
+  const figure5 = el('div', null, [
+    chart5,
+    el('p', { class: 'science-callout' }, [
+      tf('sci_s5_result', lang, nf(Math.round(sample.steppedUnsold), lang, 0)),
+    ]),
+  ]);
+  let cumulative = 0;
+  const plan = sample.dpriceSales.map((x) => (cumulative += x));
+  const spread = plan.map((value) => 1.28 * Math.sqrt(value));
+  const chart6 = scienceChart(state, 'sci_s6_h', {
+    months: months24.length, labels: months24, floor0: true,
+    band: { lo: plan.map((v, i) => Math.max(0, v - spread[i])), hi: plan.map((v, i) => v + spread[i]) },
+    series: [{ name: t('sci_s6_plan', lang), values: plan, color: TREND_PALETTE[0], width: 2.2 }],
+  });
+
+  // 7. Which approach captures which effect.
+  const marks = { y: 'sci_yes', p: 'sci_part', n: 'sci_no' };
+  const rows = [
+    ['sci_m_committee', 'p', 'p', 'p', 'p', 'n', 'p'],
+    ['sci_m_competitors', 'n', 'n', 'p', 'n', 'n', 'y'],
+    ['sci_m_cost', 'n', 'n', 'n', 'n', 'p', 'y'],
+    ['sci_m_steps', 'n', 'n', 'p', 'n', 'n', 'y'],
+    ['sci_m_blackbox', 'p', 'p', 'p', 'p', 'p', 'n'],
+    ['sci_m_dprice', 'y', 'y', 'y', 'y', 'y', 'y'],
+  ];
+  const columns = ['sci_c_method', 'sci_c_elastic', 'sci_c_stock', 'sci_c_time',
+    'sci_c_season', 'sci_c_money', 'sci_c_explain'];
+  const table = el('div', { class: 'table-scroll' }, [el('table', { class: 'data-table science-table' }, [
+    el('thead', null, [el('tr', null, columns.map((key) => el('th', { scope: 'col' }, [t(key, lang)])))]),
+    el('tbody', null, rows.map(([method, ...cells]) => el('tr', {
+      class: method === 'sci_m_dprice' ? 'science-row-dprice' : null,
+    }, [
+      el('th', { scope: 'row' }, [t(method, lang)]),
+      ...cells.map((mark) => el('td', { class: `science-mark-${mark}` }, [t(marks[mark], lang)])),
+    ]))),
+  ])]);
+
+  return el('div', { class: 'science' }, [
+    el('section', { class: 'panel science-intro' }, [
+      el('h1', { class: 'surface-title' }, [t('nav_science', lang)]),
+      el('p', { class: 'science-lead' }, [t('sci_lead', lang)]),
+    ]),
+    scienceSection(state, 'sci_s1_h', 'sci_s1_p', el('div', null, [
+      chart1,
+      el('p', { class: 'science-callout' }, [tf('sci_s1_peak', lang, nf(peak, lang, 0))]),
+    ]), 'sci_s1_note'),
+    scienceSection(state, 'sci_s2_h', 'sci_s2_p', chart2, 'sci_s2_note'),
+    scienceSection(state, 'sci_s3_h', 'sci_s3_p', chart3, 'sci_s3_note'),
+    scienceSection(state, 'sci_s4_h', 'sci_s4_p', figure4, 'sci_s4_note'),
+    scienceSection(state, 'sci_s5_h', 'sci_s5_p', figure5, 'sci_s5_note'),
+    scienceSection(state, 'sci_s6_h', 'sci_s6_p', chart6, 'sci_s6_note'),
+    scienceSection(state, 'sci_s7_h', 'sci_s7_p', el('div', null, [
+      table, el('p', { class: 'sub' }, [t('sci_s7_note', lang)]),
+    ])),
+    scienceSection(state, 'sci_s8_h', 'sci_s8_p'),
+    scienceSection(state, 'sci_s9_h', 'sci_s9_p', el('ol', { class: 'science-refs' },
+      SCIENCE_REFERENCES.map((ref) => el('li', null, [ref])))),
+    el('section', { class: 'panel science-section' }, [
+      el('h2', null, [t('sci_s10_h', lang)]),
+      el('p', null, [t('sci_s10_yes', lang)]),
+      el('p', null, [t('sci_s10_no', lang)]),
+    ]),
+  ]);
+}
+
 // The registry of surface body renderers keyed by surface id. A surface with an
 // entry and a held `data` block renders its live body; otherwise the content
 // frame falls back to its neutral title panel. Function declarations hoist, so
@@ -9482,6 +9689,7 @@ const SURFACE_RENDERERS = {
     ) : renderCompetitorsSurface(state, data),
   retro: (state, data) => state.operationalDesk?.enabled
     ? renderOperationalRetroSurface(state) : renderRetroSurface(state, data),
+  science: (state) => renderOperationalScienceSurface(state),
   all: renderPortfolioSurface,
 };
 
@@ -10119,7 +10327,7 @@ const REGION_STORAGE_KEY = 'dprice-console-region';
 // load, after sign-in (advanceDeepLink). An unknown value is simply absent.
 const DEEP_LINK_TABS = {
   today: 'today', project: 'project', net: 'nep', plans: 'shelf',
-  changes: 'desk', forecast: 'trend', data: 'data',
+  changes: 'desk', forecast: 'trend', science: 'science', data: 'data',
 };
 const DEEP_LINK_GOALS = {
   cash: 'dco-neutral', max: 'dco-revenue-rate', even: 'dco-uniform-washout',
@@ -11111,7 +11319,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=proj29-f6f68499${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-64c864a8${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;

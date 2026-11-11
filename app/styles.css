@@ -1509,6 +1509,93 @@ th.num {
   font-weight: 600;
 }
 
+/* ---------- «Наука ценообразования» ---------- */
+
+.science {
+  display: grid;
+  gap: 14px;
+}
+
+.science p {
+  max-width: 76ch;
+  line-height: 1.55;
+}
+
+.science-lead {
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.science-callout {
+  font-weight: 600;
+  color: var(--green-dk);
+}
+
+.science-bars {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 4px;
+}
+
+.science-bar {
+  display: grid;
+  grid-template-columns: minmax(150px, 260px) 1fr 64px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.science-bar-track {
+  height: 14px;
+  background: var(--line-s);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.science-bar-track i {
+  display: block;
+  height: 100%;
+}
+
+.science-bar b {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.science-table td {
+  text-align: center;
+}
+
+.science-mark-y {
+  color: var(--green-dk);
+  font-weight: 600;
+}
+
+.science-mark-n {
+  color: var(--slate);
+}
+
+.science-row-dprice {
+  background: var(--tint-selected);
+}
+
+.science-refs {
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .science-bar {
+    grid-template-columns: 1fr 56px;
+  }
+  .science-bar-label {
+    grid-column: 1 / -1;
+  }
+}
+
 /* ---------- big-result strip ---------- */
 
 .bigres {
