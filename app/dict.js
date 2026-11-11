@@ -333,6 +333,7 @@ export const DICT = {
   region_vn: ['Вьетнам', 'Vietnam'],
   region_my: ['Малайзия', 'Malaysia'],
   region_sg: ['Сингапур', 'Singapore'],
+  region_ph: ['Филиппины', 'Philippines'],
   region_world: ['Мир', 'World'],
   demo_disable: ['Отключить демо-проекты', 'Hide demo projects'],
   demo_restore: ['Вернуть демо-проекты', 'Show demo projects'],

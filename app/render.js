@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611101651';
-import * as api from './api.js?v=202611101651';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611101651';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611111353';
+import * as api from './api.js?v=202611111353';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611111353';
 
 const {
   ApiError,
@@ -323,7 +323,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-a0ecce40', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-f6f68499', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -333,7 +333,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-a0ecce40', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-f6f68499', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -10113,8 +10113,62 @@ function emptyOperationalDeskState() {
 // project filter uses a separate key.
 const REGION_STORAGE_KEY = 'dprice-console-region';
 
+// A link can name a place in the console, e.g. `?region=uae&project=demo26-uae-2
+// &goal=cash&tab=changes&type=1BR&view=table`. The link's own words map to the
+// console's tabs and algorithm keys here; mountApp opens the place once per page
+// load, after sign-in (advanceDeepLink). An unknown value is simply absent.
+const DEEP_LINK_TABS = {
+  today: 'today', project: 'project', net: 'nep', plans: 'shelf',
+  changes: 'desk', forecast: 'trend', data: 'data',
+};
+const DEEP_LINK_GOALS = {
+  cash: 'dco-neutral', max: 'dco-revenue-rate', even: 'dco-uniform-washout',
+};
+const DEEP_LINK_VIEWS = { table: 'table', stack: 'chessboard' };
+
+function readDeepLink(search) {
+  let params;
+  try {
+    params = new URLSearchParams(search || '');
+  } catch {
+    return null;
+  }
+  const text = (key) => String(params.get(key) || '').trim();
+  const word = (key) => text(key).toLowerCase();
+  const link = {
+    lang: word('lang'),
+    region: word('region'),
+    project: word('project'),
+    algorithm: DEEP_LINK_GOALS[word('goal')] || null,
+    surface: DEEP_LINK_TABS[word('tab')] || null,
+    createOnly: word('new') === '1',
+    view: DEEP_LINK_VIEWS[word('view')] || null,
+    type: text('type'),
+    unit: text('unit'),
+    category: text('category'),
+  };
+  return Object.values(link).some(Boolean) ? link : null;
+}
+
+// A unit-type code from a link («1BR») names a price group by its name, its id,
+// or the code its id ends in (`…-g-1br`), in any letter case.
+function deepLinkGroup(code, groups) {
+  const want = String(code || '').trim().toLowerCase();
+  if (!want) return null;
+  const list = groups || [];
+  const id = (group) => String(group?.group_id ?? '').trim().toLowerCase();
+  return list.find((group) => String(group?.name || '').trim().toLowerCase() === want)
+    || list.find((group) => id(group) === want || id(group).endsWith(`-${want}`))
+    || null;
+}
+
 export function mountApp(root, options) {
-  const opts = options || {};
+  // The place a link names; each step is dropped once taken (advanceDeepLink).
+  let deepLink = readDeepLink(window.location?.search);
+  let deepLinkQueued = false;
+  let deepLinkBusy = false;
+  // A link's language stands in when the page mounting the console names none.
+  const opts = { lang: deepLink?.lang, ...(options || {}) };
   startHints(root);
   startJobs(root);
   const entryLang = LANGS.includes(opts.lang) ? opts.lang : (LANGS.includes('ru') ? 'ru' : LANGS[0]);
@@ -10127,6 +10181,11 @@ export function mountApp(root, options) {
       api.setRegion('uae');
     }
   }
+  // A linked region wins over the remembered one for this visit only.
+  const linkedRegion = Boolean(deepLink?.region) && (
+    api.regionOptions ? api.regionOptions() : ['all', ...REGIONS, 'kz', 'other']
+  ).includes(deepLink.region);
+  if (linkedRegion) api.setRegion(deepLink.region);
   const state = {
     screen: 'login', // 'login' | 'landing' | 'shell' | 'data' | 'loop'
     lang: entryLang, // post-login default language, session-scoped (AC4)
@@ -11042,6 +11101,7 @@ export function mountApp(root, options) {
     document.documentElement.setAttribute('lang', state.lang);
     if (state.operationalDesk.enabled) syncOperationalRail();
     if (preserveHeading) root.querySelector(`#${focusedId}`)?.focus();
+    offerDeepLink();
   }
 
   // The landing page shown before sign-in. One frame per visit so repaints do
@@ -11051,7 +11111,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=proj29-a0ecce40${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-f6f68499${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
@@ -11071,7 +11131,7 @@ export function mountApp(root, options) {
       const data = await login(String(message.email || ''), String(message.password || ''));
       if (generation !== sessionGeneration) return;
       state.sessionBusy = false;
-      const region = LANDING_REGIONS[message.region];
+      const region = linkedRegion ? null : LANDING_REGIONS[message.region];
       if (region) {
         api.setRegion(region);
         try {
@@ -11108,6 +11168,206 @@ export function mountApp(root, options) {
     };
     paint();
     loadSurface(state.surface);
+  }
+
+  // One path applies a new filter set to whichever projection is open; the
+  // form submit, a changed select, the typology «Показать квартиры» buttons
+  // and a link's unit type all end here.
+  function applyOperationalFilters(next) {
+    state.operationalDesk.filterError = null;
+    if (state.operationalDesk.mode === 'chessboard') {
+      const sections = state.operationalDesk.table?.filter_options?.sections || [];
+      const filteredSection = sectionFromFilters(next, sections);
+      loadOperationalBoard({
+        replacement: {
+          filters: next,
+          page: 1,
+          sectionId: filteredSection || state.operationalDesk.sectionId,
+        },
+        focusBoard: true,
+      });
+    } else {
+      loadOperationalTable({
+        preserveViewport: true,
+        focusTable: true,
+        replacement: { filters: next, page: 1 },
+      });
+    }
+  }
+
+  // --- deep links -------------------------------------------------------------
+  // The place a link names opens one step at a time, each once its data is in:
+  // projects → project → goal → tab → the pick inside the tab. Every repaint
+  // offers the next step; a step runs once and is then dropped, and a value that
+  // names nothing here is skipped, so the nearest place stays open. The user's
+  // own click or choice after sign-in ends the link: it never overrides them.
+  const endDeepLinkOnUserAction = (event) => {
+    if (deepLink && event.isTrusted && state.authed) deepLink = null;
+  };
+  root.addEventListener('click', endDeepLinkOnUserAction, true);
+  root.addEventListener('change', endDeepLinkOnUserAction, true);
+
+  function offerDeepLink() {
+    if (!deepLink || deepLinkQueued || deepLinkBusy) return;
+    deepLinkQueued = true;
+    scheduleTimeout(advanceDeepLink, 0);
+  }
+
+  function advanceDeepLink() {
+    deepLinkQueued = false;
+    const link = deepLink;
+    if (!link || deepLinkBusy || !state.authed) return;
+    // Signed in somewhere the operational shell is not (the loop workbench, an
+    // admin notice, a data steward's workspace): the link names nothing there.
+    if (state.screen !== 'shell') {
+      deepLink = null;
+      return;
+    }
+    const operational = state.operationalDesk;
+    if (!operational.enabled || operational.loading || operational.surfaceLoading
+      || operational.boardLoading || operational.detailLoading
+      || operational.algorithmBusy) return;
+    if (link.surface === 'data') {
+      const capabilities = projectDataCapabilities(state);
+      // The role's capabilities arrive with the project list; until then the
+      // Data screen is neither allowed nor refused.
+      if (!capabilities?.import_upload) return;
+      if (capabilities.import_upload.allowed) {
+        deepLink = null;
+        handlers.onOpenData(link.createOnly);
+        return;
+      }
+      link.surface = null;
+    }
+    if (link.project) {
+      const selected = operational.projects.find((item) => (
+        String(item.project_external_id || '').toLowerCase() === link.project
+      ));
+      // The shared demo account's projects may still be being built.
+      if (!selected && demoSeedRunning) return;
+      link.project = null;
+      if (selected && String(selected.project_id) !== String(operational.projectId)) {
+        handlers.onOperationalProject(selected.project_id);
+        return;
+      }
+    }
+    if (link.algorithm) {
+      const key = link.algorithm;
+      link.algorithm = null;
+      if (operational.projectId != null
+        && (operational.algorithm || DEFAULT_OPERATIONAL_ALGORITHM) !== key) {
+        handlers.onOperationalAlgorithm(key);
+        return;
+      }
+    }
+    if (link.surface) {
+      const surface = link.surface;
+      link.surface = null;
+      if (OPERATIONAL_SURFACES.has(surface) && surface !== state.surface) {
+        handlers.onTab(surface);
+        return;
+      }
+    }
+    if (state.surface === 'desk' && (link.view || link.type || link.unit)) {
+      if (!operational.table || !operational.surfaceProjection) {
+        // A failed read leaves nothing to pick from; otherwise wait for it.
+        if (operational.error || operational.surfaceError) deepLink = null;
+        return;
+      }
+      if (link.view) {
+        const mode = link.view;
+        link.view = null;
+        if (mode !== operational.mode) {
+          switchOperationalMode(mode);
+          return;
+        }
+      }
+      if (link.type) {
+        const group = deepLinkGroup(link.type, operational.surfaceProjection.deal_price?.groups);
+        link.type = null;
+        if (group && String(operational.filters?.price_group_id) !== String(group.group_id)) {
+          applyOperationalFilters({
+            ...(operational.filters || {}), price_group_id: String(group.group_id),
+          });
+          return;
+        }
+      }
+      if (link.unit) {
+        openDeepLinkUnit(link);
+        return;
+      }
+    }
+    if (state.surface === 'nep' && link.category) {
+      if (!operational.surfaceProjection) {
+        if (operational.surfaceError) deepLink = null;
+        return;
+      }
+      const terms = heldDealTerms();
+      const category = deepLinkGroup(link.category, terms?.categories);
+      link.category = null;
+      // The same change the category select makes (it is read-only offline).
+      if (category && terms.terms && !OFFLINE
+        && String(terms.terms.group_id) !== String(category.group_id)) {
+        updateDealTerm('group_id', String(category.group_id));
+        scheduleDealTermsSave(false);
+        paint();
+      }
+    }
+    deepLink = null;
+  }
+
+  // A link's unit is named by its number. On the stacking plan it is looked up
+  // among the plan's cells; in the table, on the page shown and then on every
+  // page of the project, since the number need not be on the first one.
+  async function openDeepLinkUnit(link) {
+    const operational = state.operationalDesk;
+    const want = String(link.unit).toLowerCase();
+    link.unit = null;
+    const named = (unit) => [unit?.unit_number, unit?.unit_external_id]
+      .some((value) => value != null && String(value).trim().toLowerCase() === want);
+    if (operational.mode === 'chessboard') {
+      deepLink = null;
+      const entry = operationalBoardUnitEntries(operational.board)
+        .find((item) => named(item.cell.unit));
+      if (entry) {
+        loadOperationalDetail(entry.cell.unit.unit_id, 0, 'chessboard', {
+          sectionId: entry.sectionId, floorId: entry.floorId, stackId: entry.stackId,
+        });
+      }
+      return;
+    }
+    let unit = (operational.table?.items || []).find(named);
+    const projectId = operational.projectId;
+    const versionId = operational.inventoryVersionId;
+    const stillCurrent = () => deepLink === link && state.operationalDesk === operational
+      && state.surface === 'desk' && operational.mode === 'table'
+      && String(operational.projectId) === String(projectId)
+      && String(operational.inventoryVersionId) === String(versionId);
+    deepLinkBusy = true;
+    try {
+      const pageSize = 250;
+      for (let page = 1; !unit && page <= 40; page += 1) {
+        const result = await inventoryProjectUnits(projectId, {
+          inventoryVersionId: versionId,
+          filters: {},
+          page,
+          pageSize,
+          asOfUtc: operational.asOfUtc,
+          algorithm: operational.algorithm,
+        });
+        if (!stillCurrent()) return;
+        const items = result?.items || [];
+        unit = items.find(named);
+        if (items.length < pageSize) break;
+      }
+    } catch {
+      // Not found is the same as an unknown number: the table stays as it is.
+    } finally {
+      deepLinkBusy = false;
+    }
+    if (!stillCurrent()) return;
+    deepLink = null;
+    if (unit) loadOperationalDetail(unit.unit_id, 0, 'table');
   }
 
   // The shared demo account always finds populated, recently worked projects:
@@ -13811,30 +14071,6 @@ export function mountApp(root, options) {
       state.termSet = withoutFields(state.termSet, PROJECT_SWITCH_RESET_FIELDS);
       loadSurface(FIRST_TAB);
     };
-    // One path applies a new filter set to whichever projection is open; the
-    // form submit, a changed select and the typology «Показать квартиры»
-    // buttons all end here.
-    const applyOperationalFilters = (next) => {
-      state.operationalDesk.filterError = null;
-      if (state.operationalDesk.mode === 'chessboard') {
-        const sections = state.operationalDesk.table?.filter_options?.sections || [];
-        const filteredSection = sectionFromFilters(next, sections);
-        loadOperationalBoard({
-          replacement: {
-            filters: next,
-            page: 1,
-            sectionId: filteredSection || state.operationalDesk.sectionId,
-          },
-          focusBoard: true,
-        });
-      } else {
-        loadOperationalTable({
-          preserveViewport: true,
-          focusTable: true,
-          replacement: { filters: next, page: 1 },
-        });
-      }
-    };
     const applyInventoryFilterForm = (form) => {
       const next = {};
       let invalidFilter = false;
@@ -15291,6 +15527,9 @@ const JOB_GROUPS = [
   ]],
 ];
 const JOBS_SEEN_KEY = 'dprice-jobs-seen';
+// A link may decide the panel for this visit only: `jobs=0` keeps it shut,
+// `jobs=1` opens it once even when it was seen before (startJobs reads it).
+let jobsLinkChoice = null;
 const JOB_HEADING_SELECTOR = 'h1, h2, h3, .mini-lb, .lb, .railsec, .label, label, summary';
 let activeJob = null;
 
@@ -15542,7 +15781,9 @@ function decorateJobs(root) {
     strip.remove();
   }
   // First visit: offer the jobs as soon as the project tabs are on screen.
-  if (!jobsSeen() && root.querySelector('.operational-tabs') && !document.querySelector('.jobs-panel')) {
+  const offer = jobsLinkChoice === '1' || (jobsLinkChoice !== '0' && !jobsSeen());
+  if (offer && root.querySelector('.operational-tabs') && !document.querySelector('.jobs-panel')) {
+    if (jobsLinkChoice === '1') jobsLinkChoice = null;
     markJobsSeen();
     openJobsPanel(root);
   }
@@ -15551,6 +15792,12 @@ function decorateJobs(root) {
 function startJobs(root) {
   if (typeof MutationObserver === 'undefined' || typeof setTimeout === 'undefined'
       || typeof document === 'undefined' || !document.body || !root?.querySelectorAll) return;
+  try {
+    const asked = new URLSearchParams(window.location?.search || '').get('jobs');
+    jobsLinkChoice = ['0', '1'].includes(asked) ? asked : null;
+  } catch {
+    jobsLinkChoice = null;
+  }
   let queued = false;
   const run = () => {
     queued = false;

@@ -12,13 +12,13 @@
 //   projects (external id demo26-<region>-…) of the chosen region are listed,
 //   the visitor's own projects are listed in every region;
 // - «hide demo projects», a choice kept in this browser.
-import { CONFIG } from './demo-config.js?v=202611101651';
+import { CONFIG } from './demo-config.js?v=202611111353';
 // Starting the in-browser server begins with this import; its state is exposed
 // for the console (e.g. to say the engine is still loading).
-export { engineReady, engineState } from './runtime.js?v=202611101651';
-import * as server from './server-api.js?v=202611101651';
+export { engineReady, engineState } from './runtime.js?v=202611111353';
+import * as server from './server-api.js?v=202611111353';
 
-export * from './server-api.js?v=202611101651';
+export * from './server-api.js?v=202611111353';
 
 export const OFFLINE = false;
 export const PUBLIC_EDITION = true;

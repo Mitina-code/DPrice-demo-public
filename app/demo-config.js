@@ -9,6 +9,7 @@ export const CONFIG = {
     "vn",
     "my",
     "sg",
+    "ph",
     "world"
   ],
   "parts": {
@@ -20,7 +21,8 @@ export const CONFIG = {
       "id",
       "vn",
       "my",
-      "sg"
+      "sg",
+      "ph"
     ],
     "uae": [
       "uae"
@@ -45,6 +47,9 @@ export const CONFIG = {
     ],
     "sg": [
       "sg"
+    ],
+    "ph": [
+      "ph"
     ]
   },
   "landing": "../landing/",
@@ -57,6 +62,7 @@ export const CONFIG = {
     "id": "global",
     "vn": "global",
     "my": "global",
-    "sg": "global"
+    "sg": "global",
+    "ph": "global"
   }
 };
