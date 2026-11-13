@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611131215';
-import * as api from './api.js?v=202611131215';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611131215';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611131307';
+import * as api from './api.js?v=202611131307';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611131307';
 
 const {
   ApiError,
@@ -326,7 +326,7 @@ export function renderLogin(state, handlers) {
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-1f777108', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-5804a1bc', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -336,7 +336,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-1f777108', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-5804a1bc', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -9760,6 +9760,7 @@ function renderOperationalMarketSurface(state) {
   const title = el('div', { class: 'h' }, [
     el('h1', { id: 'operational-market-title', tabindex: '-1' }, [t('nav_market', lang)]),
     el('p', { class: 'sub' }, [t('mkt_sub', lang)]),
+    el('p', { class: 'market-testing', role: 'note' }, [t('mkt_testing', lang)]),
   ]);
   if (!operational?.projects?.length) return renderOperationalDeskSurface(state, operational);
   const context = buildOperationalSurfaceContext(state, operational);
@@ -11569,7 +11570,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=proj29-1f777108${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-5804a1bc${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;

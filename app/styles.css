@@ -4392,6 +4392,17 @@ ul.tight li {
 .repricing-row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 
 /* «Рынок рядом» (Market nearby) */
+.market-testing {
+  display: inline-block;
+  margin: 6px 0 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--amber-s);
+  color: #7a4d0c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .market-demo-note {
   margin: 0 0 10px;
   font-weight: 600;

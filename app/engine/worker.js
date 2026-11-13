@@ -4,7 +4,7 @@
 // each /api/ request here and receives the response. Requests are served one
 // at a time, like a single server worker.
 import { loadPyodide } from '../runtime/pyodide/pyodide.mjs';
-import { bootEngine } from './boot.js?v=202611131215';
+import { bootEngine } from './boot.js?v=202611131307';
 
 let engine = null;
 const started = performance.now();
