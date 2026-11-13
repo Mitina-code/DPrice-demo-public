@@ -6,9 +6,9 @@
 // every number is formatted here, while all pricing and recommendations stay in
 // Python view-models and the kernel.
 
-import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611111555';
-import * as api from './api.js?v=202611111555';
-import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611111555';
+import { DICT, LANGS, localeFor, nf, pct, ppt, sgn, t, tf, tlc, tp } from './dict.js?v=202611131215';
+import * as api from './api.js?v=202611131215';
+import { DEMO_ACCOUNT, REGIONS, seedDemoRegions } from './demo-seed.js?v=202611131215';
 
 const {
   ApiError,
@@ -283,18 +283,21 @@ function publicDemoModal(lang, close) {
 // Build the public login landing; only the form calls the local auth handler.
 export function renderLogin(state, handlers) {
   const { lang, error, sessionBusy } = state;
-  const errorSlot = el('div', { class: 'error-slot', 'aria-live': 'polite', 'aria-atomic': 'true' }, error ? [buildErrorNote(error, lang)] : []);
-  const emailInput = el('input', { id: 'email', name: 'email', type: 'text', class: 'auth_input__lmX_a', placeholder: t('x_public_login_placeholder', lang), autocomplete: 'username', required: 'required' });
-  const passwordInput = el('input', { id: 'password', name: 'password', type: 'password', class: 'auth_input__lmX_a', placeholder: t('x_public_password_placeholder', lang), autocomplete: 'current-password', required: 'required' });
+  // The sign-in card is always in English (owner decision 11.11.2026); the
+  // page around it keeps the visitor's language.
+  const cardLang = 'en';
+  const errorSlot = el('div', { class: 'error-slot', 'aria-live': 'polite', 'aria-atomic': 'true' }, error ? [buildErrorNote(error, cardLang)] : []);
+  const emailInput = el('input', { id: 'email', name: 'email', type: 'text', class: 'auth_input__lmX_a', placeholder: t('x_public_login_placeholder', cardLang), autocomplete: 'username', required: 'required' });
+  const passwordInput = el('input', { id: 'password', name: 'password', type: 'password', class: 'auth_input__lmX_a', placeholder: t('x_public_password_placeholder', cardLang), autocomplete: 'current-password', required: 'required' });
   const form = el('form', { class: 'auth_form__cESoh' }, [
     errorSlot,
-    el('div', { class: 'auth_inputWrapper__pwct4' }, [el('label', { class: 'public-sr-only', for: 'email' }, [t('x_public_login_placeholder', lang)]), emailInput]),
-    el('div', { class: 'auth_inputWrapper__pwct4' }, [el('label', { class: 'public-sr-only', for: 'password' }, [t('x_public_password_placeholder', lang)]), passwordInput]),
+    el('div', { class: 'auth_inputWrapper__pwct4' }, [el('label', { class: 'public-sr-only', for: 'email' }, [t('x_public_login_placeholder', cardLang)]), emailInput]),
+    el('div', { class: 'auth_inputWrapper__pwct4' }, [el('label', { class: 'public-sr-only', for: 'password' }, [t('x_public_password_placeholder', cardLang)]), passwordInput]),
     el('div', { class: 'auth_loginOptionsRow__AdEM_' }, [
-      el('div', { class: 'auth_checkboxRow__buZyi' }, [el('input', { type: 'checkbox', id: 'rememberMe' }), el('label', { for: 'rememberMe' }, [t('x_public_remember', lang)])]),
-      el('a', { class: 'auth_forgotLink__3JsZL', href: `${PUBLIC_PLATFORM}/account/forgot-password` }, [t('x_public_forgot', lang)]),
+      el('div', { class: 'auth_checkboxRow__buZyi' }, [el('input', { type: 'checkbox', id: 'rememberMe' }), el('label', { for: 'rememberMe' }, [t('x_public_remember', cardLang)])]),
+      el('a', { class: 'auth_forgotLink__3JsZL', href: `${PUBLIC_PLATFORM}/account/forgot-password` }, [t('x_public_forgot', cardLang)]),
     ]),
-    el('button', { type: 'submit', class: 'auth_submitButton__Bnn9k', disabled: sessionBusy ? 'disabled' : null }, [t('login_submit', lang)]),
+    el('button', { type: 'submit', class: 'auth_submitButton__Bnn9k', disabled: sessionBusy ? 'disabled' : null }, [t('login_submit', cardLang)]),
   ]);
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -318,12 +321,12 @@ export function renderLogin(state, handlers) {
   };
   const headerCta = el('button', { type: 'button', class: 'auth_headerCta__jJkwj' }, [t('x_public_try_demo', lang), publicIcon('arrow', 14)]);
   headerCta.addEventListener('click', openDemo);
-  const registerCta = el('button', { type: 'button' }, [t('x_public_no_account', lang), ' ', el('span', null, [t('x_public_evaluate_demo', lang)])]);
+  const registerCta = el('button', { type: 'button' }, [t('x_public_no_account', cardLang), ' ', el('span', null, [t('x_public_evaluate_demo', cardLang)])]);
   registerCta.addEventListener('click', openDemo);
 
   root.append(
     el('header', { class: 'auth_header__4bzKl' }, [el('div', { class: 'auth_headerInner__vLBqW' }, [
-      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-64c864a8', alt: 'DPrice', width: '76', height: '26' })]),
+      el('a', { class: 'auth_logoLink__VinTa', href: `${PUBLIC_PLATFORM}/`, 'aria-label': 'DPrice' }, [el('img', { src: './brand/dprice-logo.svg?v=proj29-1f777108', alt: 'DPrice', width: '76', height: '26' })]),
       el('nav', { class: 'auth_headerNav__s0LZs', 'aria-label': t('x_public_nav_label', lang) }, [
         el('a', { class: 'auth_headerLink__inZrQ', href: 'https://dprice.ru', target: '_blank', rel: 'noopener noreferrer' }, [t('x_public_about', lang)]),
         el('a', { class: 'auth_headerLink__inZrQ', href: `${PUBLIC_PLATFORM}/calculator` }, [t('x_public_calculator', lang)]),
@@ -333,7 +336,7 @@ export function renderLogin(state, handlers) {
     el('section', { class: 'auth_hero__Lsi5u' }, [
       el('div', { class: 'auth_heroGlow__SL1j8', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroGrid__9CMTm', 'aria-hidden': 'true' }),
-      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-64c864a8', alt: '', 'aria-hidden': 'true' }),
+      el('img', { class: 'auth_buildingDecor__m1_yN', src: './brand/buildings.png?v=proj29-1f777108', alt: '', 'aria-hidden': 'true' }),
       el('div', { class: 'auth_heroInner__g4S2K' }, [
         el('div', { class: 'auth_heroContent__StmjY' }, [
           el('span', { class: 'auth_heroTag__IA010' }, [t('x_public_hero_tag', lang)]),
@@ -343,11 +346,11 @@ export function renderLogin(state, handlers) {
             ['+3%', 'x_public_kpi_revenue'], ['50–200x', 'x_public_kpi_roi'], [t('x_public_kpi_payback_value', lang), 'x_public_kpi_payback'],
           ].map(([value, key]) => el('div', { class: 'auth_kpiItem__IxrpV' }, [el('span', { class: 'auth_kpiValue___qvT_' }, [value]), el('span', { class: 'auth_kpiLabel__1V4Ch' }, [t(key, lang)])]))),
         ]),
-        el('div', { class: 'auth_loginCard__lB0s2' }, [
+        el('div', { class: 'auth_loginCard__lB0s2', lang: cardLang }, [
           el('div', { class: 'auth_loginCardGlow__dfctH', 'aria-hidden': 'true' }),
           el('div', { class: 'auth_loginCardContent__WDWlI' }, [
-            el('h2', { class: 'auth_loginTitle__l1xPf' }, [t('x_public_login_title', lang)]),
-            el('p', { class: 'auth_loginSubtitle__Vb1_X' }, [t('x_public_login_subtitle', lang)]),
+            el('h2', { class: 'auth_loginTitle__l1xPf' }, [t('x_public_login_title', cardLang)]),
+            el('p', { class: 'auth_loginSubtitle__Vb1_X' }, [t('x_public_login_subtitle', cardLang)]),
             form,
             el('div', { class: 'auth_registerLink__pv706' }, [registerCta]),
           ]),
@@ -1978,6 +1981,7 @@ export function renderDataWorkspace(state, handlers) {
           el('div', { class: 'demo-workbooks' }, [
             el('h3', null, [t('x_demo_workbooks_title', lang)]),
             el('p', null, [t('x_demo_workbooks_help', lang)]),
+            el('p', { class: 'note sales-backout-help' }, [t('x_sales_backout_help', lang)]),
             el('div', { class: 'demo-workbook-links' }, ['uae', 'rf', 'kz'].map((market) =>
               el('a', {
                 href: `./demo-workbooks/dprice-demo-${market}.xlsx`,
@@ -2126,6 +2130,17 @@ function historyTermsNodes(item, lang) {
   if (item.contract_price_scaled != null) {
     values.push(historyTemplateNodes('history_contract_price_value', lang, [
       scaledHistoryMoneyNodes(item.contract_price_scaled, item.currency, lang),
+    ]));
+  }
+  // Back-out amounts appear only when the workbook supplied them.
+  if (item.paid_before_cancellation_scaled != null) {
+    values.push(historyTemplateNodes('history_paid_before_cancellation_value', lang, [
+      scaledHistoryMoneyNodes(item.paid_before_cancellation_scaled, item.currency, lang),
+    ]));
+  }
+  if (item.refund_amount_scaled != null) {
+    values.push(historyTemplateNodes('history_refund_amount_value', lang, [
+      scaledHistoryMoneyNodes(item.refund_amount_scaled, item.currency, lang),
     ]));
   }
   if (item.payment_plan_external_id) {
@@ -2449,6 +2464,7 @@ const OPERATIONAL_TAB_ORDER = [
   'release',
   'desk',
   'trend',
+  'market',
   'comp',
   'retro',
   'science',
@@ -2823,9 +2839,9 @@ export function renderShell(state, chrome, handlers) {
         buildOperationalTopBar(state, handlers),
         buildOperationalTabs(state, handlers),
         // «Мой проект» edits the data every goal is priced from; the goal
-        // switch belongs to the tabs that show a goal's result, which «Наука
-        // ценообразования» is not.
-        state.surface === 'project' || state.surface === 'science'
+        // switch belongs to the tabs that show a goal's result, which «Рынок
+        // рядом» and «Наука ценообразования» are not.
+        ['project', 'market', 'science'].includes(state.surface)
           ? null : buildOperationalAlgorithmBar(state, handlers),
         buildSurfaceFrame(state),
       ]),
@@ -9666,6 +9682,239 @@ function renderOperationalScienceSurface(state) {
   ]);
 }
 
+// «Рынок рядом» (Market nearby): the project's list prices against official
+// DLD sales in its district. The server computes every figure from the
+// snapshot (src/dprice/market/dld.py); the console only converts per-sq-ft
+// values to per-m² on the switch and states facts — no advice.
+const MARKET_SQFT_PER_SQM = 10.7639104;
+const MARKET_TYPES = ['studio', '1br', '2br', '3br_plus'];
+const MARKET_CHART_LINES = 5;
+const MARKET_LIST_ROWS = 20;
+// Competitor lines never take the green of «our price».
+const MARKET_LINE_COLORS = ['#2B6FB8', '#B8632F', '#7A4FB8', '#B82F6B', '#2B9AA8'];
+
+function marketValue(state, value) {
+  if (value == null) return null;
+  return state.marketNearby?.unit === 'sqm' ? value * MARKET_SQFT_PER_SQM : value;
+}
+
+function marketPrice(state, value) {
+  const shown = marketValue(state, value);
+  return shown == null ? t('mkt_thin', state.lang) : nf(shown, state.lang, 0);
+}
+
+function marketMonthLabel(lang, key) {
+  const [year, month] = key.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, 1))
+    .toLocaleDateString(localeFor(lang), { month: 'short', year: '2-digit', timeZone: 'UTC' });
+}
+
+// «13 ноября 2026 г.» loses its own full stop: the sentences around it end in one.
+function marketDay(lang, iso) {
+  return new Date(`${iso}T00:00:00Z`)
+    .toLocaleDateString(localeFor(lang), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .replace(/\.$/, '');
+}
+
+// The source line under each block names the sales it counted: the period's
+// (the last 12 months or less) or, for the chart, the whole snapshot's.
+function marketSource(state, data, from) {
+  return el('p', { class: 'sub market-source' }, [tf('mkt_source', state.lang,
+    marketDay(state.lang, from || data.period.from), marketDay(state.lang, data.snapshot.last_deal_date))]);
+}
+
+function marketBlock(state, data, headKey, subKey, body, from) {
+  return el('section', { class: 'panel market-block' }, [
+    el('h2', null, [t(headKey, state.lang)]),
+    subKey ? el('p', { class: 'sub' }, [t(subKey, state.lang)]) : null,
+    body,
+    marketSource(state, data, from),
+  ]);
+}
+
+function marketMoreButton(state, total) {
+  if (total <= MARKET_LIST_ROWS) return null;
+  return el('button', { type: 'button', class: 'btn-ghost market-more', 'data-market-all': '1' }, [
+    state.marketNearby.showAll ? t('mkt_show_less', state.lang) : tf('mkt_show_all', state.lang, total),
+  ]);
+}
+
+function marketRows(state, rows) {
+  return state.marketNearby.showAll ? rows : rows.slice(0, MARKET_LIST_ROWS);
+}
+
+// `text` lists the columns after the first that hold words, not numbers.
+function marketTable(head, rows, text = []) {
+  return el('div', { class: 'table-scroll' }, [el('table', { class: 'data-table market-table' }, [
+    el('thead', null, [el('tr', null, head.map((cell, i) => el('th', {
+      scope: 'col', class: i && !text.includes(i) ? 'num' : null,
+    }, [cell])))]),
+    el('tbody', null, rows),
+  ])]);
+}
+
+function renderOperationalMarketSurface(state) {
+  const { lang } = state;
+  const operational = state.operationalDesk;
+  const market = state.marketNearby;
+  const title = el('div', { class: 'h' }, [
+    el('h1', { id: 'operational-market-title', tabindex: '-1' }, [t('nav_market', lang)]),
+    el('p', { class: 'sub' }, [t('mkt_sub', lang)]),
+  ]);
+  if (!operational?.projects?.length) return renderOperationalDeskSurface(state, operational);
+  const context = buildOperationalSurfaceContext(state, operational);
+  if (!market || (market.loading && !market.data)) {
+    return el('div', { class: 'market' }, [title, context, el('p', { role: 'status' }, [t('x_loading', lang)])]);
+  }
+  if (market.error && !market.data) {
+    return el('div', { class: 'market' }, [title, context, el('div', { class: 'danger', role: 'alert' }, [
+      keyedErrorText(market.error, lang),
+      el('button', { type: 'button', class: 'btn-primary', 'data-market-retry': '1' }, [t('x_retry', lang)]),
+    ])]);
+  }
+  const data = market.data;
+  if (data.state !== 'ready') {
+    return el('div', { class: 'market' }, [title, context,
+      el('section', { class: 'panel' }, [el('p', null, [t('mkt_not_ready', lang)])])]);
+  }
+  const unitWord = t(market.unit === 'sqm' ? 'mkt_per_sqm' : 'mkt_per_sqft', lang);
+  const typeName = (key) => t(`mkt_type_${key}`, lang);
+
+  const switches = el('div', { class: 'market-switches' }, [
+    el('span', { class: 'market-area' }, [tf('mkt_area', lang, data.area_label || data.area)]),
+    el('div', { class: 'market-seg', role: 'group', 'aria-label': t('mkt_unit_label', lang) }, ['sqft', 'sqm'].map((unit) => el('button', {
+      type: 'button', 'data-market-unit': unit, 'aria-pressed': String(market.unit === unit),
+      class: market.unit === unit ? 'on' : null,
+    }, [t(unit === 'sqm' ? 'mkt_unit_sqm' : 'mkt_unit_sqft', lang)]))),
+  ]);
+
+  // 1. The competitor set.
+  // DLD leaves the master project blank for most sales: the column shows only
+  // when some competitor has one.
+  const withMaster = data.competitors.some((row) => row.master_project);
+  const competitorRows = marketRows(state, data.competitors).map((row) => el('tr', { class: row.included ? null : 'market-off' }, [
+    el('td', { class: 'market-name' }, [el('label', { class: 'market-pick' }, [
+      el('input', { type: 'checkbox', 'data-market-competitor': row.id, checked: row.included ? 'checked' : null }, []),
+      ' ', row.name,
+    ])]),
+    withMaster ? el('td', null, [row.master_project || '—']) : null,
+    el('td', { class: 'num' }, [nf(row.deals_12m, lang, 0)]),
+    el('td', { class: 'num' }, [`${nf(row.offplan_share * 100, lang, 0)}%`]),
+  ]));
+  const circle = marketBlock(state, data, 'mkt_circle_h', 'mkt_circle_sub', el('div', null, [
+    withMaster
+      ? marketTable([t('mkt_col_project', lang), t('mkt_col_master', lang), t('mkt_col_deals', lang), t('mkt_col_offplan', lang)], competitorRows, [1])
+      : marketTable([t('mkt_col_project', lang), t('mkt_col_deals', lang), t('mkt_col_offplan', lang)], competitorRows),
+    marketMoreButton(state, data.competitors.length),
+    market.include ? el('button', { type: 'button', class: 'btn-ghost', 'data-market-reset': '1' }, [t('mkt_reset', lang)]) : null,
+  ]));
+
+  // 2. Prices by unit type, off-plan and ready.
+  const priceRows = [];
+  for (const stage of ['offplan', 'ready']) {
+    priceRows.push(el('tr', { class: 'market-stage' }, [el('th', { scope: 'rowgroup', colspan: '4' }, [t(`mkt_stage_${stage}`, lang)])]));
+    for (const key of MARKET_TYPES) {
+      const cell = data.prices[stage][key];
+      priceRows.push(el('tr', null, [
+        el('td', { class: 'market-name' }, [typeName(key)]),
+        el('td', { class: 'num' }, [marketPrice(state, cell.median)]),
+        el('td', { class: 'num' }, [cell.median == null ? '—' : `${marketPrice(state, cell.p25)} – ${marketPrice(state, cell.p75)}`]),
+        el('td', { class: 'num' }, [nf(cell.count, lang, 0)]),
+      ]));
+    }
+  }
+  const prices = marketBlock(state, data, 'mkt_prices_h', 'mkt_prices_sub', marketTable(
+    [t('mkt_col_type', lang), tf('mkt_col_median', lang, unitWord), t('mkt_col_range', lang), t('mkt_col_deals', lang)], priceRows,
+  ));
+
+  // 3. Our price against the market (off-plan, the same circle).
+  const positionText = (row) => {
+    if (row.position === 'none') return t('mkt_pos_none', lang);
+    if (row.position === 'thin') return t('mkt_thin', lang);
+    const diff = `${row.diff_pct > 0 ? '+' : ''}${nf(row.diff_pct, lang, 1)}%`;
+    return `${t(`mkt_pos_${row.position}`, lang)} · ${diff}`;
+  };
+  const oursRows = data.comparison.map((row) => el('tr', null, [
+    el('td', { class: 'market-name' }, [typeName(row.type)]),
+    el('td', { class: 'num' }, [row.ours ? nf(marketValue(state, row.ours.price), lang, 0) : '—']),
+    el('td', { class: 'num' }, [marketPrice(state, row.market.median)]),
+    el('td', { class: `market-pos market-pos-${row.position}` }, [positionText(row)]),
+  ]));
+  const ours = marketBlock(state, data, 'mkt_ours_h', 'mkt_ours_sub', marketTable(
+    [t('mkt_col_type', lang), tf('mkt_col_ours', lang, unitWord), tf('mkt_col_market', lang, unitWord), t('mkt_col_position', lang)], oursRows, [3],
+  ));
+
+  // 4. Competitors' sales pace.
+  const paced = data.competitors.filter((row) => row.included);
+  const paceRows = marketRows(state, paced).map((row) => el('tr', null, [
+    el('td', { class: 'market-name' }, [row.name]),
+    el('td', { class: 'num' }, [nf(row.pace_3m, lang, 1)]),
+    el('td', { class: 'num' }, [nf(row.pace_12m, lang, 1)]),
+  ]));
+  const pace = marketBlock(state, data, 'mkt_pace_h', 'mkt_pace_sub', el('div', null, [
+    marketTable([t('mkt_col_project', lang), t('mkt_col_pace3', lang), t('mkt_col_pace12', lang)], paceRows),
+    marketMoreButton(state, paced.length),
+  ]));
+
+  // 5. Resales against developer prices: shown only when DLD tells them apart.
+  const resale = data.resale?.state === 'ready'
+    ? marketBlock(state, data, 'mkt_resale_h', 'mkt_resale_sub', marketTable(
+      [t('mkt_col_project', lang), t('mkt_col_type', lang), tf('mkt_col_resale', lang, unitWord), tf('mkt_col_primary', lang, unitWord)],
+      data.resale.rows.map((row) => el('tr', null, [
+        el('td', { class: 'market-name' }, [row.name]),
+        el('td', null, [typeName(row.type)]),
+        el('td', { class: 'num' }, [marketPrice(state, row.resale)]),
+        el('td', { class: 'num' }, [marketPrice(state, row.primary)]),
+      ])),
+      [1],
+    )) : null;
+
+  // 6. Monthly median price per area: the district, the largest selected
+  // competitors and our current price as a flat line.
+  const chartType = market.chartType || 'all';
+  const series = data.series.by_type[chartType];
+  const names = new Map(data.competitors.map((row) => [row.id, row.name]));
+  const lines = [{ name: tf('mkt_line_market', lang, data.area), values: series.market.map((v) => marketValue(state, v)), color: TREND_COLORS.all, width: 2.4 }];
+  series.competitors.slice(0, MARKET_CHART_LINES).forEach((line, i) => lines.push({
+    name: names.get(line.id), values: line.values.map((v) => marketValue(state, v)),
+    color: MARKET_LINE_COLORS[i % MARKET_LINE_COLORS.length], width: 1.4,
+  }));
+  if (series.ours != null) {
+    lines.push({ name: t('mkt_line_ours', lang), values: series.market.map(() => marketValue(state, series.ours)),
+      color: TREND_PALETTE[0], width: 2.2, dash: '6 4' });
+  }
+  const hasPoints = lines.some((line) => line.values.some((v) => v != null));
+  const chart = el('div', null, [
+    el('div', { class: 'market-seg market-types', role: 'group', 'aria-label': t('mkt_col_type', lang) }, ['all', ...MARKET_TYPES].map((key) => el('button', {
+      type: 'button', 'data-market-type': key, 'aria-pressed': String(chartType === key), class: chartType === key ? 'on' : null,
+    }, [key === 'all' ? t('mkt_type_all', lang) : typeName(key)]))),
+    hasPoints ? buildTrendChart(state, {
+      title_key: 'mkt_chart_h', bare: true, months: data.series.months.length,
+      labels: data.series.months.map((key) => marketMonthLabel(lang, key)), series: lines,
+    }) : el('p', null, [t('mkt_thin', lang)]),
+    paced.length > MARKET_CHART_LINES
+      ? el('p', { class: 'sub' }, [tf('mkt_chart_top', lang, MARKET_CHART_LINES)]) : null,
+  ]);
+  const chartBlock = marketBlock(state, data, 'mkt_chart_h', 'mkt_chart_sub', chart, data.snapshot.window_from);
+
+  return el('div', { class: 'market operational-management-surface' }, [
+    title,
+    context,
+    el('p', { class: 'market-demo-note' }, [t(data.demo ? 'mkt_demo_note' : 'mkt_real_note', lang)]),
+    el('p', { class: 'sub' }, [tf('mkt_period', lang, marketDay(lang, data.period.from),
+      marketDay(lang, data.period.to))]),
+    switches,
+    market.loading ? el('p', { role: 'status', class: 'sub' }, [t('x_loading', lang)]) : null,
+    circle,
+    prices,
+    ours,
+    pace,
+    resale,
+    chartBlock,
+    el('p', { class: 'sub market-method' }, [tf('mkt_method', lang, nf(data.outliers.excluded, lang, 0), nf(data.outliers.total, lang, 0))]),
+  ]);
+}
+
 // The registry of surface body renderers keyed by surface id. A surface with an
 // entry and a held `data` block renders its live body; otherwise the content
 // frame falls back to its neutral title panel. Function declarations hoist, so
@@ -9689,6 +9938,7 @@ const SURFACE_RENDERERS = {
     ) : renderCompetitorsSurface(state, data),
   retro: (state, data) => state.operationalDesk?.enabled
     ? renderOperationalRetroSurface(state) : renderRetroSurface(state, data),
+  market: (state) => renderOperationalMarketSurface(state),
   science: (state) => renderOperationalScienceSurface(state),
   all: renderPortfolioSurface,
 };
@@ -10327,7 +10577,7 @@ const REGION_STORAGE_KEY = 'dprice-console-region';
 // load, after sign-in (advanceDeepLink). An unknown value is simply absent.
 const DEEP_LINK_TABS = {
   today: 'today', project: 'project', net: 'nep', plans: 'shelf',
-  changes: 'desk', forecast: 'trend', science: 'science', data: 'data',
+  changes: 'desk', forecast: 'trend', market: 'market', science: 'science', data: 'data',
 };
 const DEEP_LINK_GOALS = {
   cash: 'dco-neutral', max: 'dco-revenue-rate', even: 'dco-uniform-washout',
@@ -11319,7 +11569,7 @@ export function mountApp(root, options) {
     if (!landingFrame) {
       landingFrame = el('iframe', {
         class: 'landing-frame', title: 'DPrice',
-        src: `/ui/landing/index.html?v=proj29-64c864a8${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
+        src: `/ui/landing/index.html?v=proj29-1f777108${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash || ''}`,
       });
     }
     return landingFrame;
@@ -12403,9 +12653,96 @@ export function mountApp(root, options) {
     if (state.surface === 'project') {
       return loadProjectSetup();
     }
+    if (state.surface === 'market') {
+      return loadMarketNearby();
+    }
     paint();
     return true;
   }
+
+  // «Рынок рядом»: the district's DLD figures for the selected project. Last
+  // request wins; the competitor choice, unit and chart type survive a reload
+  // of the same project and version.
+  let marketSequence = 0;
+
+  async function loadMarketNearby({ force = false, include } = {}) {
+    const operational = state.operationalDesk;
+    if (operational.projectId == null || operational.inventoryVersionId == null) {
+      paint();
+      return true;
+    }
+    const key = `${operational.projectId}:${operational.inventoryVersionId}`;
+    const prior = state.marketNearby?.key === key ? state.marketNearby : null;
+    if (!force && include === undefined && prior && (prior.data || prior.loading)) {
+      paint();
+      return true;
+    }
+    const market = {
+      key, loading: true, data: prior?.data || null, error: null,
+      include: include === undefined ? (prior?.include ?? null) : include,
+      unit: prior?.unit || 'sqft', chartType: prior?.chartType || 'all',
+      showAll: prior?.showAll || false,
+    };
+    state.marketNearby = market;
+    const sequence = ++marketSequence;
+    paint();
+    const current = () => sequence === marketSequence && state.marketNearby === market;
+    try {
+      const data = await api.marketNearby(operational.projectId, {
+        inventoryVersionId: operational.inventoryVersionId, include: market.include,
+      });
+      if (!current()) return false;
+      market.data = data;
+    } catch (err) {
+      if (!current()) return false;
+      market.error = { key: err instanceof ApiError ? err.key : 'x_internal_error',
+        params: err instanceof ApiError ? err.params : {} };
+    } finally {
+      if (current()) {
+        market.loading = false;
+        paint();
+      }
+    }
+    return true;
+  }
+
+  root.addEventListener('click', (event) => {
+    const market = state.marketNearby;
+    if (!market || state.surface !== 'market') return;
+    const close = (selector) => event.target.closest && event.target.closest(selector);
+    const unit = close('button[data-market-unit]');
+    if (unit) {
+      market.unit = unit.getAttribute('data-market-unit') === 'sqm' ? 'sqm' : 'sqft';
+      paint();
+      return;
+    }
+    if (close('button[data-market-all]')) {
+      market.showAll = !market.showAll;
+      paint();
+      return;
+    }
+    const type = close('button[data-market-type]');
+    if (type) {
+      market.chartType = type.getAttribute('data-market-type');
+      paint();
+      return;
+    }
+    if (close('button[data-market-reset]')) {
+      loadMarketNearby({ include: null });
+      return;
+    }
+    if (close('button[data-market-retry]')) loadMarketNearby({ force: true });
+  });
+
+  root.addEventListener('change', (event) => {
+    const market = state.marketNearby;
+    const box = event.target.closest && event.target.closest('input[data-market-competitor]');
+    if (!market?.data || !box || state.surface !== 'market') return;
+    const chosen = new Set(market.data.competitors.filter((row) => row.included).map((row) => row.id));
+    if (box.checked) chosen.add(box.getAttribute('data-market-competitor'));
+    else chosen.delete(box.getAttribute('data-market-competitor'));
+    loadMarketNearby({ include: [...chosen] });
+  });
 
   // «Мой проект»: the coefficient grids of the selected project's active version
   // and DPrice's coefficient advice. Last request wins, keyed by project and
@@ -15536,6 +15873,11 @@ export { DICT, localeFor, nf, pct, ppt, sgn, t, tf, tp };
 
 // anchor dictionary key → hint dictionary key
 const HINT_ANCHORS = [
+  ['mkt_circle_h', 'hint_mkt_circle'],
+  ['mkt_prices_h', 'hint_mkt_prices'],
+  ['mkt_ours_h', 'hint_mkt_ours'],
+  ['mkt_pace_h', 'hint_mkt_pace'],
+  ['mkt_chart_h', 'hint_mkt_chart'],
   ['region_label', 'hint_region'],
   ['role_manager', 'hint_role'],
   ['role_director', 'hint_role'],

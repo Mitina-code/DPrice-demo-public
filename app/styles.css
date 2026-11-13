@@ -4390,3 +4390,96 @@ ul.tight li {
 .repricing-bulk { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 8px 0 12px; }
 .repricing-bulk .btn-primary { width: auto; }
 .repricing-row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* «Рынок рядом» (Market nearby) */
+.market-demo-note {
+  margin: 0 0 10px;
+  font-weight: 600;
+  color: var(--green-dk);
+}
+
+.market-switches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 0 0 12px;
+}
+
+.market-area {
+  font-weight: 600;
+}
+
+.market-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.market-seg button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.market-seg button.on {
+  border-color: var(--green-dk);
+  background: var(--green-dk);
+  color: #fff;
+}
+
+.market-types {
+  margin: 0 0 8px;
+}
+
+.market-block .market-source {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+.market-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.market-table tr.market-off th,
+.market-table tr.market-off td {
+  color: var(--muted);
+}
+
+.market-table tr.market-stage th {
+  padding-top: 12px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.market-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.market-pos {
+  white-space: nowrap;
+}
+
+.market-pos-below,
+.market-pos-above {
+  font-weight: 600;
+}
+
+.market-table td.market-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.market-method {
+  font-size: 12px;
+  margin: 4px 0 16px;
+}

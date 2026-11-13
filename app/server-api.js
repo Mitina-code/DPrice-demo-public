@@ -485,6 +485,16 @@ export function operationalSurfaces(
   );
 }
 
+// «Рынок рядом»: `include` null keeps the server's default competitor set; a
+// list (possibly empty) names the DLD projects to compare against.
+export function marketNearby(projectId, { inventoryVersionId, include = null } = {}) {
+  const query = new URLSearchParams({ inventory_version_id: String(inventoryVersionId) });
+  if (include !== null) query.set('include', include.join(','));
+  return dataRequest(
+    `/api/inventory/projects/${encodeURIComponent(projectId)}/market-nearby?${query}`,
+  );
+}
+
 export function inventoryUnitHistory(
   unitId,
   { inventoryVersionId = null, asOfUtc = null, limit = 100, offset = 0 } = {},
